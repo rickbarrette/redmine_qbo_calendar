@@ -16,6 +16,7 @@ en:
   permission_manage_customer_appointments: Manage Customer Appointments
   label_customer_calendar: Customer Calendar
   label_customer_appointment: Customer Appointment
+  label_duration: Duration
   field_customer_name: Customer
   field_vehicle: Vehicle
   field_phone: Phone
