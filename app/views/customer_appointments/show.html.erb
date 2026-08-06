@@ -1,53 +1,121 @@
-<h2><%= @appointment.subject %></h2>
+<div class="contextual">
+  <%= link_to l(:button_edit), edit_customer_appointment_path(@appointment), class: 'icon icon-edit' %>
+  <%= link_to l(:button_delete), customer_appointment_path(@appointment), method: :delete, data: { confirm: l(:text_are_you_sure) }, class: 'icon icon-del' %>
+</div>
 
-<table class="attributes">
+<h2>
+  <% if @appointment.start_date %>
+    <div class="calendar-badge">
+      <div class="month"><%= @appointment.start_date.strftime('%b').upcase %></div>
+      <div class="day"><%= @appointment.start_date.day %></div>
+    </div>
+  <% end %>
 
-<tr>
-<th><%= t(:customer) %></th>
-<td><%= link_to @appointment&.customer %></td>
-</tr>
+  <span class="appointment-title"><%= @appointment.subject %></span>
 
-<tr>
-<th><%= t(:vehicle) %></th>
-<td><%= link_to @appointment&.vehicle unless @appointment&.vehicle.nil? %></td>
-</tr>
+  <span class="appointment-dates">
+    (<%= format_date(@appointment.start_date) %> 
+    <% if @appointment.end_date && @appointment.start_date != @appointment.end_date %>
+      - <%= format_date(@appointment.end_date) %>
+    <% end %>)
+  </span>
+</h2>
 
-<tr>
-<th><%= t(:primary_phone) %></th>
-<td><%= @appointment&.customer&.primary_phone %></td>
-</tr>
+<style>
+  .calendar-badge {
+    display: inline-block;
+    width: 38px;
+    border: 1px solid #b8c0c8;
+    border-radius: 4px;
+    overflow: hidden;
+    text-align: center;
+    vertical-align: middle;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-right: 8px;
+    line-height: 1;
+    background: #fff;
+  }
 
-<tr>
-<th><%= t(:technician) %></th>
-<td><%= link_to @appointment.user %></td>
-</tr>
+  .calendar-badge .month {
+    background-color: #c22b2b; /* Redmine primary red tone */
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 3px 0 2px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 
-<tr>
-<th><%= t(:status) %></th>
-<td><%= @appointment.status %></td>
-</tr>
+  .calendar-badge .day {
+    color: #333333;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 4px 0 3px 0;
+  }
 
-<tr>
-<th><%= t(:estimate) %></th>
-<td><%= link_to @appointment.estimate unless @appointment.estimate.nil? %></td>
-</tr>
+  .appointment-title {
+    vertical-align: middle;
+  }
 
-<tr>
-<th><%= t(:duration) %></th>
-<td><%= @appointment.duration %> <%= t(:days) %></td>
-</tr>
+  .appointment-dates {
+    font-size: 70%;
+    color: #666;
+    margin-left: 8px;
+    font-weight: normal;
+    vertical-align: middle;
+  }
+</style>
 
-<tr>
-<th><%= t(:estimated_hours) %></th>
-<td><%= @appointment.estimated_hours %></td>
-</tr>
+<div class="issue details">
+  <div class="attributes">
+    <div class="splitcontent">
+      <div class="splitcontentleft">
+        <div class="attribute">
+          <div class="label"><%= l(:label_customer, default: 'Customer') %>:</div>
+          <div class="value"><%= link_to_if @appointment.customer, @appointment.customer&.name, @appointment.customer %></div>
+        </div>
+        <div class="attribute">
+          <div class="label"><%= l(:label_vehicle, default: 'Vehicle') %>:</div>
+          <div class="value"><%= link_to_if @appointment.vehicle, @appointment.vehicle&.name, @appointment.vehicle %></div>
+        </div>
+        <div class="attribute">
+          <div class="label"><%= l(:label_primary_phone, default: 'Primary phone') %>:</div>
+          <div class="value"><%= @appointment.customer&.primary_phone %></div>
+        </div>
+        <div class="attribute">
+          <div class="label"><%= l(:label_estimate, default: 'Estimate') %>:</div>
+          <div class="value"><%= link_to_if @appointment.estimate, @appointment.estimate&.name, @appointment.estimate %></div>
+        </div>
+      </div>
 
-<tr>
-<th><%= t(:description) %></th>
-<td><%= simple_format(@appointment.description) %></td>
-</tr>
+      <div class="splitcontentright">
+        <div class="attribute">
+          <div class="label"><%= l(:field_status) %>:</div>
+          <div class="value"><%= @appointment.status %></div>
+        </div>
+        <div class="attribute">
+          <div class="label"><%= l(:field_user) %>:</div>
+          <div class="value"><%= link_to_user(@appointment.user) %></div>
+        </div>
+        <div class="attribute">
+          <div class="label"><%= l(:label_duration, default: 'Duration') %>:</div>
+          <div class="value"><%= @appointment.duration %> <%= l(:label_day_plural, default: 'days') %></div>
+        </div>
+        <div class="attribute">
+          <div class="label"><%= l(:field_estimated_hours) %>:</div>
+          <div class="value"><%= @appointment.estimated_hours %></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-</table>
-
-<%= link_to t(:edit), edit_customer_appointment_path(@appointment), class: "icon icon-edit" %>
-<%= link_to t(:delete), customer_appointment_path(@appointment), method: :delete, data: { confirm: t(:are_you_sure) }, class: "icon icon-del" %>
+  <% if @appointment.description.present? %>
+    <hr />
+    <div class="description">
+      <p><strong><%= l(:field_description) %></strong></p>
+      <div class="wiki">
+        <%= textilizable(@appointment, :description) %>
+      </div>
+    </div>
+  <% end %>
+</div>
