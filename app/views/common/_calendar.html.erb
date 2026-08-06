@@ -1,3 +1,9 @@
+<div class="contextual">
+  <%= link_to l(:label_appointment_new, default: 'New Appointment'),
+              new_customer_appointment_path,
+              class: 'icon icon-add' %>
+</div>
+
 <%= form_tag({}, data: { cm_url: issues_context_menu_path }) do %>
   <%= hidden_field_tag 'back_url', url_for(params: request.query_parameters), id: nil %>
 
@@ -24,6 +30,11 @@
           <p class="day-num">
             <span class="day-value"><%= day.day %></span>
             <span class="abbr-day">(<%= abbr_day_name(day.cwday) %>)</span>
+            
+            <%= link_to sprite_icon('add'),
+                        new_customer_appointment_path(start_date: day),
+                        class: 'icon-only icon-add',
+                        title: l(:label_appointment_new, default: 'New Appointment') %>
           </p>
 
           <% calendar.events_on(day).each do |event| %>
