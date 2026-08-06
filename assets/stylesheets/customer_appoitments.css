@@ -1,0 +1,20 @@
+.customer-appointment {
+    background: #4caf50;
+    color: white;
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin-bottom: 2px;
+}
+
+.customer-appointment a {
+    color: white;
+    text-decoration: none;
+}
+
+.customer-appointment.starting {
+    border-left: 3px solid #1b5e20;
+}
+
+.customer-appointment.ending {
+    border-right: 3px solid #1b5e20;
+}

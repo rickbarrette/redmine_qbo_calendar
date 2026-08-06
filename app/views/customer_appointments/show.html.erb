@@ -1,0 +1,53 @@
+<h2><%= @appointment.subject %></h2>
+
+<table class="attributes">
+
+<tr>
+<th><%= t(:customer) %></th>
+<td><%= link_to @appointment&.customer %></td>
+</tr>
+
+<tr>
+<th><%= t(:vehicle) %></th>
+<td><%= link_to@appointment&.vehicle %></td>
+</tr>
+
+<tr>
+<th><%= t(:primary_phone) %></th>
+<td><%= @appointment&.customer&.primary_phone %></td>
+</tr>
+
+<tr>
+<th><%= t(:technician) %></th>
+<td><%= link_to @appointment.user %></td>
+</tr>
+
+<tr>
+<th><%= t(:status) %></th>
+<td><%= @appointment.status %></td>
+</tr>
+
+<tr>
+<th><%= t(:estimate) %></th>
+<td><%= link_to @appointment.estimate unless @appointment.estimate.nil? %></td>
+</tr>
+
+<tr>
+<th><%= t(:duration) %></th>
+<td><%= @appointment.duration %> <%= t(:days) %></td>
+</tr>
+
+<tr>
+<th><%= t(:estimated_hours) %></th>
+<td><%= @appointment.estimated_hours %></td>
+</tr>
+
+<tr>
+<th><%= t(:description) %></th>
+<td><%= simple_format(@appointment.description) %></td>
+</tr>
+
+</table>
+
+<%= link_to t(:edit), edit_customer_appointment_path(@appointment), class: "icon icon-edit" %>
+<%= link_to t(:delete), customer_appointment_path(@appointment), method: :delete, data: { confirm: t(:are_you_sure) }, class: "icon icon-del" %>

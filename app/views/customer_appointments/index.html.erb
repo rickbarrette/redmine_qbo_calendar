@@ -1,0 +1,89 @@
+<h2>Customer Appointments</h2>
+
+<p>
+
+<%= link_to(
+      l(:button_add),
+      new_project_event_path(@project)
+    ) %>
+
+</p>
+
+<table class="list">
+
+<thead>
+
+<tr>
+
+<th>Customer</th>
+
+<th>Vehicle</th>
+
+<th>Appointment</th>
+
+<th>Assigned</th>
+
+<th>Date</th>
+
+<th>Status</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<% @appointments.each do |appointment| %>
+
+<tr>
+
+<td>
+
+<%= link_to(
+      appointment.customer_name,
+      customer_appointment_path(
+        appointment
+      )
+    ) %>
+
+</td>
+
+<td>
+
+<%= appointment.vehicle %>
+
+</td>
+
+<td>
+
+<%= appointment.subject %>
+
+</td>
+
+<td>
+
+<%= appointment.user&.name %>
+
+</td>
+
+<td>
+
+<%= format_date(
+      appointment.start_date
+    ) %>
+
+</td>
+
+<td>
+
+<%= appointment.status %>
+
+</td>
+
+</tr>
+
+<% end %>
+
+</tbody>
+
+</table>

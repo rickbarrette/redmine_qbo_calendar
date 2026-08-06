@@ -1,0 +1,79 @@
+<%= labelled_form_for @appointment do |f| %>
+
+<p>
+
+<%= f.text_field :subject %>
+
+</p>
+
+<p>
+
+<%= f.text_field :customer, class: "customer-name", autocomplete: "off", data: { autocomplete_url: "/customers/autocomplete"} %>
+<%= f.hidden_field :customer_id, id: "customer_id", onchange: "this.form.requestSubmit()"  %>
+</p>
+
+<p>
+
+<p>
+
+<%= f.collection_select( :vehicle_id, @appointment.customer&.vehicles || [], :id, :name, include_blank: true ) %>
+
+</p>
+
+<p>
+
+<%= f.collection_select( :estimate_id, @appointment.customer&.estimates || [], :id, :name, include_blank: true ) %>
+
+</p>
+
+
+<p>
+
+<%= f.collection_select( :user_id, User.active.sorted,:id,:name,include_blank: true ) %>
+
+</p>
+
+<p>
+
+<%= f.date_field :start_date %>
+
+</p>
+
+<p>
+
+<%= f.date_field :end_date %>
+
+</p>
+
+<p>
+
+<%= f.number_field :estimated_hours, step: 0.1 %>
+
+</p>
+
+<p>
+
+<%= f.number_field :duration, step: 1 %>
+
+</p>
+
+<p>
+
+<%= f.select(:status, CustomerAppointment::STATUSES) %>
+
+</p>
+
+<p>
+
+<%= f.text_area :description,
+                rows: 8 %>
+
+</p>
+
+<p>
+
+<%= submit_tag l(:button_save) %>
+
+</p>
+
+<% end %>

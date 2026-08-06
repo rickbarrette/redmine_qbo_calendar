@@ -1,0 +1,35 @@
+<%= tag.div class: [
+      'calendar-appointment',
+      'tooltip'
+    ] do %>
+
+    <% if appointment.user %>
+      <%= avatar(
+            appointment.user,
+            size: 20,
+            class: 'appointment-avatar'
+          ) %>
+    <% end %>
+
+  <span >
+    <%= link_to appointment.subject,
+        customer_appointment_path(appointment) %>
+  </span>
+
+  <span class="tip">
+    <strong><%= appointment.subject %></strong><br>
+
+    Customer:
+    <%= appointment.customer&.name %><br>
+
+    Vehicle:
+    <%= appointment.vehicle&.name %><br>
+
+    Technician:
+    <%= appointment.user&.name %><br>
+
+    Hours:
+    <%= appointment.estimated_hours %>
+  </span>
+
+<% end %>
