@@ -1,0 +1,86 @@
+<h3>
+  <%= link_to appointment.subject,
+              customer_appointment_path(appointment) %>
+</h3>
+
+<p class="subtitle">
+  <strong><%= appointment.status %></strong>
+</p>
+
+<table class="attributes">
+
+  <% if appointment.customer %>
+    <tr>
+      <th><%= l(:label_customer) rescue "Customer" %></th>
+      <td><%= link_to appointment.customer %></td>
+    </tr>
+  <% end %>
+
+  <% if appointment.vehicle %>
+    <tr>
+      <th>Vehicle</th>
+      <td><%= link_to appointment.vehicle %></td>
+    </tr>
+  <% end %>
+
+  <% if appointment.user %>
+    <tr>
+      <th>Technician</th>
+      <td>
+        <%= avatar(appointment.user, size: 16) %>
+        <%= appointment.user.name %>
+      </td>
+    </tr>
+  <% end %>
+
+  <% if appointment.project %>
+    <tr>
+      <th><%= l(:label_project) %></th>
+      <td><%= link_to_project appointment.project %></td>
+    </tr>
+  <% end %>
+
+  <% if appointment.estimate %>
+    <tr>
+      <th>Estimate</th>
+      <td>
+        <%= link_to "##{appointment.estimate.id}",
+                    appointment.estimate %>
+      </td>
+    </tr>
+  <% end %>
+
+  <tr>
+    <th>Start</th>
+    <td><%= format_date(appointment.start_date) %></td>
+  </tr>
+
+  <tr>
+    <th>Finish</th>
+    <td><%= format_date(appointment.end_date || appointment.start_date) %></td>
+  </tr>
+
+  <tr>
+    <th>Estimated Time</th>
+    <td><%= number_with_precision(appointment.estimated_hours, precision: 1) %> hrs</td>
+  </tr>
+
+</table>
+
+<% if appointment.description.present? %>
+
+  <hr>
+
+  <div class="description">
+    <%= textilizable(appointment.description) rescue simple_format(h(appointment.description)) %>
+  </div>
+
+<% end %>
+
+<hr>
+
+<p class="buttons">
+  <%= link_to "Open Appointment",
+              customer_appointment_path(appointment),
+              class: "icon icon-edit" %>
+</p>

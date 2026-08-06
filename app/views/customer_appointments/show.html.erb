@@ -9,7 +9,7 @@
 
 <tr>
 <th><%= t(:vehicle) %></th>
-<td><%= link_to@appointment&.vehicle %></td>
+<td><%= link_to @appointment&.vehicle unless @appointment&.vehicle.nil? %></td>
 </tr>
 
 <tr>
