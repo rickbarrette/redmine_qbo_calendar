@@ -16,6 +16,15 @@ class CustomerAppointmentsController < ApplicationController
 
   helper :projects
 
+  def customer_options
+    customer = Customer.find_by(id: params[:customer_id])
+
+    render json: {
+      vehicles: customer&.vehicles&.map { |v| { id: v.id, name: v.name } } || [],
+      estimates: customer&.estimates&.map { |e| { id: e.id, name: e.name } } || []
+    }
+  end
+
   def index
     if params[:project_id]
       @project = Project.find(params[:project_id])
@@ -33,6 +42,7 @@ class CustomerAppointmentsController < ApplicationController
     @appointment = CustomerAppointment.new
     @appointment.project = @project
     @appointment.start_date = (params[:start_date].to_date + 9.hours) if params[:start_date].present?
+    @appointment.end_date = @appointment.start_date + 1.hour if @appointment.start_date.present?
   end
 
   def create

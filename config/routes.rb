@@ -10,6 +10,10 @@
 
 RedmineApp::Application.routes.draw do
 
-  resources :customer_appointments
+  resources :customer_appointments do
+    collection do
+      get :customer_options
+    end
+  end
 
 end
