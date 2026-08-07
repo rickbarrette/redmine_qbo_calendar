@@ -4,28 +4,28 @@
 </h3>
 
 <p class="subtitle">
-  <strong><%= appointment.status %></strong>
+  <strong><%= appointment.status.to_s.humanize %></strong>
 </p>
 
 <table class="attributes">
 
   <% if appointment.customer %>
     <tr>
-      <th><%= l(:label_customer) rescue "Customer" %></th>
-      <td><%= link_to appointment.customer %></td>
+      <th><%= l(:label_customer, default: "Customer") %></th>
+      <td><%= link_to appointment.customer.name, appointment.customer %></td>
     </tr>
   <% end %>
 
   <% if appointment.vehicle %>
     <tr>
-      <th>Vehicle</th>
-      <td><%= link_to appointment.vehicle %></td>
+      <th><%= l(:label_vehicle, default: "Vehicle") %></th>
+      <td><%= link_to appointment.vehicle.name, appointment.vehicle %></td>
     </tr>
   <% end %>
 
   <% if appointment.user %>
     <tr>
-      <th>Technician</th>
+      <th><%= l(:label_technician, default: "Technician") %></th>
       <td>
         <%= avatar(appointment.user, size: 16) %>
         <%= appointment.user.name %>
@@ -42,7 +42,7 @@
 
   <% if appointment.estimate %>
     <tr>
-      <th>Estimate</th>
+      <th><%= l(:label_estimate, default: "Estimate") %></th>
       <td>
         <%= link_to "##{appointment.estimate.id}",
                     appointment.estimate %>
@@ -51,18 +51,23 @@
   <% end %>
 
   <tr>
-    <th>Start</th>
+    <th><%= l(:label_start_date) %></th>
     <td><%= format_date(appointment.start_date) %></td>
   </tr>
 
   <tr>
-    <th>Finish</th>
+    <th><%= l(:label_end_date) %></th>
     <td><%= format_date(appointment.end_date || appointment.start_date) %></td>
   </tr>
 
   <tr>
-    <th>Estimated Time</th>
+    <th><%= l(:label_estimated_hours) %></th>
     <td><%= number_with_precision(appointment.estimated_hours, precision: 1) %> hrs</td>
+  </tr>
+
+  <tr>
+    <th><%= l(:label_duration) %></th>
+    <td><%= number_with_precision(appointment.duration, precision: 1) %> days</td>
   </tr>
 
 </table>
@@ -80,7 +85,7 @@
 <hr>
 
 <p class="buttons">
-  <%= link_to "Open Appointment",
+  <%= link_to l(:label_open_appointment, default: "Open Appointment"),
               customer_appointment_path(appointment),
               class: "icon icon-edit" %>
 </p>

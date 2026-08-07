@@ -1,3 +1,43 @@
+<%
+  # Get Redmine's configured non-working week days (e.g., ["6", "7"] for Sat/Sun)
+  non_working_days = Setting.non_working_week_days || []
+
+  # Safely collect all unique CustomerAppointments across the entire calendar date range
+  all_appointments = (calendar.startdt..calendar.enddt).flat_map { |date|
+    calendar.events_on(date)
+  }.select { |e| e.is_a?(CustomerAppointment) }.uniq
+
+  # Lambda to determine if an appointment should render on a specific calendar day
+  appointment_occurs_on = lambda do |appointment, current_day|
+    return false if appointment.start_date.nil?
+
+    start_date = appointment.start_date.to_date
+    target_date = current_day.to_date
+
+    return false if target_date < start_date
+    # Skip rendering on Redmine non-working days
+    return false if non_working_days.include?(target_date.cwday.to_s)
+
+    duration = [appointment.duration.to_i, 1].max
+    date_cursor = start_date
+    working_days_count = 0
+
+    while date_cursor <= target_date
+      unless non_working_days.include?(date_cursor.cwday.to_s)
+        working_days_count += 1
+      end
+
+      if date_cursor == target_date
+        return working_days_count <= duration
+      end
+
+      date_cursor += 1 # Pure Ruby Date increment stays a Date object
+    end
+
+    false
+  end
+%>
+
 <%= form_tag({}, data: { cm_url: issues_context_menu_path }) do %>
   <%= hidden_field_tag 'back_url', url_for(params: request.query_parameters), id: nil %>
 
@@ -31,7 +71,15 @@
                         title: l(:label_appointment_new, default: 'New Appointment') %>
           </p>
 
-          <% calendar.events_on(day).each do |event| %>
+          <% 
+            # Non-appointment events (Issues, Versions, etc.)
+            standard_events = calendar.events_on(day).reject { |e| e.is_a?(CustomerAppointment) }
+
+            # Appointments matching duration on this working day
+            matching_appointments = all_appointments.select { |app| appointment_occurs_on.call(app, day) }
+          %>
+
+          <% (standard_events + matching_appointments).each do |event| %>
 
             <% if event.is_a?(Issue) %>
 

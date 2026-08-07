@@ -11,15 +11,19 @@
 # English strings go here for Rails i18n
 # Usage I18n.t(:label)
 en:
-  label_event: "Event"
-  permission_view_customer_appointments: View Customer Appointments
-  permission_manage_customer_appointments: Manage Customer Appointments
-  label_customer_calendar: Customer Calendar
-  label_customer_appointment: Customer Appointment
-  label_duration: Duration
-  field_customer_name: Customer
-  field_vehicle: Vehicle
-  field_phone: Phone
-  field_license_plate: License Plate
   are_you_sure: "Are you sure?"
+  field_customer_name: Customer
+  field_license_plate: License Plate
+  field_phone: Phone
+  field_vehicle: Vehicle
+  label_customer_appointment: Customer Appointment
+  label_customer_calendar: Customer Calendar
+  label_duration: Duration
+  label_end_date: End Date
+  label_estimated_hours: Estimated Time
+  label_event: "Event"
+  label_open_appointment: Open Appointment
+  label_start_date: Start Date
+  permission_manage_customer_appointments: Manage Customer Appointments
+  permission_view_customer_appointments: View Customer Appointments
   

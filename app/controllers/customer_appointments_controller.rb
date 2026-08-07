@@ -93,6 +93,7 @@ class CustomerAppointmentsController < ApplicationController
         :end_date,
         :estimated_hours,
         :estimate_id,
+        :duration
       )
 
   end

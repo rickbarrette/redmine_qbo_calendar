@@ -17,6 +17,7 @@ module RedmineQboCalendar
       def view_layouts_base_html_head(context = {})
         safe_join([
           javascript_include_tag("customer_appointments", plugin: :redmine_qbo_calendar),
+          javascript_include_tag("calendar", plugin: :redmine_qbo_calendar),
           stylesheet_link_tag('customer_appointments', plugin: :redmine_qbo_calendar)
        ])
       end

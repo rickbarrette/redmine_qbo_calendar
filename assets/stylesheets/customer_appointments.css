@@ -11,8 +11,16 @@
     border-radius: 3px;
     font-size: 10px;
     line-height: 1.2;
-    overflow: visible !important; /* CRITICAL: Allows tooltip popover to extend outside */
+    overflow: visible !important; /* Allows tooltip popover to extend outside */
     max-width: 100%;
+    cursor: pointer; /* Cue for clickability */
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+/* Hover Cue */
+.appointment-block:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
 /* Left Indicator Bar */
@@ -37,13 +45,13 @@
 .appointment-block.cancelled .appointment-bar { background-color: #d9534f; }
 .appointment-block.cancelled { background: #fdf2f2; border-color: #f8c8c8; }
 
-/* Card Content Area - Contains text overflow inside the card */
+/* Card Content Area */
 .appointment-card {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
     min-width: 0; 
-    overflow: hidden; /* Truncates long text cleanly inside the card */
+    overflow: hidden; /* Truncates long text cleanly inside card */
 }
 
 .appointment-header {
@@ -90,14 +98,15 @@
     min-width: 0;
 }
 
-/* Hover Effect */
-.appointment-block:hover {
-    z-index: 999;
+/* Elevated Stack Order When Opened */
+.appointment-block.open {
+    z-index: 1000 !important;
 }
 
-/* Redmine Tooltip Positioning & Visibility Fixes */
-.appointment-block .tip {
-    display: none;
+/* Redmine Tooltip Popover (Hidden by Default & on Hover) */
+.appointment-block .tip,
+.appointment-block:hover .tip {
+    display: none !important; /* Overrides built-in hover triggers */
     position: absolute;
     top: 100%;
     left: 0;
@@ -106,11 +115,74 @@
     background: #ffffff;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     white-space: normal;
     z-index: 10000 !important;
+    cursor: default;
 }
 
-.appointment-block:hover .tip {
-    display: block;
+/* Display Tooltip ONLY on Click (.open class) */
+.appointment-block.open .tip,
+.appointment-block.open:hover .tip {
+    display: block !important;
+}
+
+/* Inner Tooltip Formatting */
+.appointment-block .tip h3 {
+    margin: 0 0 4px 0;
+    font-size: 13px;
+    line-height: 1.3;
+}
+
+.appointment-block .tip .subtitle {
+    margin: 0 0 8px 0;
+    font-size: 11px;
+    color: #666;
+    text-transform: capitalize;
+}
+
+.appointment-block .tip table.attributes {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    margin-bottom: 4px;
+}
+
+.appointment-block .tip table.attributes th {
+    text-align: left;
+    padding: 3px 6px 3px 0;
+    color: #555;
+    font-weight: bold;
+    width: 35%;
+    vertical-align: top;
+}
+
+.appointment-block .tip table.attributes td {
+    padding: 3px 0;
+    color: #222;
+    vertical-align: top;
+}
+
+.appointment-block .tip table.attributes img.gravatar {
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+.appointment-block .tip hr {
+    border: 0;
+    border-top: 1px solid #e0e0e0;
+    margin: 8px 0;
+}
+
+.appointment-block .tip .description {
+    max-height: 120px;
+    overflow-y: auto;
+    font-size: 11px;
+    color: #444;
+    line-height: 1.4;
+}
+
+.appointment-block .tip .buttons {
+    margin: 0;
+    text-align: right;
 }
