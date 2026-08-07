@@ -1,0 +1,116 @@
+/* Container Box */
+.appointment-block {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    box-sizing: border-box;
+    margin: 2px 0;
+    padding: 3px 4px 3px 0;
+    background: #edf4ff;
+    border: 1px solid #c5d8f3;
+    border-radius: 3px;
+    font-size: 10px;
+    line-height: 1.2;
+    overflow: visible !important; /* CRITICAL: Allows tooltip popover to extend outside */
+    max-width: 100%;
+}
+
+/* Left Indicator Bar */
+.appointment-block .appointment-bar {
+    width: 4px;
+    background-color: #3c78d8;
+    flex-shrink: 0;
+    margin-right: 4px;
+    border-radius: 1px;
+}
+
+/* Status Colors */
+.appointment-block.scheduled .appointment-bar { background-color: #1f77d0; }
+.appointment-block.scheduled { background: #edf4ff; border-color: #c5d8f3; }
+
+.appointment-block.in-progress .appointment-bar { background-color: #e68a00; }
+.appointment-block.in-progress { background: #fff4df; border-color: #fce2b6; }
+
+.appointment-block.completed .appointment-bar { background-color: #2d8a34; }
+.appointment-block.completed { background: #edf9ee; border-color: #c7eecb; }
+
+.appointment-block.cancelled .appointment-bar { background-color: #d9534f; }
+.appointment-block.cancelled { background: #fdf2f2; border-color: #f8c8c8; }
+
+/* Card Content Area - Contains text overflow inside the card */
+.appointment-card {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-width: 0; 
+    overflow: hidden; /* Truncates long text cleanly inside the card */
+}
+
+.appointment-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: bold;
+    min-width: 0;
+}
+
+.appointment-avatar {
+    flex-shrink: 0;
+    border-radius: 2px;
+}
+
+.appointment-title {
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.appointment-link {
+    color: #111;
+    text-decoration: none;
+}
+
+.appointment-hours {
+    flex-shrink: 0;
+    color: #444;
+    font-size: 9px;
+    font-weight: bold;
+    margin-left: auto;
+}
+
+.appointment-detail {
+    color: #555;
+    font-size: 9px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 1px;
+    min-width: 0;
+}
+
+/* Hover Effect */
+.appointment-block:hover {
+    z-index: 999;
+}
+
+/* Redmine Tooltip Positioning & Visibility Fixes */
+.appointment-block .tip {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 320px;
+    padding: 10px;
+    background: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    white-space: normal;
+    z-index: 10000 !important;
+}
+
+.appointment-block:hover .tip {
+    display: block;
+}

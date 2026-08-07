@@ -1,69 +1,36 @@
-<%
-day_hours  = 8.0
-day_height = 120
+<%= tag.div class: ['appointment-block', 'tooltip', appointment.status.to_s.parameterize] do %>
 
-hours  = appointment.estimated_hours.to_f
-height = [(hours / day_hours * day_height).round, 26].max
-%>
-
-<%= tag.div class: ['appointment-block', 'tooltip'],
-            style: "height: #{height}px;" do %>
+  <div class="appointment-bar"></div>
 
   <div class="appointment-card">
 
     <div class="appointment-header">
-
       <% if appointment.user %>
-        <%= avatar(
-              appointment.user,
-              size: 20,
-              class: "appointment-avatar"
-            ) %>
+        <%= avatar(appointment.user, size: 14, class: "appointment-avatar") %>
       <% end %>
 
-      <div class="appointment-title">
-        <%= link_to(
-              appointment.subject,
-              customer_appointment_path(appointment),
-              class: "appointment-link"
-            ) %>
-      </div>
+      <span class="appointment-title">
+        <%= link_to(appointment.subject, customer_appointment_path(appointment), class: "appointment-link") %>
+      </span>
 
+      <span class="appointment-hours">
+        <%= number_with_precision(appointment.estimated_hours.to_f, precision: 1) %>h
+      </span>
     </div>
 
     <% if appointment.customer %>
-      <div class="appointment-customer">
+      <div class="appointment-detail">
         <%= appointment.customer.name %>
+        <% if appointment.vehicle %>
+          - <%= appointment.vehicle.name %>
+        <% end %>
       </div>
     <% end %>
-
-    <% if appointment.vehicle %>
-      <div class="appointment-vehicle">
-        <%= appointment.vehicle.name %>
-      </div>
-    <% end %>
-
-    <div class="appointment-footer">
-
-      <span class="appointment-hours">
-        <%= number_with_precision(hours, precision: 1) %> hrs
-      </span>
-
-      <% if appointment.user %>
-        <span class="appointment-tech">
-          <%= appointment.user.firstname %>
-        </span>
-      <% end %>
-
-    </div>
 
   </div>
 
   <span class="tip">
-    <%= render(
-          partial: "customer_appointments/tooltip",
-          locals: { appointment: appointment }
-        ) %>
+    <%= render partial: "customer_appointments/tooltip", locals: { appointment: appointment } %>
   </span>
 
 <% end %>
