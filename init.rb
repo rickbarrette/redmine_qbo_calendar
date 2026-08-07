@@ -53,9 +53,13 @@ end
 end
 
 Rails.configuration.to_prepare do
-  ApplicationController.prepend_view_path(
-    File.expand_path("app/views", __dir__)
-  )
+  ApplicationController.prepend_view_path( File.expand_path("app/views", __dir__) )
+
+  Redmine::Views::MyPage::Block.register(
+      'upcoming_appointments',
+      label: :label_upcoming_appointments,
+      partial: 'my/blocks/upcoming_appointments'
+    )
 end
 
 RedmineQboCalendar.setup

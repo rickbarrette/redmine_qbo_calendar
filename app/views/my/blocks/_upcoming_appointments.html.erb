@@ -1,0 +1,118 @@
+<h3><%= l(:label_upcoming_appointments, default: 'My Upcoming Appointments') %></h3>
+
+<%
+  # Get Redmine's configured non-working week days (e.g., ["6", "7"] for Sat/Sun)
+  non_working_days = Setting.non_working_week_days || []
+
+  # Safely filter appointments by logged-in user across possible user column names
+  appointments_scope = CustomerAppointment.all
+  if CustomerAppointment.column_names.include?('user_id')
+    appointments_scope = appointments_scope.where(user_id: User.current.id)
+  elsif CustomerAppointment.column_names.include?('assigned_to_id')
+    appointments_scope = appointments_scope.where(assigned_to_id: User.current.id)
+  elsif CustomerAppointment.column_names.include?('author_id')
+    appointments_scope = appointments_scope.where(author_id: User.current.id)
+  end
+
+  # Look back up to 60 days to capture multi-day appointments starting in the past
+  raw_appointments = appointments_scope.where('start_date >= ?', Date.today - 60.days)
+
+  expanded_appointments = []
+
+  raw_appointments.each do |appointment|
+    next if appointment.start_date.nil?
+
+    start_date = appointment.start_date.to_date
+    duration = [appointment.duration.to_i, 1].max
+    date_cursor = start_date
+    working_days_counted = 0
+
+    # Expand appointment dates strictly across working days based on duration
+    while working_days_counted < duration
+      unless non_working_days.include?(date_cursor.cwday.to_s)
+        working_days_counted += 1
+
+        # Only list dates falling on or after today
+        if date_cursor >= Date.today
+          expanded_appointments << {
+            appointment: appointment,
+            date: date_cursor,
+            day_number: working_days_counted,
+            total_days: duration
+          }
+        end
+      end
+
+      date_cursor += 1
+    end
+  end
+
+  # Sort upcoming occurrences chronologically and take top 10
+  expanded_appointments.sort_by! { |item| item[:date] }
+  expanded_appointments = expanded_appointments.first(10)
+%>
+
+<% if expanded_appointments.any? %>
+  <table class="list appointments">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Customer</th>
+        <th>Vehicle</th>
+        <th>Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% expanded_appointments.each do |item| %>
+        <% appt = item[:appointment] %>
+        <tr class="<%= cycle('odd', 'even') %>">
+          <td class="subject">
+            <%= link_to appt.subject, customer_appointment_path(appt) %>
+            <% if item[:total_days] > 1 %>
+              <small class="muted">(Day <%= item[:day_number] %> of <%= item[:total_days] %>)</small>
+            <% end %>
+          </td>
+          <td class="customer">
+            <% 
+              customer_obj = appt.try(:customer) || appt.try(:qbo_customer) || appt.try(:customer_name)
+              customer_text = if customer_obj.respond_to?(:display_name)
+                                customer_obj.display_name
+                              elsif customer_obj.respond_to?(:name)
+                                customer_obj.name
+                              else
+                                customer_obj.to_s
+                              end
+            %>
+            <%= customer_text.presence || '-' %>
+          </td>
+          <td class="vehicle">
+            <% 
+              vehicle_obj = appt.try(:vehicle) || appt.try(:vehicle_name)
+              vehicle_text = if vehicle_obj.respond_to?(:name)
+                               vehicle_obj.name
+                             elsif vehicle_obj.respond_to?(:to_s)
+                               vehicle_obj.to_s
+                             else
+                               nil
+                             end
+            %>
+            <%= vehicle_text.presence || '-' %>
+          </td>
+          <td class="start-date">
+            <%= format_date(item[:date]) %>
+          </td>
+          <td class="status">
+            <% if appt.respond_to?(:status) && appt.status.present? %>
+              <span class="badge status-<%= appt.status.to_s.parameterize %>">
+                <%= appt.status.to_s.humanize %>
+              </span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

@@ -24,6 +24,7 @@ en:
   label_event: "Event"
   label_open_appointment: Open Appointment
   label_start_date: Start Date
+  label_upcoming_appointments: "My Upcoming Appointments"
   permission_manage_customer_appointments: Manage Customer Appointments
   permission_view_customer_appointments: View Customer Appointments
   
