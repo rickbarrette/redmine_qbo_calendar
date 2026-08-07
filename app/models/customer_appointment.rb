@@ -30,7 +30,8 @@ class CustomerAppointment < ActiveRecord::Base
   ]
 
   def due_date
-    end_date&.to_date
+    return end_date&.to_date if end_date.present?
+    return start_date&.to_date
   end
 
   def self.visible(user)
