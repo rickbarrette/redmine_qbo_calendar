@@ -1,6 +1,19 @@
 <div class="contextual">
-  <%= link_to l(:button_edit), edit_customer_appointment_path(@appointment), class: 'icon icon-edit' %>
-  <%= link_to l(:button_delete), customer_appointment_path(@appointment), method: :delete, data: { confirm: l(:text_are_you_sure) }, class: 'icon icon-del' %>
+  <%= link_to issues_calendar_path do %>
+    <i class="fa-regular fa-calendar-days"></i> <%= l(:button_calendar) %>
+  <% end %>
+
+  <%= link_to customer_appointments_path do %>
+    <i class="fa-solid fa-list"></i> <%= l(:button_appointments) %>
+  <% end %>
+
+  <%= link_to edit_customer_appointment_path(@appointment) do %>
+    <i class="fa-solid fa-pen-to-square"></i> <%= l(:button_edit) %>
+  <% end %>
+
+  <%= link_to customer_appointment_path(@appointment), method: :delete, data: { confirm: l(:text_are_you_sure) } do %>
+    <i class="fa-solid fa-trash"></i> <%= l(:button_delete) %>
+  <% end %>
 </div>
 
 <h2>

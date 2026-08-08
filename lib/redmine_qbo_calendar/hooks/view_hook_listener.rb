@@ -13,14 +13,15 @@ module RedmineQboCalendar
 
     class ViewHookListener < Redmine::Hook::ViewListener
 
-      # Load the javascript to support the autocomplete forms
-      def view_layouts_base_html_head(context = {})
-        safe_join([
-          javascript_include_tag("customer_appointments", plugin: :redmine_qbo_calendar),
-          javascript_include_tag("calendar", plugin: :redmine_qbo_calendar),
-          stylesheet_link_tag('customer_appointments', plugin: :redmine_qbo_calendar)
-       ])
-      end
+     # Load the javascript and stylesheet assets
+    def view_layouts_base_html_head(context = {})
+      safe_join([
+        javascript_include_tag("customer_appointments", plugin: :redmine_qbo_calendar),
+        javascript_include_tag("calendar", plugin: :redmine_qbo_calendar),
+        stylesheet_link_tag('customer_appointments', plugin: :redmine_qbo_calendar),
+        javascript_include_tag('https://kit.fontawesome.com/4be4394b21.js', crossorigin: 'anonymous')
+      ])
+    end
       
     end
   end

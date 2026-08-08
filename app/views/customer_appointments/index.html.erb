@@ -1,13 +1,15 @@
-<h2>Customer Appointments</h2>
+<h2><%= l(:title_customer_appointments) %></h2>
 
-<p>
+<div class="contextual">
+  <%= link_to issues_calendar_path do %>
+    <i class="fa-regular fa-calendar-days"></i> <%= l(:button_calendar) %>
+  <% end %>
 
-<%= link_to(
-      l(:button_add),
-      new_project_event_path(@project)
-    ) %>
+  <%= link_to new_customer_appointment_path do %>
+    <i class="fa-regular fa-pen-to-square"></i> <%= l(:button_add) %>
+  <% end %>
 
-</p>
+</div>
 
 <table class="list">
 
@@ -15,17 +17,17 @@
 
 <tr>
 
-<th>Customer</th>
+<th><%= l(:label_customer) %></th>
 
-<th>Vehicle</th>
+<th><%= l(:label_vehicle) %></th>
 
-<th>Appointment</th>
+<th><%= l(:label_appointment) %></th>
 
-<th>Assigned</th>
+<th><%= l(:label_user) %></th>
 
-<th>Date</th>
+<th><%= l(:label_date) %></th>
 
-<th>Status</th>
+<th><%= l(:label_status) %></th>
 
 </tr>
 
@@ -39,37 +41,32 @@
 
 <td>
 
-<%= link_to(
-      appointment.customer_name,
-      customer_appointment_path(
-        appointment
-      )
-    ) %>
+<%= link_to appointment.customer unless appointment.customer.nil? %>
 
 </td>
 
 <td>
 
-<%= appointment.vehicle %>
+<%= link_to appointment.vehicle unless appointment.vehicle.nil? %>
 
 </td>
 
 <td>
 
-<%= appointment.subject %>
+<%= link_to appointment %>
 
 </td>
 
 <td>
 
-<%= appointment.user&.name %>
+<%= link_to appointment.user unless appointment.user.nil? %>
 
 </td>
 
 <td>
 
 <%= format_date(
-      appointment.start_date
+      appointment.date
     ) %>
 
 </td>

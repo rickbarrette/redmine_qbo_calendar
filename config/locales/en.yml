@@ -12,10 +12,13 @@
 # Usage I18n.t(:label)
 en:
   are_you_sure: "Are you sure?"
+  button_appointments: Appointments
+  button_calendar: Calendar
   field_customer_name: Customer
   field_license_plate: License Plate
   field_phone: Phone
   field_vehicle: Vehicle
+  label_appointment: Appointment
   label_customer_appointment: Customer Appointment
   label_customer_calendar: Customer Calendar
   label_duration: Duration
@@ -29,4 +32,4 @@ en:
   label_upcoming_appointments: "My Upcoming Appointments"
   permission_manage_customer_appointments: Manage Customer Appointments
   permission_view_customer_appointments: View Customer Appointments
-  
+  title_customer_appointments: Customer Appoitnments
