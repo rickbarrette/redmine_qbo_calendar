@@ -15,7 +15,7 @@
   end
 
   # Look back up to 60 days to capture multi-day appointments starting in the past
-  raw_appointments = appointments_scope.where('start_date >= ?', Date.today - 60.days)
+  raw_appointments = appointments_scope.where('date >= ?', Date.today - 60.days)
 
   expanded_appointments = []
 
