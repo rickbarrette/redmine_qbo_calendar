@@ -21,6 +21,21 @@
   </span>
 </h2>
 
+<%# Quick Status Action Buttons %>
+<% 
+  statuses = %w[scheduled checked_in in_progress ready completed cancelled] 
+  current_status = @appointment.status.to_s.parameterize.underscore
+%>
+<div class="appointment-quick-actions">
+  <span class="quick-action-label"><%= l(:label_change_status, default: 'Change Status:') %></span>
+  <% statuses.reject { |s| s == current_status }.each do |status_key| %>
+    <%= link_to status_key.humanize,
+                customer_appointment_path(@appointment, customer_appointment: { status: status_key }),
+                method: :patch,
+                class: "quick-status-btn status-#{status_key.parameterize}" %>
+  <% end %>
+</div>
+
 <div class="issue details">
   <div class="attributes">
     <div class="splitcontent">
@@ -46,7 +61,11 @@
       <div class="splitcontentright">
         <div class="attribute">
           <div class="label"><%= l(:field_status) %>:</div>
-          <div class="value"><%= @appointment.status %></div>
+          <div class="value">
+            <span class="status-badge status-<%= @appointment.status.to_s.parameterize %>">
+              <%= @appointment.status.to_s.humanize %>
+            </span>
+          </div>
         </div>
         <div class="attribute">
           <div class="label"><%= l(:field_user) %>:</div>

@@ -23,13 +23,13 @@ table.cal td {
     background: #edf4ff;
     border: 1px solid #c5d8f3;
     border-radius: 3px;
-    font-size: 0.9em; /* Matches Redmine calendar default text size */
+    font-size: 0.9em;
     line-height: 1.3;
-    overflow: visible !important; /* Allows tooltip popover to extend outside */
+    overflow: visible !important;
     width: 100%;
     max-width: 100%;
-    min-width: 0; /* Prevents long flex children from expanding parent width */
-    cursor: pointer; /* Cue for clickability */
+    min-width: 0;
+    cursor: pointer;
     transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
@@ -59,7 +59,7 @@ table.cal td {
 
 .appointment-header {
     display: flex;
-    align-items: flex-start; /* Aligns avatar and hours nicely with wrapped top lines */
+    align-items: flex-start;
     gap: 4px;
     font-weight: bold;
     min-width: 0;
@@ -88,7 +88,7 @@ table.cal td {
 .appointment-hours {
     flex-shrink: 0;
     color: #444;
-    font-size: 0.85em; /* Slightly smaller than main text to keep layout balanced */
+    font-size: 0.85em;
     font-weight: bold;
     margin-left: auto;
 }
@@ -96,7 +96,7 @@ table.cal td {
 /* Multi-line wrapping for details */
 .appointment-detail {
     color: #555;
-    font-size: 0.9em; /* Matches calendar item body text */
+    font-size: 0.9em;
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -112,7 +112,7 @@ table.cal td {
 /* Redmine Tooltip Popover (Hidden by Default & on Hover) */
 .appointment-block .tip,
 .appointment-block:hover .tip {
-    display: none !important; /* Overrides built-in hover triggers */
+    display: none !important;
     position: absolute;
     top: 100%;
     left: 0;
@@ -127,7 +127,7 @@ table.cal td {
     cursor: default;
 }
 
-/* Align tooltips to the right on Friday/Saturday columns to prevent viewport overflow */
+/* Align tooltips to the right on Friday/Saturday columns */
 table.cal td:nth-child(n+6) .appointment-block .tip {
     left: auto;
     right: 0;
@@ -215,7 +215,7 @@ table.cal td:nth-child(n+6) .appointment-block .tip {
 }
 
 .calendar-badge .month {
-    background-color: #c22b2b; /* Redmine primary red tone */
+    background-color: #c22b2b;
     color: #ffffff;
     font-size: 9px;
     font-weight: bold;
@@ -243,7 +243,7 @@ h2 .appointment-title {
     vertical-align: middle;
 }
 
-/* Status Colors & Indicator Bars */
+/* Calendar Card Status Colors & Indicator Bars */
 
 /* Scheduled - Blue */
 .appointment-block.scheduled .appointment-bar { background-color: #1f77d0; }
@@ -251,15 +251,19 @@ h2 .appointment-title {
 
 /* CheckedIn - Purple */
 .appointment-block.checked-in .appointment-bar,
-.appointment-block.checkedin .appointment-bar { background-color: #8e44ad; }
+.appointment-block.checkedin .appointment-bar,
+.appointment-block.checked_in .appointment-bar { background-color: #8e44ad; }
 .appointment-block.checked-in,
-.appointment-block.checkedin { background: #f6f0fa; border-color: #e2d0fb; }
+.appointment-block.checkedin,
+.appointment-block.checked_in { background: #f6f0fa; border-color: #e2d0fb; }
 
 /* InProgress - Orange */
 .appointment-block.in-progress .appointment-bar,
-.appointment-block.inprogress .appointment-bar { background-color: #e68a00; }
+.appointment-block.inprogress .appointment-bar,
+.appointment-block.in_progress .appointment-bar { background-color: #e68a00; }
 .appointment-block.in-progress,
-.appointment-block.inprogress { background: #fff4df; border-color: #fce2b6; }
+.appointment-block.inprogress,
+.appointment-block.in_progress { background: #fff4df; border-color: #fce2b6; }
 
 /* Ready - Teal */
 .appointment-block.ready .appointment-bar { background-color: #16a085; }
@@ -273,38 +277,102 @@ h2 .appointment-title {
 .appointment-block.cancelled .appointment-bar { background-color: #d9534f; }
 .appointment-block.cancelled { background: #fdf2f2; border-color: #f8c8c8; }
 
-/* Enforce Vertical Centering on Table Cells */
-  table.appointments td,
-  table.appointments th {
+/* Table List Alignment */
+table.appointments td,
+table.appointments th {
     vertical-align: middle !important;
-  }
+}
 
-  table.appointments th.status,
-  table.appointments td.status {
+table.appointments th.status,
+table.appointments td.status {
     text-align: center !important;
-  }
+}
 
-  /* Status Badge Base Styles with Flex Alignment */
-  .status-badge {
+/* Quick Status Bar Container */
+.appointment-quick-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 12px 0 16px 0;
+    flex-wrap: wrap;
+}
+
+.quick-action-label {
+    font-weight: bold;
+    color: #555;
+    font-size: 0.85em;
+    margin-right: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Shared Badge & Quick-Status Button Base Styling */
+.status-badge,
+.quick-status-btn {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     padding: 3px 10px;
     font-size: 11px;
     font-weight: 600;
-    line-height: 1 !important;
+    line-height: 1.2 !important;
     border-radius: 12px;
     border: 1px solid transparent;
+    text-decoration: none !important;
     white-space: nowrap;
     box-sizing: border-box;
-  }
+    transition: opacity 0.15s ease, transform 0.1s ease;
+}
 
-  /* Status Badge Colors */
-  .status-badge.status-scheduled { background-color: #edf4ff; color: #1f77d0; border-color: #c5d8f3; }
-  .status-badge.status-checked-in,
-  .status-badge.status-checkedin { background-color: #f6f0fa; color: #8e44ad; border-color: #e2d0fb; }
-  .status-badge.status-in-progress,
-  .status-badge.status-inprogress { background-color: #fff4df; color: #e68a00; border-color: #fce2b6; }
-  .status-badge.status-ready { background-color: #e8f8f5; color: #16a085; border-color: #a3e4d7; }
-  .status-badge.status-completed { background-color: #edf9ee; color: #2d8a34; border-color: #c7eecb; }
-  .status-badge.status-cancelled { background-color: #fdf2f2; color: #d9534f; border-color: #f8c8c8; }
+.quick-status-btn:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+}
+
+/* Status Colors (Supports hyphen, underscore, and concatenated naming) */
+
+/* Scheduled - Blue */
+.status-scheduled {
+    background-color: #edf4ff !important;
+    border-color: #c5d8f3 !important;
+    color: #1f77d0 !important;
+}
+
+/* CheckedIn - Purple */
+.status-checked-in,
+.status-checkedin,
+.status-checked_in {
+    background-color: #f6f0fa !important;
+    border-color: #e2d0fb !important;
+    color: #8e44ad !important;
+}
+
+/* InProgress - Orange */
+.status-in-progress,
+.status-inprogress,
+.status-in_progress {
+    background-color: #fff4df !important;
+    border-color: #fce2b6 !important;
+    color: #e68a00 !important;
+}
+
+/* Ready - Teal */
+.status-ready {
+    background-color: #e8f8f5 !important;
+    border-color: #a3e4d7 !important;
+    color: #16a085 !important;
+}
+
+/* Completed - Green */
+.status-completed {
+    background-color: #edf9ee !important;
+    border-color: #c7eecb !important;
+    color: #2d8a34 !important;
+}
+
+/* Cancelled - Red */
+.status-cancelled {
+    background-color: #fdf2f2 !important;
+    border-color: #f8c8c8 !important;
+    color: #d9534f !important;
+}
