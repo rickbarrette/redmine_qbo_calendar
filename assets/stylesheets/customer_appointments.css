@@ -48,19 +48,6 @@ table.cal td {
     border-radius: 1px;
 }
 
-/* Status Colors */
-.appointment-block.scheduled .appointment-bar { background-color: #1f77d0; }
-.appointment-block.scheduled { background: #edf4ff; border-color: #c5d8f3; }
-
-.appointment-block.in-progress .appointment-bar { background-color: #e68a00; }
-.appointment-block.in-progress { background: #fff4df; border-color: #fce2b6; }
-
-.appointment-block.completed .appointment-bar { background-color: #2d8a34; }
-.appointment-block.completed { background: #edf9ee; border-color: #c7eecb; }
-
-.appointment-block.cancelled .appointment-bar { background-color: #d9534f; }
-.appointment-block.cancelled { background: #fdf2f2; border-color: #f8c8c8; }
-
 /* Card Content Area */
 .appointment-card {
     display: flex;
@@ -83,13 +70,14 @@ table.cal td {
     border-radius: 2px;
 }
 
-/* Option B: Multi-line wrapping for titles */
-.appointment-title {
+/* Multi-line wrapping for titles */
+.appointment-card .appointment-title {
     flex-grow: 1;
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
     min-width: 0;
+    vertical-align: top;
 }
 
 .appointment-link {
@@ -105,7 +93,7 @@ table.cal td {
     margin-left: auto;
 }
 
-/* Option B: Multi-line wrapping for details */
+/* Multi-line wrapping for details */
 .appointment-detail {
     color: #555;
     font-size: 0.9em; /* Matches calendar item body text */
@@ -137,6 +125,12 @@ table.cal td {
     white-space: normal;
     z-index: 10000 !important;
     cursor: default;
+}
+
+/* Align tooltips to the right on Friday/Saturday columns to prevent viewport overflow */
+table.cal td:nth-child(n+6) .appointment-block .tip {
+    left: auto;
+    right: 0;
 }
 
 /* Display Tooltip ONLY on Click (.open class) */
@@ -205,6 +199,7 @@ table.cal td {
     text-align: right;
 }
 
+/* Show View Header Elements */
 .calendar-badge {
     display: inline-block;
     width: 38px;
@@ -236,7 +231,7 @@ table.cal td {
     padding: 4px 0 3px 0;
 }
 
-.appointment-title {
+h2 .appointment-title {
     vertical-align: middle;
 }
 
@@ -247,3 +242,33 @@ table.cal td {
     font-weight: normal;
     vertical-align: middle;
 }
+
+/* Status Colors & Indicator Bars */
+
+/* Scheduled - Blue */
+.appointment-block.scheduled .appointment-bar { background-color: #1f77d0; }
+.appointment-block.scheduled { background: #edf4ff; border-color: #c5d8f3; }
+
+/* CheckedIn - Purple */
+.appointment-block.checked-in .appointment-bar,
+.appointment-block.checkedin .appointment-bar { background-color: #8e44ad; }
+.appointment-block.checked-in,
+.appointment-block.checkedin { background: #f6f0fa; border-color: #e2d0fb; }
+
+/* InProgress - Orange */
+.appointment-block.in-progress .appointment-bar,
+.appointment-block.inprogress .appointment-bar { background-color: #e68a00; }
+.appointment-block.in-progress,
+.appointment-block.inprogress { background: #fff4df; border-color: #fce2b6; }
+
+/* Ready - Teal */
+.appointment-block.ready .appointment-bar { background-color: #16a085; }
+.appointment-block.ready { background: #e8f8f5; border-color: #a3e4d7; }
+
+/* Completed - Green */
+.appointment-block.completed .appointment-bar { background-color: #2d8a34; }
+.appointment-block.completed { background: #edf9ee; border-color: #c7eecb; }
+
+/* Cancelled - Red */
+.appointment-block.cancelled .appointment-bar { background-color: #d9534f; }
+.appointment-block.cancelled { background: #fdf2f2; border-color: #f8c8c8; }
