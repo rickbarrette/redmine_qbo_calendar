@@ -28,9 +28,9 @@ class CustomerAppointmentsController < ApplicationController
   def index
     if params[:project_id]
       @project = Project.find(params[:project_id])
-      @appointments = CustomerAppointment.where(project: @project).order(:start_date)
+      @appointments = CustomerAppointment.where(project: @project).where('date >= ?', Time.zone.now.beginning_of_day).order(:date)
     else
-      @appointments = CustomerAppointment.order(:start_date)
+      @appointments = CustomerAppointment.where('date >= ?', Time.zone.now.beginning_of_day).order(:date)
     end
   end
 
