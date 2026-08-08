@@ -43,6 +43,10 @@ class CustomerAppointment < ActiveRecord::Base
     return CustomerAppointment.all
   end
 
+  def to_s
+    subject
+  end
+
   private
 
   def log(msg)
