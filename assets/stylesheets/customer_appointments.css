@@ -273,9 +273,18 @@ h2 .appointment-title {
 .appointment-block.completed .appointment-bar { background-color: #2d8a34; }
 .appointment-block.completed { background: #edf9ee; border-color: #c7eecb; }
 
-/* Cancelled - Red */
-.appointment-block.cancelled .appointment-bar { background-color: #d9534f; }
-.appointment-block.cancelled { background: #fdf2f2; border-color: #f8c8c8; }
+/* Cancelled - Red & Strikethrough Subject */
+.appointment-block.cancelled .appointment-bar,
+.appointment-block.canceled .appointment-bar { background-color: #d9534f; }
+.appointment-block.cancelled,
+.appointment-block.canceled { background: #fdf2f2; border-color: #f8c8c8; }
+
+.appointment-block.cancelled .appointment-title,
+.appointment-block.cancelled .appointment-link,
+.appointment-block.canceled .appointment-title,
+.appointment-block.canceled .appointment-link {
+    text-decoration: line-through;
+}
 
 /* Table List Alignment */
 table.appointments td,
@@ -371,7 +380,8 @@ table.appointments td.status {
 }
 
 /* Cancelled - Red */
-.status-cancelled {
+.status-cancelled,
+.status-canceled {
     background-color: #fdf2f2 !important;
     border-color: #f8c8c8 !important;
     color: #d9534f !important;
