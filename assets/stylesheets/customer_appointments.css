@@ -272,3 +272,39 @@ h2 .appointment-title {
 /* Cancelled - Red */
 .appointment-block.cancelled .appointment-bar { background-color: #d9534f; }
 .appointment-block.cancelled { background: #fdf2f2; border-color: #f8c8c8; }
+
+/* Enforce Vertical Centering on Table Cells */
+  table.appointments td,
+  table.appointments th {
+    vertical-align: middle !important;
+  }
+
+  table.appointments th.status,
+  table.appointments td.status {
+    text-align: center !important;
+  }
+
+  /* Status Badge Base Styles with Flex Alignment */
+  .status-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1 !important;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+
+  /* Status Badge Colors */
+  .status-badge.status-scheduled { background-color: #edf4ff; color: #1f77d0; border-color: #c5d8f3; }
+  .status-badge.status-checked-in,
+  .status-badge.status-checkedin { background-color: #f6f0fa; color: #8e44ad; border-color: #e2d0fb; }
+  .status-badge.status-in-progress,
+  .status-badge.status-inprogress { background-color: #fff4df; color: #e68a00; border-color: #fce2b6; }
+  .status-badge.status-ready { background-color: #e8f8f5; color: #16a085; border-color: #a3e4d7; }
+  .status-badge.status-completed { background-color: #edf9ee; color: #2d8a34; border-color: #c7eecb; }
+  .status-badge.status-cancelled { background-color: #fdf2f2; color: #d9534f; border-color: #f8c8c8; }

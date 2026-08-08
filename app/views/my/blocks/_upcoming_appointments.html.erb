@@ -56,17 +56,18 @@
   <table class="list appointments">
     <thead>
       <tr>
-        <th>Title</th>
-        <th>Customer</th>
-        <th>Vehicle</th>
-        <th>Date</th>
-        <th>Status</th>
+        <th><%= l(:label_title) %></th>
+        <th><%= l(:label_customer) %></th>
+        <th><%= l(:label_vehicle) %></th>
+        <th><%= l(:label_date) %></th>
+        <th class="status"><%= l(:label_status) %></th>
       </tr>
     </thead>
     <tbody>
       <% expanded_appointments.each do |item| %>
         <% appt = item[:appointment] %>
-        <tr class="<%= cycle('odd', 'even') %>">
+        <% status_slug = appt.status.to_s.parameterize %>
+        <tr class="<%= cycle('odd', 'even') %> appointment-row status-<%= status_slug %>">
           <td class="subject">
             <%= link_to appt.subject, customer_appointment_path(appt) %>
             <% if item[:total_days] > 1 %>
@@ -74,37 +75,17 @@
             <% end %>
           </td>
           <td class="customer">
-            <% 
-              customer_obj = appt.try(:customer) || appt.try(:qbo_customer) || appt.try(:customer_name)
-              customer_text = if customer_obj.respond_to?(:display_name)
-                                customer_obj.display_name
-                              elsif customer_obj.respond_to?(:name)
-                                customer_obj.name
-                              else
-                                customer_obj.to_s
-                              end
-            %>
-            <%= customer_text.presence || '-' %>
+            <%= link_to appt.customer unless appt.customer.nil? %>
           </td>
           <td class="vehicle">
-            <% 
-              vehicle_obj = appt.try(:vehicle) || appt.try(:vehicle_name)
-              vehicle_text = if vehicle_obj.respond_to?(:name)
-                               vehicle_obj.name
-                             elsif vehicle_obj.respond_to?(:to_s)
-                               vehicle_obj.to_s
-                             else
-                               nil
-                             end
-            %>
-            <%= vehicle_text.presence || '-' %>
+            <%= link_to appt.vehicle unless appt.vehicle.nil? %>
           </td>
           <td class="start-date">
             <%= format_date(item[:date]) %>
           </td>
           <td class="status">
-            <% if appt.respond_to?(:status) && appt.status.present? %>
-              <span class="badge status-<%= appt.status.to_s.parameterize %>">
+            <% if appt.status.present? %>
+              <span class="badge status-badge status-<%= status_slug %>">
                 <%= appt.status.to_s.humanize %>
               </span>
             <% end %>
