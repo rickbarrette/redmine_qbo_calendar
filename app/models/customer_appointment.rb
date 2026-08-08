@@ -17,8 +17,7 @@ class CustomerAppointment < ActiveRecord::Base
   belongs_to :estimate, optional: true
 
   validates :subject, presence: true
-  validates :start_date, presence: true
-  validate :date_order
+  validates :date, presence: true
 
   STATUSES = %w[
       Scheduled
@@ -29,9 +28,15 @@ class CustomerAppointment < ActiveRecord::Base
       Cancelled
   ]
 
+  # Cast datetime to Date for Redmine Calendar compatibility
+  def start_date
+    date&.to_date
+  end
+
   def due_date
-    return end_date&.to_date if end_date.present?
-    return start_date&.to_date
+    return nil unless date
+    # Accounts for multi-day duration spanning across dates
+    start_date + ([duration.to_i, 1].max - 1).days
   end
 
   def self.visible(user)
@@ -39,15 +44,6 @@ class CustomerAppointment < ActiveRecord::Base
   end
 
   private
-
-  def date_order
-    return if end_date.blank?
-    return if start_date.blank?
-
-    if end_date < start_date
-      errors.add( :end_date, "cannot be before start date")
-    end
-  end
 
   def log(msg)
     Rails.logger.info "[Event] #{msg}"

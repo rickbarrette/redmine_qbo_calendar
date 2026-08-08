@@ -15,8 +15,7 @@ class CreateCustomerAppointments < ActiveRecord::Migration[7.0]
       t.text :subject, null: false
       t.text :description, null: false
       
-      t.datetime :start_date, null: false
-      t.datetime :end_date
+      t.datetime :date, null: false
       t.integer :duration, default: 1
       t.integer :estimated_hours, default: 1
 
@@ -31,7 +30,7 @@ class CreateCustomerAppointments < ActiveRecord::Migration[7.0]
 
     end
 
-    add_index :customer_appointments, :start_date
+    add_index :customer_appointments, :date
     
   end
 end

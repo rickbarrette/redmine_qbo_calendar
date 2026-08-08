@@ -24,10 +24,9 @@
       <%= f.collection_select :user_id, User.active.sorted, :id, :name, { include_blank: true }, { label: false } %>
     </p>
 
-    <p><%= f.datetime_local_field :start_date %></p>
-    <p><%= f.date_field :end_date, size: 10 %></p>
+    <p><%= f.datetime_local_field :date %></p>
 
-    <p><%= f.number_field :estimated_hours, step: 0.1, size: 6 %></p>
+    <p><%= f.number_field :estimated_hours, step: 1, size: 6 %></p>
     <p><%= f.number_field :duration, step: 1, size: 6, label: :label_duration %></p>
 
     <p><%= f.select :status, CustomerAppointment::STATUSES, label: :field_status %></p>
