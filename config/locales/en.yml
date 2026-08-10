@@ -22,6 +22,7 @@ en:
   label_appointment: Appointment
   label_customer_appointment: Customer Appointment
   label_customer_calendar: Customer Calendar
+  label_days: Days
   label_duration: Duration
   label_end_date: End Date
   label_estimated_hours: Estimated Time

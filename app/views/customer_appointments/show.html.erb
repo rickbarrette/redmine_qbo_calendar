@@ -94,11 +94,11 @@
         </div>
         <div class="attribute">
           <div class="label"><%= l(:label_duration, default: 'Duration') %>:</div>
-          <div class="value"><%= @appointment.duration %> <%= l(:label_day_plural, default: 'days') %></div>
+          <div class="value"><%= @appointment.duration %> <%= l(:label_days) %></div>
         </div>
         <div class="attribute">
           <div class="label"><%= l(:field_estimated_hours) %>:</div>
-          <div class="value"><%= @appointment.estimated_hours %></div>
+          <div class="value"><%= @appointment.estimated_hours %> <%= l(:label_hours) %></div>
         </div>
       </div>
     </div>
