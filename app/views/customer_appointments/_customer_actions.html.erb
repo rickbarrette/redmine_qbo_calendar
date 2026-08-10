@@ -1,0 +1,4 @@
+<p>
+<% customer = context[:customer] %>
+<%= link_to l(:label_add_appointment), new_customer_appointment_path(customer_id: customer.id), target: :_blank, id: :appointment_link %>
+</p>

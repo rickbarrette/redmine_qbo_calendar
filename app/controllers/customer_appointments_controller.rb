@@ -42,6 +42,7 @@ class CustomerAppointmentsController < ApplicationController
     @appointment = CustomerAppointment.new
     @appointment.project = @project
     @appointment.date = (params[:start_date].to_date + 9.hours) if params[:start_date].present?
+    @appointment.customer_id = params[:customer_id] if params[:customer_id].present?
   end
 
   def create
