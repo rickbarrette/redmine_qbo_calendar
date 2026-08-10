@@ -20,6 +20,7 @@ en:
   field_vehicle: Vehicle
   label_add_appointment: Add Appointment
   label_appointment: Appointment
+  label_appointments: Appointments
   label_customer_appointment: Customer Appointment
   label_customer_calendar: Customer Calendar
   label_days: Days
