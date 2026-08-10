@@ -59,29 +59,58 @@
 
       <% week.each do |day| %>
 
+        <% 
+          # Non-appointment events (Issues, Versions, etc.)
+          standard_events = calendar.events_on(day).reject { |e| e.is_a?(CustomerAppointment) }
+
+          # Appointments matching duration on this working day
+          matching_appointments = all_appointments.select { |app| appointment_occurs_on.call(app, day) }
+
+          day_events = standard_events + matching_appointments
+
+          # Sum estimated hours for Issues and CustomerAppointments
+          total_hours = day_events.sum do |event|
+            if event.is_a?(Issue)
+              event.estimated_hours.to_f
+            elsif event.is_a?(CustomerAppointment)
+              if event.respond_to?(:estimated_hours) && event.estimated_hours.present?
+                event.estimated_hours.to_f
+              else
+                event.duration.to_f
+              end
+            else
+              0.0
+            end
+          end
+        %>
+
         <li class="<%= calendar.day_css_classes(day) %> calbody">
 
-          <p class="day-num">
-            <span class="day-value"><%= day.day %></span>
-            <span class="abbr-day">(<%= abbr_day_name(day.cwday) %>)</span>
-            
-            <% if day >= User.current.today %>
-              <%= link_to sprite_icon('add'),
-                          new_customer_appointment_path(start_date: day),
-                          class: 'icon-only icon-add',
-                          title: l(:label_appointment_new, default: 'New Appointment') %>
-            <% end %>
+          <p class="day-num" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 4px;">
+            <span class="day-num-left" style="display: inline-flex; align-items: center; justify-self: start;">
+              <% if total_hours > 0 %>
+                <span class="hours-total" style="font-weight: bold; color: #555;" title="<%= l(:label_estimated_hours, default: 'Estimated hours') %>">
+                  <%= total_hours.round(1) %>h
+                </span>
+              <% end %>
+            </span>
+
+            <span class="day-num-center" style="display: inline-flex; align-items: center; justify-self: center;">
+              <% if day >= User.current.today %>
+                <%= link_to sprite_icon('add'),
+                            new_customer_appointment_path(start_date: day),
+                            class: 'icon-only icon-add',
+                            title: l(:label_appointment_new, default: 'New Appointment') %>
+              <% end %>
+            </span>
+
+            <span class="day-num-right" style="display: inline-flex; align-items: center; justify-self: end; gap: 3px;">
+              <span class="abbr-day" style="font-size: 0.85em; color: #777;">(<%= abbr_day_name(day.cwday) %>)</span>
+              <span class="day-value" style="font-weight: bold;"><%= day.day %></span>
+            </span>
           </p>
 
-          <% 
-            # Non-appointment events (Issues, Versions, etc.)
-            standard_events = calendar.events_on(day).reject { |e| e.is_a?(CustomerAppointment) }
-
-            # Appointments matching duration on this working day
-            matching_appointments = all_appointments.select { |app| appointment_occurs_on.call(app, day) }
-          %>
-
-          <% (standard_events + matching_appointments).each do |event| %>
+          <% day_events.each do |event| %>
 
             <% if event.is_a?(Issue) %>
 
