@@ -114,3 +114,5 @@
     </div>
   <% end %>
 </div>
+
+<%= call_hook :show_customer_appointment, { appointment: @appointment } %>
