@@ -18,7 +18,7 @@ This plugin allows for adding customer appointment capability to the Redmine cal
 
 | Plugin Version | Redmine Version | Parent Plugin Version |
 | --- | --- | --- |
-| 2026.8.0+ | 7.0.x | 2026.3.9+ |
+| 2026.8.0+ | 7.0.x | 2026.8.0+ |
 
 ---
 
