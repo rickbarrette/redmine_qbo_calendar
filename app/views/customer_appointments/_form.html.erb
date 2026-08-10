@@ -32,8 +32,12 @@
     <p><%= f.select :status, CustomerAppointment::STATUSES, label: :field_status %></p>
 
     <p>
-      <%= f.text_area :description, rows: 8, class: 'wiki-edit', style: 'width: 95%;' %>
-      <%= wikitoolbar_for 'appointment_description' %>
+      <%= f.text_area :description,
+                      rows: 8,
+                      class: 'wiki-edit',
+                      style: 'width: 95%;',
+                      id: 'customer_appointment_description' %>
+      <%= wikitoolbar_for 'customer_appointment_description' %>
     </p>
   </div>
 
