@@ -22,7 +22,7 @@ module RedmineQboCalendar
         customer = context[:customer]
         appointments = customer.customer_appointments.where('date >= ?', Date.today).order(date: :asc)
 
-        return if appointments.nil?
+        return if appointments.empty?
 
         context[:controller].send(:render_to_string, { 
           partial: 'customer_appointments/list_simple', locals: { appointments: appointments } 
