@@ -38,7 +38,7 @@
 
 <%# Quick Status Action Buttons %>
 <% 
-  statuses = CustomerAppointment.statuses 
+  statuses = CustomerAppointment::STATUSES 
   current_status = @appointment.status.to_s.parameterize.underscore
 %>
 <div class="appointment-quick-actions">

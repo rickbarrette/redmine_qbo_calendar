@@ -45,7 +45,7 @@
 <%# Calendar Status Legend Key %>
 <% 
   # Collect status keys from CustomerAppointment enum
-  statuses = CustomerAppointment.statuses
+  statuses = CustomerAppointment::STATUSES
 %>
 
 <% if statuses.any? %>
