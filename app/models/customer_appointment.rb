@@ -108,6 +108,10 @@ class CustomerAppointment < ActiveRecord::Base
     subject
   end
 
+  def self.statuses
+    STATUSES
+  end
+
   private
 
   def log(msg)

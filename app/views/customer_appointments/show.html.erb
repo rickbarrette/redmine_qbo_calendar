@@ -38,7 +38,7 @@
 
 <%# Quick Status Action Buttons %>
 <% 
-  statuses = %w[scheduled checked_in in_progress ready completed cancelled] 
+  statuses = CustomerAppointment.statuses 
   current_status = @appointment.status.to_s.parameterize.underscore
 %>
 <div class="appointment-quick-actions">

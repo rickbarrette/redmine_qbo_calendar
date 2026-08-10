@@ -42,6 +42,27 @@
   end
 %>
 
+<%# Calendar Status Legend Key %>
+<% 
+  # Collect status keys from CustomerAppointment enum
+  statuses = CustomerAppointment.statuses
+%>
+
+<% if statuses.any? %>
+  <div class="calendar-status-legend" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 8px 0;">
+    <span class="legend-label" style="font-weight: 600; font-size: 0.85em; color: #666;">
+      <%= l(:label_legend, default: 'Legend') %>:
+    </span>
+
+    <% statuses.each do |status_key| %>
+      <span class="status-key-badge status-<%= status_key.parameterize %>" 
+            style="padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 600; text-transform: capitalize;">
+        <%= status_key.humanize %>
+      </span>
+    <% end %>
+  </div>
+<% end %>
+
 <!-- Toggle Bar -->
 <div class="calendar-filter-toolbar" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: flex-end;">
   <label for="toggle-only-appointments" style="cursor: pointer; font-weight: 600; font-size: 0.9em; color: #444; display: inline-flex; align-items: center; gap: 6px;">
