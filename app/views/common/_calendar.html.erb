@@ -82,14 +82,14 @@
           # Appointments matching duration on this working day
           matching_appointments = all_appointments.select { |app| appointment_occurs_on.call(app, day) }
 
-          # Sort events chronologically
+          # Sort events chronologically by time of day
           day_events = (standard_events + matching_appointments).sort_by do |event|
             if event.is_a?(CustomerAppointment) && event.date.present?
-              event.date.to_time
+              event.date.strftime('%H:%M:%S')
             elsif event.respond_to?(:start_date) && event.start_date.present?
-              event.start_date.to_time
+              event.start_date.to_time.strftime('%H:%M:%S')
             else
-              Time.at(0)
+              '00:00:00'
             end
           end
 
