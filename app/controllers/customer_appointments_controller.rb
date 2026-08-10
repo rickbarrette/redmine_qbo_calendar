@@ -25,6 +25,19 @@ class CustomerAppointmentsController < ApplicationController
     }
   end
 
+  def create_issues
+    @appointment = CustomerAppointment.find(params[:id])
+    created_issues = @appointment.create_issues_from_labor_lines(project: @project, author: User.current)
+
+    if created_issues.any?
+      flash[:notice] = l(:notice_successful_create)
+      redirect_to project_customer_appointments_path(@project)
+    else
+      flash[:error] = l(:error_no_labor_lines_found)
+      redirect_to customer_appointment_path(@appointment)
+    end
+  end
+
   def index
     if params[:project_id]
       @project = Project.find(params[:project_id])
