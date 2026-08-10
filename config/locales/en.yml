@@ -27,8 +27,10 @@ en:
   label_estimated_hours: Estimated Time
   label_event: Event
   label_open_appointment: Open Appointment
+  label_only_customer_appointments: Show Customer Appointments Only
   label_start_date: Start Date
   label_status: Status
+  label_technician: Technician
   label_time: Time
   label_title: Title
   label_upcoming_appointments: "My Upcoming Appointments"

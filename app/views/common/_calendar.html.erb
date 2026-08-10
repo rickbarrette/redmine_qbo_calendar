@@ -1,4 +1,7 @@
 <%
+  # Check if toggle is active via query params
+  only_appointments = params[:only_appointments] == '1'
+
   # Get Redmine's configured non-working week days (e.g., ["6", "7"] for Sat/Sun)
   non_working_days = Setting.non_working_week_days || []
 
@@ -9,9 +12,10 @@
 
   # Lambda to determine if an appointment should render on a specific calendar day
   appointment_occurs_on = lambda do |appointment, current_day|
-    return false if appointment.start_date.nil?
+    app_datetime = appointment.respond_to?(:date) && appointment.date.present? ? appointment.date : appointment.start_date
+    return false if app_datetime.nil?
 
-    start_date = appointment.start_date.to_date
+    start_date = app_datetime.to_date
     target_date = current_day.to_date
 
     return false if target_date < start_date
@@ -38,6 +42,18 @@
   end
 %>
 
+<!-- Toggle Bar -->
+<div class="calendar-filter-toolbar" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: flex-end;">
+  <label for="toggle-only-appointments" style="cursor: pointer; font-weight: 600; font-size: 0.9em; color: #444; display: inline-flex; align-items: center; gap: 6px;">
+    <%= check_box_tag 'only_appointments',
+                      '1',
+                      only_appointments,
+                      id: 'toggle-only-appointments',
+                      onchange: 'toggleOnlyAppointments(this.checked)' %>
+    <%= l(:label_only_customer_appointments, default: 'Show Customer Appointments Only') %>
+  </label>
+</div>
+
 <%= form_tag({}, data: { cm_url: issues_context_menu_path }) do %>
   <%= hidden_field_tag 'back_url', url_for(params: request.query_parameters), id: nil %>
 
@@ -60,13 +76,22 @@
       <% week.each do |day| %>
 
         <% 
-          # Non-appointment events (Issues, Versions, etc.)
-          standard_events = calendar.events_on(day).reject { |e| e.is_a?(CustomerAppointment) }
+          # Filter out standard events if "only appointments" toggle is active
+          standard_events = only_appointments ? [] : calendar.events_on(day).reject { |e| e.is_a?(CustomerAppointment) }
 
           # Appointments matching duration on this working day
           matching_appointments = all_appointments.select { |app| appointment_occurs_on.call(app, day) }
 
-          day_events = standard_events + matching_appointments
+          # Sort events chronologically
+          day_events = (standard_events + matching_appointments).sort_by do |event|
+            if event.is_a?(CustomerAppointment) && event.date.present?
+              event.date.to_time
+            elsif event.respond_to?(:start_date) && event.start_date.present?
+              event.start_date.to_time
+            else
+              Time.at(0)
+            end
+          end
 
           # Sum estimated hours for Issues and CustomerAppointments
           total_hours = day_events.sum do |event|
@@ -185,3 +210,32 @@
 <% end %>
 
 <%= context_menu %>
+
+<script>
+  (function() {
+    const STORAGE_KEY = 'redmine_cal_only_appointments';
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const savedState = localStorage.getItem(STORAGE_KEY);
+
+      // If URL does not specify the parameter, sync with saved preference in localStorage
+      if (!urlParams.has('only_appointments') && savedState === '1') {
+        urlParams.set('only_appointments', '1');
+        window.location.search = urlParams.toString();
+      }
+    });
+
+    window.toggleOnlyAppointments = function(checked) {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (checked) {
+        urlParams.set('only_appointments', '1');
+        localStorage.setItem(STORAGE_KEY, '1');
+      } else {
+        urlParams.delete('only_appointments');
+        localStorage.setItem(STORAGE_KEY, '0');
+      }
+      window.location.search = urlParams.toString();
+    };
+  })();
+</script>
