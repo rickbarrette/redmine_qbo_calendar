@@ -19,6 +19,8 @@ class CustomerAppointment < ActiveRecord::Base
   validates :subject, presence: true
   validates :date, presence: true
 
+  normalizes :subject, with: ->(subject) { subject.strip.titleize }
+
   STATUSES = %w[
       Scheduled
       CheckedIn
