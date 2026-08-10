@@ -18,5 +18,6 @@ module RedmineQboCalendar
     # Hooks
     RedmineQboCalendar::Hooks::ViewHookListener
     RedmineQboCalendar::Hooks::CustomerActionsHookListener
+    RedmineQboCalendar::Hooks::CustomerShowHookListener
   end
 end

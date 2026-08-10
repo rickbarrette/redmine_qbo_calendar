@@ -1,0 +1,73 @@
+<table class="list">
+
+<thead>
+
+<tr>
+
+<th><%= l(:label_customer) %></th>
+
+<th><%= l(:label_vehicle) %></th>
+
+<th><%= l(:label_appointment) %></th>
+
+<th><%= l(:label_user) %></th>
+
+<th><%= l(:label_date) %></th>
+
+<th><%= l(:label_status) %></th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<% appointments.each do |appointment| %>
+
+<tr>
+
+<td>
+
+<%= link_to appointment.customer unless appointment.customer.nil? %>
+
+</td>
+
+<td>
+
+<%= link_to appointment.vehicle unless appointment.vehicle.nil? %>
+
+</td>
+
+<td>
+
+<%= link_to appointment %>
+
+</td>
+
+<td>
+
+<%= link_to appointment.user unless appointment.user.nil? %>
+
+</td>
+
+<td>
+
+<%= format_date(
+      appointment.date
+    ) %>
+
+</td>
+
+<td>
+
+<%= appointment.status %>
+
+</td>
+
+</tr>
+
+<% end %>
+
+</tbody>
+
+</table>
