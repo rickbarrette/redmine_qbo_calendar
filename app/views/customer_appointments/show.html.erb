@@ -17,20 +17,22 @@
 </div>
 
 <h2>
-  <% if @appointment.start_date %>
+  <% if @appointment.date %>
     <div class="calendar-badge">
-      <div class="month"><%= @appointment.start_date.strftime('%b').upcase %></div>
-      <div class="day"><%= @appointment.start_date.day %></div>
+      <div class="month"><%= @appointment.date.strftime('%b').upcase %></div>
+      <div class="day"><%= @appointment.date.day %></div>
     </div>
   <% end %>
 
   <span class="appointment-title"><%= @appointment.subject %></span>
 
   <span class="appointment-dates">
-    (<%= format_date(@appointment.start_date) %> 
-    <% if @appointment.duration > 1 %>
-      - <%= format_date(@appointment.due_date) %>
-    <% end %>)
+    <% if @appointment.date %>
+      (<%= format_date(@appointment.date) %> <%= l(:label_at, default: 'at') %> <%= @appointment.date.strftime('%I:%M %p') %>
+      <% if @appointment.respond_to?(:due_date) && @appointment.due_date.present? && @appointment.duration.to_i > 1 %>
+        - <%= format_date(@appointment.due_date) %>
+      <% end %>)
+    <% end %>
   </span>
 </h2>
 
@@ -78,6 +80,12 @@
             <span class="status-badge status-<%= @appointment.status.to_s.parameterize %>">
               <%= @appointment.status.to_s.humanize %>
             </span>
+          </div>
+        </div>
+        <div class="attribute">
+          <div class="label"><%= l(:label_time, default: 'Time') %>:</div>
+          <div class="value">
+            <%= @appointment.date ? @appointment.date.strftime('%I:%M %p') : '-' %>
           </div>
         </div>
         <div class="attribute">

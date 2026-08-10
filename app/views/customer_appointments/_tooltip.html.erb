@@ -9,6 +9,13 @@
 
 <table class="attributes">
 
+  <% if appointment.date %>
+    <tr>
+      <th><%= l(:label_time) %></th>
+      <td><%= appointment.date.strftime('%I:%M %p') %></td>
+    </tr>
+  <% end %>
+
   <% if appointment.customer %>
     <tr>
       <th><%= l(:label_customer, default: "Customer") %></th>
