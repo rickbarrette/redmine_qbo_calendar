@@ -415,3 +415,24 @@ table.appointments td.status {
     border-color: #f8c8c8 !important;
     color: #d9534f !important;
 }
+
+/* Redefine grid column proportions for the calendar layout */
+ul.cal {
+  display: grid;
+  /* Col 1: Week # (fits content automatically) | Col 2: Sun (50%) | Cols 3-7: Mon-Fri (100%) | Col 8: Sat (50%) */
+  grid-template-columns: max-content 0.5fr repeat(5, 1fr) 0.5fr !important;
+}
+
+/* Optional: Compress content and dim non-working weekend cells */
+ul.cal li.nwday,
+ul.cal li.sunday,
+ul.cal li.saturday {
+  background-color: #f7f7f7;
+  padding: 2px !important;
+}
+
+/* Hide non-essential metadata on narrow weekend cells to avoid vertical stretching */
+ul.cal li.nwday .icon-user,
+ul.cal li.nwday .buttons {
+  display: none;
+}
