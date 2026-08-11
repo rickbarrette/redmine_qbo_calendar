@@ -68,8 +68,10 @@
           <div class="value"><%= @appointment.customer&.primary_phone %></div>
         </div>
         <div class="attribute">
-          <div class="label"><%= l(:label_estimate, default: 'Estimate') %>:</div>
-          <div class="value"><%= link_to_if @appointment.estimate, @appointment.estimate&.name, @appointment.estimate %></div>
+          <div class="label"><%= l(:label_estimate) %>:</div>
+          <% if @appointment.estimate %>
+            <div class="value"><%= link_to @appointment.estimate, @appointment.estimate, target: "_blank" %></div>
+          <% end %>
         </div>
       </div>
 
