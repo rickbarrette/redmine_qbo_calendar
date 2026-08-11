@@ -142,7 +142,7 @@
             </span>
 
             <span class="day-num-center" style="display: inline-flex; align-items: center; justify-self: center;">
-              <% if day >= User.current.today %>
+              <% if day >= User.current.today && !non_working_days.include?(day.cwday.to_s) %>
                 <%= link_to sprite_icon('add'),
                             new_customer_appointment_path(start_date: day),
                             class: 'icon-only icon-add',
