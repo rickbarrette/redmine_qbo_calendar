@@ -4,6 +4,7 @@
 
   <div class="appointment-card">
 
+    <%# Row 1: Avatar | Title %>
     <div class="appointment-header">
       <% if appointment.user %>
         <%= avatar(appointment.user, size: 14, class: "appointment-avatar") %>
@@ -12,13 +13,24 @@
       <span class="appointment-title">
         <%= link_to(appointment.subject, customer_appointment_path(appointment), class: "appointment-link") %>
       </span>
+    </div>
+
+    <hr class="appointment-divider" />
+
+    <%# Row 2: Time | Hours %>
+    <div class="appointment-meta">
+      <span class="appointment-time">
+        <%= appointment.date.strftime('%I:%M %p') %>
+      </span>
 
       <span class="appointment-hours">
         <%= number_with_precision(appointment.estimated_hours.to_f, precision: 1) %>h
       </span>
     </div>
 
+    <%# Row 3: Details %>
     <% if appointment.customer %>
+      <hr class="appointment-divider" />
       <div class="appointment-detail">
         <%= appointment.customer.name %>
         <% if appointment.vehicle %>
