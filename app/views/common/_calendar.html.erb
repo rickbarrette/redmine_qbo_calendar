@@ -133,14 +133,13 @@
         <li class="<%= calendar.day_css_classes(day) %> calbody">
 
           <p class="day-num" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 4px;">
-            <span class="day-num-left" style="display: inline-flex; align-items: center; justify-self: start;">
-              <% if total_hours > 0 %>
-                <span class="hours-total" style="font-weight: bold; color: #555;" title="<%= l(:label_estimated_hours, default: 'Estimated hours') %>">
-                  <%= total_hours.round(1) %>h
-                </span>
-              <% end %>
+            <!-- Left: Day number and abbreviated weekday -->
+            <span class="day-num-left" style="display: inline-flex; align-items: center; justify-self: start; gap: 3px;">
+              <span class="day-value" style="font-weight: bold;"><%= day.day %></span>
+              <span class="abbr-day" style="font-size: 0.85em; color: #777;">(<%= abbr_day_name(day.cwday) %>)</span>
             </span>
 
+            <!-- Center: New Appointment Action -->
             <span class="day-num-center" style="display: inline-flex; align-items: center; justify-self: center;">
               <% if day >= User.current.today && !non_working_days.include?(day.cwday.to_s) %>
                 <%= link_to sprite_icon('add'),
@@ -150,9 +149,13 @@
               <% end %>
             </span>
 
-            <span class="day-num-right" style="display: inline-flex; align-items: center; justify-self: end; gap: 3px;">
-              <span class="abbr-day" style="font-size: 0.85em; color: #777;">(<%= abbr_day_name(day.cwday) %>)</span>
-              <span class="day-value" style="font-weight: bold;"><%= day.day %></span>
+            <!-- Right: Total Hours -->
+            <span class="day-num-right" style="display: inline-flex; align-items: center; justify-self: end;">
+              <% if total_hours > 0 %>
+                <span class="hours-total" style="font-weight: bold; color: #555;" title="<%= l(:label_estimated_hours, default: 'Estimated hours') %>">
+                  <%= total_hours.round(1) %>h
+                </span>
+              <% end %>
             </span>
           </p>
 
