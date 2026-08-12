@@ -436,3 +436,77 @@ ul.cal li.nwday .icon-user,
 ul.cal li.nwday .buttons {
   display: none;
 }
+/* ==========================================================================
+   Responsive Mobile View: Single-Column Stacked Calendar (Screens <= 768px)
+   ========================================================================== */
+
+@media screen and (max-width: 768px) {
+  /* 1. Hide the horizontal week header (Sun-Sat column headers) */
+  table.cal thead {
+    display: none !important;
+  }
+
+  /* 2. Convert table structures into block elements to stack days vertically */
+  table.cal,
+  table.cal tbody,
+  table.cal tr,
+  table.cal td {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 3. Style each day cell as a full-width vertical card */
+  table.cal td {
+    width: 100% !important;
+    min-height: 48px;
+    margin-bottom: 8px;
+    border: 1px solid #d7d7d7 !important;
+    border-radius: 4px;
+    padding: 6px !important;
+    background: #ffffff;
+  }
+
+  /* 4. Single-column layout for CSS Grid implementation (ul.cal) */
+  ul.cal {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: 1fr !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  ul.cal li {
+    width: 100% !important;
+    margin-bottom: 8px;
+    box-sizing: border-box;
+  }
+
+  /* 5. Ensure appointment blocks span full width in the single column */
+  .appointment-block {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* 6. Center popover tooltips on mobile view */
+  .appointment-block .tip,
+  .appointment-block:hover .tip,
+  .appointment-block.open .tip {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 90vw !important;
+    max-width: 340px !important;
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  /* Reset Friday/Saturday tooltip overrides for single-column mobile view */
+  table.cal td:nth-child(n+6) .appointment-block .tip {
+    left: 50% !important;
+    right: auto !important;
+  }
+}
