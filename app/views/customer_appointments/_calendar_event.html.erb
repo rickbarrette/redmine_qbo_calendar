@@ -1,3 +1,27 @@
+<%
+  non_working_days = Setting.non_working_week_days || []
+  app_datetime = (appointment.respond_to?(:date) && appointment.date.present?) ? appointment.date : appointment.start_date
+  start_date = app_datetime.to_date
+  target_date = day.to_date
+  duration = [appointment.duration.to_i, 1].max
+
+  day_number = 0
+  if target_date >= start_date
+    date_cursor = start_date
+    working_count = 0
+    while date_cursor <= target_date
+      unless non_working_days.include?(date_cursor.cwday.to_s)
+        working_count += 1
+      end
+      if date_cursor == target_date
+        day_number = working_count
+        break
+      end
+      date_cursor += 1
+    end
+  end
+%>
+
 <%= tag.div class: ['appointment-block', 'tooltip', appointment.status.to_s.parameterize] do %>
 
   <div class="appointment-bar"></div>
@@ -17,11 +41,15 @@
 
     <hr class="appointment-divider" />
 
-    <%# Row 2: Time | Hours %>
+    <%# Row 2: Time | Day Count | Hours %>
     <div class="appointment-meta">
       <span class="appointment-time">
-        <%= appointment.date.strftime('%I:%M %p') %>
+        <%= appointment.date.strftime('%I:%M %p') if appointment.date.present? %>
       </span>
+
+      <% if duration > 1 && day_number.positive? && day_number <= duration %>
+        <small class="muted">(Day <%= day_number %> of <%= duration %>)</small>
+      <% end %>
 
       <span class="appointment-hours">
         <%= number_with_precision(appointment.estimated_hours.to_f, precision: 1) %>h
@@ -42,7 +70,7 @@
   </div>
 
   <span class="tip">
-    <%= render partial: "customer_appointments/tooltip", locals: { appointment: appointment } %>
+    <%= render partial: "customer_appointments/tooltip", locals: { appointment: appointment, day: day } %>
   </span>
 
 <% end %>
