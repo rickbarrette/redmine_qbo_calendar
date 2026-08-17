@@ -505,6 +505,14 @@ ul.cal li.nwday .buttons {
   display: none;
 }
 
+/* Highlight Today's Calendar Box & Number */
+ul.cal li.today,
+ul.cal li#today,
+table.cal td.today {
+    outline: 2px solid #ff00bf !important;
+    outline-offset: -2px !important;
+}
+
 /* Responsive Mobile View */
 @media screen and (max-width: 768px) {
   table.cal thead {
