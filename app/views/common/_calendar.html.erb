@@ -97,6 +97,8 @@
       <% week.each do |day| %>
 
         <% 
+          is_today = (day == User.current.today)
+
           # Filter out standard events if "only appointments" toggle is active
           standard_events = only_appointments ? [] : calendar.events_on(day).reject { |e| e.is_a?(CustomerAppointment) }
 
@@ -130,12 +132,14 @@
           end
         %>
 
-        <li class="<%= calendar.day_css_classes(day) %> calbody">
+        <li class="<%= calendar.day_css_classes(day) %> calbody"<%= ' id="today"'.html_safe if is_today %>>
 
           <p class="day-num" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 4px;">
             <!-- Left: Day number and abbreviated weekday -->
             <span class="day-num-left" style="display: inline-flex; align-items: center; justify-self: start; gap: 3px;">
-              <span class="day-value" style="font-weight: bold;"><%= day.day %></span>
+              <a name="<%= day.to_s %>" <%= 'id="today-anchor"'.html_safe if is_today %> style="text-decoration: none; color: inherit;">
+                <span class="day-value" style="font-weight: bold;"><%= day.day %></span>
+              </a>
               <span class="abbr-day" style="font-size: 0.85em; color: #777;">(<%= abbr_day_name(day.cwday) %>)</span>
             </span>
 
@@ -247,6 +251,15 @@
       if (!urlParams.has('only_appointments') && savedState === '1') {
         urlParams.set('only_appointments', '1');
         window.location.search = urlParams.toString();
+        return;
+      }
+
+      // Automatically scroll to today if present and no specific hash anchor is in the URL
+      if (!window.location.hash) {
+        const todayElement = document.getElementById('today');
+        if (todayElement) {
+          todayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
     });
 
