@@ -1,6 +1,7 @@
 <%
-  # Check if toggle is active via query params
+  # Check if toggles are active via query params
   only_appointments = params[:only_appointments] == '1'
+  hide_past_weeks   = params[:hide_past_weeks] == '1'
 
   # Get Redmine's configured non-working week days (e.g., ["6", "7"] for Sat/Sun)
   non_working_days = Setting.non_working_week_days || []
@@ -64,7 +65,16 @@
 <% end %>
 
 <!-- Toggle Bar -->
-<div class="calendar-filter-toolbar" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: flex-end;">
+<div class="calendar-filter-toolbar" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: flex-end; gap: 16px;">
+  <label for="toggle-hide-past-weeks" style="cursor: pointer; font-weight: 600; font-size: 0.9em; color: #444; display: inline-flex; align-items: center; gap: 6px;">
+    <%= check_box_tag 'hide_past_weeks',
+                      '1',
+                      hide_past_weeks,
+                      id: 'toggle-hide-past-weeks',
+                      onchange: 'toggleHidePastWeeks(this.checked)' %>
+    <%= l(:label_hide_past_weeks, default: 'Hide Past Weeks') %>
+  </label>
+
   <label for="toggle-only-appointments" style="cursor: pointer; font-weight: 600; font-size: 0.9em; color: #444; display: inline-flex; align-items: center; gap: 6px;">
     <%= check_box_tag 'only_appointments',
                       '1',
@@ -88,6 +98,8 @@
     <% end %>
 
     <% calendar.format_month.each_slice(7) do |week| %>
+      <%# Skip week if "hide past weeks" is active and every day in the week is in the past %>
+      <% next if hide_past_weeks && week.last < User.current.today %>
 
       <li class="week-number">
         <span class="label-week"><%= l(:label_week) %></span>
@@ -241,15 +253,26 @@
 
 <script>
   (function() {
-    const STORAGE_KEY = 'redmine_cal_only_appointments';
+    const STORAGE_KEY_ONLY_APPTS = 'redmine_cal_only_appointments';
+    const STORAGE_KEY_HIDE_PAST  = 'redmine_cal_hide_past_weeks';
 
     document.addEventListener('DOMContentLoaded', function() {
       const urlParams = new URLSearchParams(window.location.search);
-      const savedState = localStorage.getItem(STORAGE_KEY);
+      let needsRedirect = false;
 
-      // If URL does not specify the parameter, sync with saved preference in localStorage
-      if (!urlParams.has('only_appointments') && savedState === '1') {
+      // Sync "Show Customer Appointments Only" with localStorage if not present in URL
+      if (!urlParams.has('only_appointments') && localStorage.getItem(STORAGE_KEY_ONLY_APPTS) === '1') {
         urlParams.set('only_appointments', '1');
+        needsRedirect = true;
+      }
+
+      // Sync "Hide Past Weeks" with localStorage if not present in URL
+      if (!urlParams.has('hide_past_weeks') && localStorage.getItem(STORAGE_KEY_HIDE_PAST) === '1') {
+        urlParams.set('hide_past_weeks', '1');
+        needsRedirect = true;
+      }
+
+      if (needsRedirect) {
         window.location.search = urlParams.toString();
         return;
       }
@@ -267,10 +290,22 @@
       const urlParams = new URLSearchParams(window.location.search);
       if (checked) {
         urlParams.set('only_appointments', '1');
-        localStorage.setItem(STORAGE_KEY, '1');
+        localStorage.setItem(STORAGE_KEY_ONLY_APPTS, '1');
       } else {
         urlParams.delete('only_appointments');
-        localStorage.setItem(STORAGE_KEY, '0');
+        localStorage.setItem(STORAGE_KEY_ONLY_APPTS, '0');
+      }
+      window.location.search = urlParams.toString();
+    };
+
+    window.toggleHidePastWeeks = function(checked) {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (checked) {
+        urlParams.set('hide_past_weeks', '1');
+        localStorage.setItem(STORAGE_KEY_HIDE_PAST, '1');
+      } else {
+        urlParams.delete('hide_past_weeks');
+        localStorage.setItem(STORAGE_KEY_HIDE_PAST, '0');
       }
       window.location.search = urlParams.toString();
     };
