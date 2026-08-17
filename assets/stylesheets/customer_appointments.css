@@ -12,7 +12,7 @@ table.cal td {
     overflow: hidden;
 }
 
-/* Container Box */
+/* Container Box Base */
 .appointment-block {
     position: relative;
     display: flex;
@@ -20,8 +20,8 @@ table.cal td {
     box-sizing: border-box;
     margin: 2px 0;
     padding: 3px 4px 3px 0;
-    background: #edf4ff;
-    border: 1px solid #c5d8f3;
+    background: #e8f8ff;
+    border: 1px solid #91e2ff;
     border-radius: 3px;
     font-size: 0.9em;
     line-height: 1.3;
@@ -36,19 +36,19 @@ table.cal td {
 /* Hover Cue */
 .appointment-block:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.18);
 }
 
-/* Left Indicator Bar */
+/* Left Indicator Bar Base */
 .appointment-block .appointment-bar {
-    width: 4px;
-    background-color: #3c78d8;
+    width: 5px;
+    background-color: #1fc0ff;
     flex-shrink: 0;
-    margin-right: 4px;
-    border-radius: 1px;
+    margin-right: 5px;
+    border-radius: 2px 0 0 2px;
 }
 
-/* Card Content Area (Flex Column Layout) */
+/* Card Content Area */
 .appointment-card {
     display: flex;
     flex-direction: column;
@@ -74,7 +74,6 @@ table.cal td {
     object-fit: cover;
 }
 
-/* Multi-line wrapping for titles */
 .appointment-card .appointment-title {
     flex-grow: 1;
     white-space: normal;
@@ -85,7 +84,7 @@ table.cal td {
 }
 
 .appointment-link {
-    color: #111;
+    color: #000000;
     text-decoration: none;
 }
 
@@ -96,7 +95,7 @@ table.cal td {
     align-items: center;
     font-weight: bold;
     font-size: 0.85em;
-    color: #444;
+    color: #222222;
 }
 
 .appointment-time,
@@ -107,15 +106,15 @@ table.cal td {
 /* Horizontal Dividers */
 .appointment-card .appointment-divider {
     border: 0;
-    border-top: 1px solid #c5d8f3;
+    border-top: 1px solid #91e2ff;
     margin: 3px 0;
     width: 100%;
 }
 
-/* Row 3: Multi-line wrapping for details */
+/* Row 3: Details */
 .appointment-detail {
-    color: #555;
-    font-size: 0.85em;
+    color: #000000;
+    font-size: 1em;
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -127,14 +126,17 @@ table.cal td {
     z-index: 1000 !important;
 }
 
-/* Redmine Tooltip Popover */
-.appointment-block .tip,
-.appointment-block:hover .tip {
+/* Redmine Tooltip Popover Base - Fixed Positioning Overriding JS Inline Coordinates */
+.appointment-block .tip {
     display: none !important;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 320px;
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin: 4px 0 0 0 !important;
+    width: 320px !important;
     padding: 10px;
     background: #ffffff;
     border: 1px solid #ccc;
@@ -147,13 +149,12 @@ table.cal td {
 
 /* Align tooltips to the right on Friday/Saturday columns */
 table.cal td:nth-child(n+6) .appointment-block .tip {
-    left: auto;
-    right: 0;
+    left: auto !important;
+    right: 0 !important;
 }
 
 /* Display Tooltip ONLY on Click (.open class) */
-.appointment-block.open .tip,
-.appointment-block.open:hover .tip {
+.appointment-block.open .tip {
     display: block !important;
 }
 
@@ -167,7 +168,7 @@ table.cal td:nth-child(n+6) .appointment-block .tip {
 .appointment-block .tip .subtitle {
     margin: 0 0 8px 0;
     font-size: 11px;
-    color: #666;
+    color: #555;
     text-transform: capitalize;
 }
 
@@ -181,7 +182,7 @@ table.cal td:nth-child(n+6) .appointment-block .tip {
 .appointment-block .tip table.attributes th {
     text-align: left;
     padding: 3px 6px 3px 0;
-    color: #555;
+    color: #444;
     font-weight: bold;
     width: 35%;
     vertical-align: top;
@@ -189,7 +190,7 @@ table.cal td:nth-child(n+6) .appointment-block .tip {
 
 .appointment-block .tip table.attributes td {
     padding: 3px 0;
-    color: #222;
+    color: #111;
     vertical-align: top;
 }
 
@@ -200,7 +201,7 @@ table.cal td:nth-child(n+6) .appointment-block .tip {
 
 .appointment-block .tip hr {
     border: 0;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
     margin: 8px 0;
 }
 
@@ -208,7 +209,7 @@ table.cal td:nth-child(n+6) .appointment-block .tip {
     max-height: 120px;
     overflow-y: auto;
     font-size: 11px;
-    color: #444;
+    color: #333;
     line-height: 1.4;
 }
 
@@ -233,7 +234,7 @@ table.cal td:nth-child(n+6) .appointment-block .tip {
 }
 
 .calendar-badge .month {
-    background-color: #c22b2b;
+    background-color: #d92626;
     color: #ffffff;
     font-size: 9px;
     font-weight: bold;
@@ -243,7 +244,7 @@ table.cal td:nth-child(n+6) .appointment-block .tip {
 }
 
 .calendar-badge .day {
-    color: #333333;
+    color: #222222;
     font-size: 16px;
     font-weight: bold;
     padding: 4px 0 3px 0;
@@ -255,58 +256,124 @@ h2 .appointment-title {
 
 .appointment-dates {
     font-size: 70%;
-    color: #666;
+    color: #555;
     margin-left: 8px;
     font-weight: normal;
     vertical-align: middle;
 }
 
-/* Calendar Card Status Colors, Borders, and Divider Lines */
+/* ==========================================================================
+   Custom High-Vibrancy Hex Status Themes & Tinted Tooltips
+   ========================================================================== */
 
-/* Scheduled - Blue */
-.appointment-block.scheduled .appointment-bar { background-color: #1f77d0; }
-.appointment-block.scheduled { background: #edf4ff; border-color: #c5d8f3; }
-.appointment-block.scheduled .appointment-divider { border-top-color: #c5d8f3; }
+/* Scheduled - #1FC0FF */
+.appointment-block.scheduled,
+.appointment-block.scheduled:hover,
+.appointment-block.scheduled.open { background: #e8f8ff !important; border-color: #91e2ff !important; }
+.appointment-block.scheduled .appointment-bar { background-color: #1fc0ff !important; }
+.appointment-block.scheduled .appointment-divider { border-top-color: #b3ebff !important; }
+.appointment-block.scheduled .tip,
+.appointment-block.scheduled:hover .tip,
+.appointment-block.scheduled.open .tip { background: #f2faff !important; border-color: #70d6ff !important; }
 
-/* CheckedIn - Purple */
-.appointment-block.checked-in .appointment-bar,
-.appointment-block.checkedin .appointment-bar,
-.appointment-block.checked_in .appointment-bar { background-color: #8e44ad; }
+/* Ready - #1FFF1F */
+.appointment-block.ready,
+.appointment-block.ready:hover,
+.appointment-block.ready.open { background: #e8ffe8 !important; border-color: #8bff8b !important; }
+.appointment-block.ready .appointment-bar { background-color: #1fff1f !important; }
+.appointment-block.ready .appointment-divider { border-top-color: #b5ffb5 !important; }
+.appointment-block.ready .tip,
+.appointment-block.ready:hover .tip,
+.appointment-block.ready.open .tip { background: #f2fff2 !important; border-color: #66ff66 !important; }
+
+/* CheckedIn - #CE1FFF */
 .appointment-block.checked-in,
 .appointment-block.checkedin,
-.appointment-block.checked_in { background: #f6f0fa; border-color: #e2d0fb; }
+.appointment-block.checked_in,
+.appointment-block.checked-in:hover,
+.appointment-block.checkedin:hover,
+.appointment-block.checked_in:hover,
+.appointment-block.checked-in.open,
+.appointment-block.checkedin.open,
+.appointment-block.checked_in.open { background: #f8e8ff !important; border-color: #e891ff !important; }
+
+.appointment-block.checked-in .appointment-bar,
+.appointment-block.checkedin .appointment-bar,
+.appointment-block.checked_in .appointment-bar { background-color: #ce1fff !important; }
+
 .appointment-block.checked-in .appointment-divider,
 .appointment-block.checkedin .appointment-divider,
-.appointment-block.checked_in .appointment-divider { border-top-color: #e2d0fb; }
+.appointment-block.checked_in .appointment-divider { border-top-color: #f0b3ff !important; }
 
-/* InProgress - Orange */
-.appointment-block.in-progress .appointment-bar,
-.appointment-block.inprogress .appointment-bar,
-.appointment-block.in_progress .appointment-bar { background-color: #e68a00; }
+.appointment-block.checked-in .tip,
+.appointment-block.checkedin .tip,
+.appointment-block.checked_in .tip,
+.appointment-block.checked-in:hover .tip,
+.appointment-block.checkedin:hover .tip,
+.appointment-block.checked_in:hover .tip,
+.appointment-block.checked-in.open .tip,
+.appointment-block.checkedin.open .tip,
+.appointment-block.checked_in.open .tip { background: #fcf2ff !important; border-color: #df70ff !important; }
+
+/* InProgress - #FF5E1F */
 .appointment-block.in-progress,
 .appointment-block.inprogress,
-.appointment-block.in_progress { background: #fff4df; border-color: #fce2b6; }
+.appointment-block.in_progress,
+.appointment-block.in-progress:hover,
+.appointment-block.inprogress:hover,
+.appointment-block.in_progress:hover,
+.appointment-block.in-progress.open,
+.appointment-block.inprogress.open,
+.appointment-block.in_progress.open { background: #fff0e8 !important; border-color: #ffb391 !important; }
+
+.appointment-block.in-progress .appointment-bar,
+.appointment-block.inprogress .appointment-bar,
+.appointment-block.in_progress .appointment-bar { background-color: #ff5e1f !important; }
+
 .appointment-block.in-progress .appointment-divider,
 .appointment-block.inprogress .appointment-divider,
-.appointment-block.in_progress .appointment-divider { border-top-color: #fce2b6; }
+.appointment-block.in_progress .appointment-divider { border-top-color: #ffccb3 !important; }
 
-/* Ready - Teal */
-.appointment-block.ready .appointment-bar { background-color: #16a085; }
-.appointment-block.ready { background: #e8f8f5; border-color: #a3e4d7; }
-.appointment-block.ready .appointment-divider { border-top-color: #a3e4d7; }
+.appointment-block.in-progress .tip,
+.appointment-block.inprogress .tip,
+.appointment-block.in_progress .tip,
+.appointment-block.in-progress:hover .tip,
+.appointment-block.inprogress:hover .tip,
+.appointment-block.in_progress:hover .tip,
+.appointment-block.in-progress.open .tip,
+.appointment-block.inprogress.open .tip,
+.appointment-block.in_progress.open .tip { background: #fff6f2 !important; border-color: #ff9970 !important; }
 
-/* Completed - Green */
-.appointment-block.completed .appointment-bar { background-color: #2d8a34; }
-.appointment-block.completed { background: #edf9ee; border-color: #c7eecb; }
-.appointment-block.completed .appointment-divider { border-top-color: #c7eecb; }
+/* Completed - #008000 */
+.appointment-block.completed,
+.appointment-block.completed:hover,
+.appointment-block.completed.open { background: #e6f5e6 !important; border-color: #80c080 !important; }
+.appointment-block.completed .appointment-bar { background-color: #008000 !important; }
+.appointment-block.completed .appointment-divider { border-top-color: #a3d9a3 !important; }
+.appointment-block.completed .tip,
+.appointment-block.completed:hover .tip,
+.appointment-block.completed.open .tip { background: #f0fcf0 !important; border-color: #66b366 !important; }
 
-/* Cancelled - Red & Strikethrough Subject */
-.appointment-block.cancelled .appointment-bar,
-.appointment-block.canceled .appointment-bar { background-color: #d9534f; }
+/* Cancelled - #FF1F1F & Strikethrough */
 .appointment-block.cancelled,
-.appointment-block.canceled { background: #fdf2f2; border-color: #f8c8c8; }
+.appointment-block.canceled,
+.appointment-block.cancelled:hover,
+.appointment-block.canceled:hover,
+.appointment-block.cancelled.open,
+.appointment-block.canceled.open { background: #ffe8e8 !important; border-color: #ff9191 !important; }
+
+.appointment-block.cancelled .appointment-bar,
+.appointment-block.canceled .appointment-bar { background-color: #ff1f1f !important; }
+
 .appointment-block.cancelled .appointment-divider,
-.appointment-block.canceled .appointment-divider { border-top-color: #f8c8c8; }
+.appointment-block.canceled .appointment-divider { border-top-color: #ffb3b3 !important; }
+
+.appointment-block.cancelled .tip,
+.appointment-block.canceled .tip,
+.appointment-block.cancelled:hover .tip,
+.appointment-block.canceled:hover .tip,
+.appointment-block.cancelled.open .tip,
+.appointment-block.canceled.open .tip { background: #fff2f2 !important; border-color: #ff7070 !important; }
 
 .appointment-block.cancelled .appointment-title,
 .appointment-block.cancelled .appointment-link,
@@ -337,22 +404,22 @@ table.appointments td.status {
 
 .quick-action-label {
     font-weight: bold;
-    color: #555;
+    color: #333;
     font-size: 0.85em;
     margin-right: 4px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-/* Shared Badge & Quick-Status Button Base Styling */
+/* Shared Badge Base */
 .status-badge,
 .quick-status-btn {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 3px 10px;
+    padding: 4px 11px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.2 !important;
     border-radius: 12px;
     border: 1px solid transparent;
@@ -363,67 +430,68 @@ table.appointments td.status {
 }
 
 .quick-status-btn:hover {
-    opacity: 0.85;
+    opacity: 0.88;
     transform: translateY(-1px);
 }
 
-/* Status Badges Colors */
+/* ==========================================================================
+   Badges & Quick Action Buttons
+   ========================================================================== */
 
-/* Scheduled - Blue */
+/* Scheduled - #1FC0FF */
 .status-scheduled {
-    background-color: #edf4ff !important;
-    border-color: #c5d8f3 !important;
-    color: #1f77d0 !important;
+    background-color: #e8f8ff !important;
+    border-color: #91e2ff !important;
+    color: #0077a3 !important;
 }
 
-/* CheckedIn - Purple */
+/* Ready - #1FFF1F */
+.status-ready {
+    background-color: #e8ffe8 !important;
+    border-color: #8bff8b !important;
+    color: #008f00 !important;
+}
+
+/* CheckedIn - #CE1FFF */
 .status-checked-in,
 .status-checkedin,
 .status-checked_in {
-    background-color: #f6f0fa !important;
-    border-color: #e2d0fb !important;
-    color: #8e44ad !important;
+    background-color: #f8e8ff !important;
+    border-color: #e891ff !important;
+    color: #8300ad !important;
 }
 
-/* InProgress - Orange */
+/* InProgress - #FF5E1F */
 .status-in-progress,
 .status-inprogress,
 .status-in_progress {
-    background-color: #fff4df !important;
-    border-color: #fce2b6 !important;
-    color: #e68a00 !important;
+    background-color: #fff0e8 !important;
+    border-color: #ffb391 !important;
+    color: #b33000 !important;
 }
 
-/* Ready - Teal */
-.status-ready {
-    background-color: #e8f8f5 !important;
-    border-color: #a3e4d7 !important;
-    color: #16a085 !important;
-}
-
-/* Completed - Green */
+/* Completed - #008000 */
 .status-completed {
-    background-color: #edf9ee !important;
-    border-color: #c7eecb !important;
-    color: #2d8a34 !important;
+    background-color: #e6f5e6 !important;
+    border-color: #80c080 !important;
+    color: #005200 !important;
 }
 
-/* Cancelled - Red */
+/* Cancelled - #FF1F1F */
 .status-cancelled,
 .status-canceled {
-    background-color: #fdf2f2 !important;
-    border-color: #f8c8c8 !important;
-    color: #d9534f !important;
+    background-color: #ffe8e8 !important;
+    border-color: #ff9191 !important;
+    color: #b30000 !important;
 }
 
 /* Redefine grid column proportions for the calendar layout */
 ul.cal {
   display: grid;
-  /* Col 1: Week # (fits content automatically) | Col 2: Sun (50%) | Cols 3-7: Mon-Fri (100%) | Col 8: Sat (50%) */
   grid-template-columns: max-content 0.5fr repeat(5, 1fr) 0.5fr !important;
 }
 
-/* Optional: Compress content and dim non-working weekend cells */
+/* Compress content and dim non-working weekend cells */
 ul.cal li.nwday,
 ul.cal li.sunday,
 ul.cal li.saturday {
@@ -431,22 +499,18 @@ ul.cal li.saturday {
   padding: 2px !important;
 }
 
-/* Hide non-essential metadata on narrow weekend cells to avoid vertical stretching */
+/* Hide non-essential metadata on narrow weekend cells */
 ul.cal li.nwday .icon-user,
 ul.cal li.nwday .buttons {
   display: none;
 }
-/* ==========================================================================
-   Responsive Mobile View: Single-Column Stacked Calendar (Screens <= 768px)
-   ========================================================================== */
 
+/* Responsive Mobile View */
 @media screen and (max-width: 768px) {
-  /* 1. Hide the horizontal week header (Sun-Sat column headers) */
   table.cal thead {
     display: none !important;
   }
 
-  /* 2. Convert table structures into block elements to stack days vertically */
   table.cal,
   table.cal tbody,
   table.cal tr,
@@ -457,7 +521,6 @@ ul.cal li.nwday .buttons {
     box-sizing: border-box !important;
   }
 
-  /* 3. Style each day cell as a full-width vertical card */
   table.cal td {
     width: 100% !important;
     min-height: 48px;
@@ -468,7 +531,6 @@ ul.cal li.nwday .buttons {
     background: #ffffff;
   }
 
-  /* 4. Single-column layout for CSS Grid implementation (ul.cal) */
   ul.cal {
     display: flex !important;
     flex-direction: column !important;
@@ -483,15 +545,12 @@ ul.cal li.nwday .buttons {
     box-sizing: border-box;
   }
 
-  /* 5. Ensure appointment blocks span full width in the single column */
   .appointment-block {
     width: 100% !important;
     max-width: 100% !important;
   }
 
-  /* 6. Center popover tooltips on mobile view */
   .appointment-block .tip,
-  .appointment-block:hover .tip,
   .appointment-block.open .tip {
     position: fixed !important;
     top: 50% !important;
@@ -504,7 +563,6 @@ ul.cal li.nwday .buttons {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
   }
 
-  /* Reset Friday/Saturday tooltip overrides for single-column mobile view */
   table.cal td:nth-child(n+6) .appointment-block .tip {
     left: 50% !important;
     right: auto !important;
