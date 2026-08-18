@@ -3,8 +3,8 @@
     <i class="fa-regular fa-calendar-days"></i> <%= l(:button_calendar) %>
   <% end %>
 
-  <%= link_to customer_appointments_path do %>
-    <i class="fa-solid fa-list"></i> <%= l(:button_appointments) %>
+  <%= link_to new_issue_path(issue: { customer_id: @appointment.customer_id, vehicle_id: @appointment.vehicle_id, estimate_id: @appointment.estimate_id }), target: :_blank do %>
+    <i class="fa-solid fa-plus"></i> <%= l(:label_new_issue) %>
   <% end %>
 
   <%= link_to edit_customer_appointment_path(@appointment) do %>
