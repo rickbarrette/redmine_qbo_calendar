@@ -382,6 +382,16 @@ h2 .appointment-title {
     text-decoration: line-through;
 }
 
+/* Call Out - #FFFF00 */
+.appointment-block.call_out,
+.appointment-block.call_out:hover,
+.appointment-block.call_out.open { background: hsl(60, 100%, 95%) !important; border-color: hsl(60, 100%, 50%) !important; }
+.appointment-block.call_out .appointment-bar { background-color: hsl(60, 100%, 45%) !important; }
+.appointment-block.call_out .appointment-divider { border-top-color: hsl(60, 100%, 80%) !important; }
+.appointment-block.call_out .tip,
+.appointment-block.call_out:hover .tip,
+.appointment-block.call_out.open .tip { background: hsl(60, 100%, 97%) !important; border-color: hsl(60, 100%, 60%) !important; }
+
 /* Table List Alignment */
 table.appointments td,
 table.appointments th {
@@ -466,7 +476,7 @@ table.appointments td.status {
 .status-inprogress,
 .status-in_progress {
     background-color: #fff0e8 !important;
-    border-color: #ffb391 !important;
+    border-color: #ff9191 !important;
     color: #b33000 !important;
 }
 
@@ -483,6 +493,13 @@ table.appointments td.status {
     background-color: #ffe8e8 !important;
     border-color: #ff9191 !important;
     color: #b30000 !important;
+}
+
+/* Completed - #FFFF00 */
+.status-call_out {
+    background-color: hwb(60 0% 0%) !important;
+    border-color: lab(0% 0 0) !important;
+    color: hwb(60 0% 100%) !important;
 }
 
 /* Redefine grid column proportions for the calendar layout */

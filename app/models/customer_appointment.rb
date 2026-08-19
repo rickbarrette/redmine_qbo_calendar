@@ -23,11 +23,12 @@ class CustomerAppointment < ActiveRecord::Base
 
   STATUSES = %w[
       Scheduled
-      CheckedIn
-      InProgress
+      Checked_In
+      In_Progress
       Ready
       Completed
       Cancelled
+      Call_Out
   ]
 
   # Scans the QBO Estimate's InvoiceLineItems for "Labor" sales items
