@@ -68,8 +68,8 @@ table.cal td {
 
 .appointment-avatar {
     flex-shrink: 0;
-    width: 20px;
-    height: 20px;
+    width: 25px;
+    height: 25px;
     border-radius: 3px;
     object-fit: cover;
 }
@@ -99,8 +99,12 @@ table.cal td {
 }
 
 .appointment-time,
-.appointment-hours {
+.appointment-hours{
     flex-shrink: 0;
+}
+
+.appointment-days {
+    place-items: center;
 }
 
 /* Horizontal Dividers */

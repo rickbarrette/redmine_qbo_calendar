@@ -31,7 +31,7 @@
     <%# Row 1: Avatar | Title %>
     <div class="appointment-header">
       <% if appointment.user %>
-        <%= avatar(appointment.user, size: 14, class: "appointment-avatar") %>
+        <%= avatar(appointment.user, size: 25, class: "appointment-avatar") %>
       <% end %>
 
       <span class="appointment-title">
@@ -48,7 +48,7 @@
       </span>
 
       <% if duration > 1 && day_number.positive? && day_number <= duration %>
-        <small class="muted">(Day <%= day_number %> of <%= duration %>)</small>
+       <span class="appointment-days">(Day <%= day_number %> of <%= duration %>)</span>
       <% end %>
 
       <span class="appointment-hours">
