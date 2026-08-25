@@ -35,6 +35,7 @@ en:
   label_start_date: Start Date
   label_status: Status
   label_technician: Technician
+  label_today: Today
   label_time: Time
   label_title: Title
   label_upcoming_appointments: "My Upcoming Appointments"

@@ -3,6 +3,10 @@
   only_appointments = params[:only_appointments] == '1'
   hide_past_weeks   = params[:hide_past_weeks] == '1'
 
+  # Current date context
+  today = User.current.today
+  is_current_month = (calendar.instance_variable_get(:@month) == today.month && calendar.instance_variable_get(:@year) == today.year)
+
   # Get Redmine's configured non-working week days (e.g., ["6", "7"] for Sat/Sun)
   non_working_days = Setting.non_working_week_days || []
 
@@ -66,6 +70,25 @@
 
 <!-- Toggle Bar -->
 <div class="calendar-filter-toolbar" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: flex-end; gap: 16px;">
+  <% if is_current_month %>
+    <button type="button" 
+            onclick="scrollToToday()" 
+            class="button-small" 
+            style="display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 600; font-size: 0.9em; padding: 4px 10px; border-radius: 3px;"
+            title="<%= l(:label_today) %>">
+      <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+      <%= l(:label_today) %>
+    </button>
+  <% else %>
+    <%= link_to url_for(request.query_parameters.merge(year: today.year, month: today.month)), 
+                class: 'button-small', 
+                style: 'display: inline-flex; align-items: center; gap: 5px; text-decoration: none; font-weight: 600; font-size: 0.9em; padding: 4px 10px; border-radius: 3px;',
+                title: l(:label_today) do %>
+      <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+      <%= l(:label_today,) %>
+    <% end %>
+  <% end %>
+
   <label for="toggle-hide-past-weeks" style="cursor: pointer; font-weight: 600; font-size: 0.9em; color: #444; display: inline-flex; align-items: center; gap: 6px;">
     <%= check_box_tag 'hide_past_weeks',
                       '1',
@@ -256,6 +279,13 @@
     const STORAGE_KEY_ONLY_APPTS = 'redmine_cal_only_appointments';
     const STORAGE_KEY_HIDE_PAST  = 'redmine_cal_hide_past_weeks';
 
+    window.scrollToToday = function() {
+      const todayElement = document.getElementById('today');
+      if (todayElement) {
+        todayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
       const urlParams = new URLSearchParams(window.location.search);
       let needsRedirect = false;
@@ -279,10 +309,7 @@
 
       // Automatically scroll to today if present and no specific hash anchor is in the URL
       if (!window.location.hash) {
-        const todayElement = document.getElementById('today');
-        if (todayElement) {
-          todayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        window.scrollToToday();
       }
     });
 
