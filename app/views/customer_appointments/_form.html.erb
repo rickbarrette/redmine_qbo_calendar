@@ -1,3 +1,5 @@
+<%= javascript_include_tag("customer-modal", plugin: :redmine_qbo_calendar) %>
+
 <%= labelled_form_for @appointment do |f| %>
   <%= error_messages_for @appointment %>
 
@@ -7,6 +9,8 @@
     <p>
       <%= f.text_field :customer, label: :label_customer, class: "customer-name", autocomplete: "off", data: { autocomplete_url: "/customers/autocomplete" } %>
       <%= f.hidden_field :customer_id, id: "customer_id" %>
+      <!-- Add Quick Create Button -->
+      <a href="#" id="inline-create-customer-btn" class="icon icon-add" title="New Customer">+</a>
     </p>
 
     <p>
@@ -43,3 +47,8 @@
 
   <%= submit_tag l(:button_save) %>
 <% end %>
+
+<!-- Modal Container for Inline Customer Creation -->
+<div id="new-customer-dialog" style="display:none;" title="<%= t(:label_new_customer, default: 'New Customer') %>">
+  <!-- The form will be dynamically loaded via JS or rendered here -->
+</div>
