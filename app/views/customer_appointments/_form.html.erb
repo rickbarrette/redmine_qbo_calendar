@@ -10,7 +10,7 @@
       <%= f.text_field :customer, label: :label_customer, class: "customer-name", autocomplete: "off", data: { autocomplete_url: "/customers/autocomplete" } %>
       <%= f.hidden_field :customer_id, id: "customer_id" %>
       <!-- Add Quick Create Button -->
-      <a href="#" id="inline-create-customer-btn" class="icon icon-add" title="New Customer">+</a>
+      <a href="#" id="inline-create-customer-btn" class="icon-only icon-add" title="<%=l(:label_new_customer)%>"></a>
     </p>
 
     <p>

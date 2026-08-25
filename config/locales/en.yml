@@ -25,11 +25,13 @@ en:
   label_customer_calendar: Customer Calendar
   label_days: Days
   label_duration: Duration
+  label_edit_appointment: Edit Appointment
   label_end_date: End Date
   label_estimated_hours: Estimated Time
   label_event: Event
   label_open_appointment: Open Appointment
   label_only_customer_appointments: Show Customer Appointments Only
+  label_new_appointment: New Appointment
   label_start_date: Start Date
   label_status: Status
   label_technician: Technician
