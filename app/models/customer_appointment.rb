@@ -18,6 +18,9 @@ class CustomerAppointment < ActiveRecord::Base
 
   validates :subject, presence: true
   validates :date, presence: true
+  
+  # Prevent scheduling on non-working days or holidays
+  validate :validate_working_day
 
   normalizes :subject, with: ->(subject) { subject.strip.titleize }
 
@@ -113,6 +116,23 @@ class CustomerAppointment < ActiveRecord::Base
 
   def log(msg)
     Rails.logger.info "[CustomerAppointment] #{msg}"
+  end
+
+  # Validates that the appointment date does not land on a weekend or holiday
+  def validate_working_day
+    return if date.blank?
+
+    target_date = date.to_date
+    non_working_days = Setting.non_working_week_days || []
+
+    if non_working_days.include?(target_date.cwday.to_s)
+      errors.add(:date, :invalid, message: I18n.t(:error_non_working_day))
+    elsif defined?(Holiday)
+      matched_holiday = Holiday.all.find { |h| h.occurs_on?(target_date) }
+      if matched_holiday.present?
+        errors.add(:date, :invalid, message: I18n.t(:error_holiday, name: matched_holiday.name))
+      end
+    end
   end
 
   # Helper to parse item name across Quickbooks::Model::Line and Hash structures

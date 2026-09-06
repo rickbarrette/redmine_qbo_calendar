@@ -12,6 +12,8 @@
   # Get Redmine's configured non-working week days (e.g., ["6", "7"] for Sat/Sun)
   non_working_days = Setting.non_working_week_days || []
 
+  all_holidays = Holiday.all
+
   # Safely collect all unique CustomerAppointments across the entire calendar date range
   all_appointments = (calendar.startdt..calendar.enddt).flat_map { |date|
     calendar.events_on(date)
@@ -26,15 +28,23 @@
     target_date = current_day.to_date
 
     return false if target_date < start_date
-    # Skip rendering on Redmine non-working days
+    
+    # Skip rendering on Redmine standard non-working days
     return false if non_working_days.include?(target_date.cwday.to_s)
+    
+    # Skip rendering on custom non-working days (Holidays)
+    return false if all_holidays.any? { |h| h.occurs_on?(target_date) }
 
     duration = [appointment.duration.to_i, 1].max
     date_cursor = start_date
     working_days_count = 0
 
     while date_cursor <= target_date
-      unless non_working_days.include?(date_cursor.cwday.to_s)
+      is_standard_weekend = non_working_days.include?(date_cursor.cwday.to_s)
+      is_custom_holiday   = all_holidays.any? { |h| h.occurs_on?(date_cursor) }
+
+      # Only increment duration count if it's a standard working day AND not a holiday
+      unless is_standard_weekend || is_custom_holiday
         working_days_count += 1
       end
 
@@ -135,6 +145,11 @@
 
         <% 
           is_today = (day == User.current.today)
+          
+          # Find the specific holiday for this day (if any)
+          current_holiday = all_holidays.find { |h| h.occurs_on?(day) }
+          is_custom_holiday = current_holiday.present?
+          is_standard_weekend = non_working_days.include?(day.cwday.to_s)
 
           # Filter out standard events if "only appointments" toggle is active
           standard_events = only_appointments ? [] : calendar.events_on(day).reject { |e| e.is_a?(CustomerAppointment) }
@@ -169,7 +184,8 @@
           end
         %>
 
-        <li class="<%= calendar.day_css_classes(day) %> calbody"<%= ' id="today"'.html_safe if is_today %>>
+        <%# Added 'week-end' class and background color styling for custom holidays to mimic weekends %>
+        <li class="<%= calendar.day_css_classes(day) %> calbody <%= 'week-end' if is_custom_holiday %>" style="<%= 'background-color: #f6f6f6;' if is_custom_holiday %>"<%= ' id="today"'.html_safe if is_today %>>
 
           <p class="day-num" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 4px;">
             <!-- Left: Day number and abbreviated weekday -->
@@ -182,7 +198,8 @@
 
             <!-- Center: New Appointment Action -->
             <span class="day-num-center" style="display: inline-flex; align-items: center; justify-self: center;">
-              <% if day >= User.current.today && !non_working_days.include?(day.cwday.to_s) %>
+              <%# Only show ADD button if it's in the future, NOT a weekend, and NOT a custom holiday %>
+              <% if day >= User.current.today && !is_standard_weekend && !is_custom_holiday %>
                 <%= link_to sprite_icon('add'),
                             new_customer_appointment_path(start_date: day),
                             class: 'icon-only icon-add',
@@ -199,6 +216,17 @@
               <% end %>
             </span>
           </p>
+
+          <%# Render Holiday Name Badge if it's a holiday %>
+          <% if is_custom_holiday %>
+            <div class="holiday-badge" style="background-color: #f2dede; color: #a94442; padding: 3px 6px; border-radius: 3px; font-size: 0.8em; font-weight: bold; margin-bottom: 4px; border: 1px solid #ebccd1; display: flex; align-items: center; gap: 4px;">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-calendar fa-stack-1x"></i>
+                <i class="fas fa-slash fa-stack-2x" style="color:Tomato"></i>
+              </span>
+              <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><%= current_holiday.name %></span>
+            </div>
+          <% end %>
 
           <% day_events.each do |event| %>
 

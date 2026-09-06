@@ -8,14 +8,26 @@
 #
 #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-RedmineApp::Application.routes.draw do
+class CreateHolidays < ActiveRecord::Migration[7.0]
+  def change
+    create_table :holidays do |t|
+      t.string :name, null: false
+      
+      # Use date instead of datetime since holidays are full days
+      t.date :exact_date 
+      
+      # For recurring logic
+      t.boolean :is_recurring, default: false
+      
+      # "fixed" (same date every year) or "dynamic" (e.g., 1st Monday)
+      t.string :recurrence_type 
+      
+      # Fields for dynamic recurring holidays (Labor Day)
+      t.integer :month         # e.g., 9 (September)
+      t.integer :day_of_week   # e.g., 1 (Monday)
+      t.integer :week_of_month # e.g., 1 (First week)
 
-  resources :holidays, except: [:show] # Exclude :show since we don't need a separate page for individual holidays
-  resources :customer_appointments do
-    collection do
-      get :customer_options
-      get :create_issues
+      t.timestamps
     end
   end
-
 end

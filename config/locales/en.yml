@@ -14,9 +14,23 @@ en:
   are_you_sure: "Are you sure?"
   button_appointments: Appointments
   button_calendar: Calendar
+  day_name_friday: "Friday"
+  day_name_monday: "Monday"
+  day_name_saturday: "Saturday"
+  day_name_sunday: "Sunday"
+  day_name_thursday: "Thursday"
+  day_name_tuesday: "Tuesday"
+  day_name_wednesday: "Wednesday"
+  error_holiday: "Cannot be scheduled on holiday: %{name}"
+  error_non_working_day: "Cannot be scheduled on a non-working day"
   field_customer_name: Customer
+  field_date: Date
+  field_dynamic_rule: Rule
+  field_is_recurring: "Is this a recurring holiday?"
   field_license_plate: License Plate
   field_phone: Phone
+  field_recurrence_type: Recurrence Type
+  field_type: Type
   field_vehicle: Vehicle
   label_add_appointment: Add Appointment
   label_appointment: Appointment
@@ -29,16 +43,28 @@ en:
   label_end_date: End Date
   label_estimated_hours: Estimated Time
   label_event: Event
-  label_open_appointment: Open Appointment
-  label_only_customer_appointments: Show Customer Appointments Only
+  label_holiday_edit: Edit Holiday
+  label_holiday_new: New Holiday
+  label_holiday_plural: Holidays
   label_new_appointment: New Appointment
+  label_of: "of"
+  label_only_customer_appointments: Show Customer Appointments Only
+  label_open_appointment: Open Appointment
+  label_recurrence_dynamic: "Dynamic Date (e.g., 1st Monday of Sept)"
+  label_recurrence_fixed: "Fixed Date (e.g., Dec 25)"
   label_start_date: Start Date
   label_status: Status
   label_technician: Technician
-  label_today: Today
   label_time: Time
   label_title: Title
+  label_today: Today
   label_upcoming_appointments: "My Upcoming Appointments"
+  label_week_1st: "1st"
+  label_week_2nd: "2nd"
+  label_week_3rd: "3rd"
+  label_week_4th: "4th"
+  label_week_last: "Last"
+  notice_unable_delete_holiday: "Unable to delete holiday"
   permission_manage_customer_appointments: Manage Customer Appointments
   permission_view_customer_appointments: View Customer Appointments
-  title_customer_appointments: Customer Appoitnments
+  title_customer_appointments: Customer Appointments

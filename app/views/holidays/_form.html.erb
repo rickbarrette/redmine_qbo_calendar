@@ -1,0 +1,97 @@
+<%= error_messages_for 'holiday' %>
+
+<div class="box tabular">
+  <p>
+    <label for="holiday_name"><%= l(:field_name, default: 'Name') %> <span class="required">*</span></label>
+    <%= f.text_field :name, required: true, size: 40 %>
+  </p>
+
+  <p>
+    <label for="holiday_is_recurring"><%= l(:field_is_recurring, default: 'Is this a recurring holiday?') %></label>
+    <%= f.check_box :is_recurring, id: 'holiday_is_recurring' %>
+  </p>
+
+  <p id="p_recurrence_type" style="display: none;">
+    <label for="holiday_recurrence_type"><%= l(:field_recurrence_type, default: 'Recurrence Type') %></label>
+    <%= f.select :recurrence_type, 
+                 Holiday::TYPES.map { |type_key| 
+                   label_text = case type_key
+                                when 'fixed'   then l(:label_recurrence_fixed, default: 'Fixed Date (e.g., Dec 25)')
+                                when 'dynamic' then l(:label_recurrence_dynamic, default: 'Dynamic Date (e.g., 1st Monday of Sept)')
+                                else type_key.humanize
+                                end
+                   [label_text, type_key]
+                 }, 
+                 {}, 
+                 id: 'holiday_recurrence_type' %>
+  </p>
+
+  <!-- Fields for Exact Date (One-Time or Fixed Recurring) -->
+  <p id="p_exact_date">
+    <label for="holiday_exact_date"><%= l(:field_date, default: 'Date') %></label>
+    <%= f.date_field :exact_date, id: 'holiday_exact_date' %>
+  </p>
+
+  <!-- Fields for Dynamic Date -->
+  <div id="p_dynamic_date" style="display: none;">
+    <p>
+      <label><%= l(:field_dynamic_rule, default: 'Rule') %></label>
+      
+      <%= f.select :week_of_month, [
+            [l(:label_week_1st, default: '1st'), 1], 
+            [l(:label_week_2nd, default: '2nd'), 2], 
+            [l(:label_week_3rd, default: '3rd'), 3], 
+            [l(:label_week_4th, default: '4th'), 4], 
+            [l(:label_week_last, default: 'Last'), 5]
+          ], {}, style: 'width: 80px;' %>
+      
+      <%= f.select :day_of_week, 
+                   [
+                     [l(:day_name_sunday, default: 'Sunday'), 0], 
+                     [l(:day_name_monday, default: 'Monday'), 1], 
+                     [l(:day_name_tuesday, default: 'Tuesday'), 2], 
+                     [l(:day_name_wednesday, default: 'Wednesday'), 3], 
+                     [l(:day_name_thursday, default: 'Thursday'), 4], 
+                     [l(:day_name_friday, default: 'Friday'), 5], 
+                     [l(:day_name_saturday, default: 'Saturday'), 6]
+                   ], 
+                   {}, style: 'width: 120px;' %>
+      
+      <span style="margin: 0 10px;"><%= l(:label_of, default: 'of') %></span>
+      
+      <%= f.select :month, 
+                   Date::MONTHNAMES.compact.each_with_index.map { |m, i| [m, i+1] }, 
+                   {}, style: 'width: 120px;' %>
+    </p>
+  </div>
+</div>
+
+<script type="text/javascript">
+  function toggleHolidayFields() {
+    var isRecurring = $('#holiday_is_recurring').is(':checked');
+    var recurrenceType = $('#holiday_recurrence_type').val();
+
+    if (isRecurring) {
+      $('#p_recurrence_type').show();
+      if (recurrenceType === 'dynamic') {
+        $('#p_exact_date').hide();
+        $('#p_dynamic_date').show();
+      } else {
+        $('#p_exact_date').show();
+        $('#p_dynamic_date').hide();
+      }
+    } else {
+      $('#p_recurrence_type').hide();
+      $('#p_exact_date').show();
+      $('#p_dynamic_date').hide();
+    }
+  }
+
+  $(document).ready(function() {
+    toggleHolidayFields();
+
+    $('#holiday_is_recurring, #holiday_recurrence_type').on('change', function() {
+      toggleHolidayFields();
+    });
+  });
+</script>

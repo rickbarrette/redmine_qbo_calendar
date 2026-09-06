@@ -1,0 +1,7 @@
+<h2><%= l(:label_holiday_edit, default: 'Edit Holiday') %></h2>
+
+<%= form_with model: @holiday, url: holiday_path(@holiday), method: :patch, local: true do |f| %>
+  <%= render partial: 'form', locals: { f: f } %>
+  <%= submit_tag l(:button_save) %>
+  <%= link_to l(:button_cancel), holidays_path, class: 'cancel' %>
+<% end %>

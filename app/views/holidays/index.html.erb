@@ -1,0 +1,55 @@
+<div class="contextual">
+  <%= link_to 'New Holiday', new_holiday_path, class: 'icon icon-add' %>
+</div>
+
+<h2><%= l(:label_holiday_plural, default: 'Holidays') %></h2>
+
+<% if @holidays.any? %>
+  <div class="autoscroll">
+    <table class="list holidays">
+      <thead>
+        <tr>
+          <th><%= l(:field_name, default: 'Name') %></th>
+          <th><%= l(:field_type, default: 'Type') %></th>
+          <th><%= l(:field_date, default: 'Date / Rule') %></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @holidays.each do |holiday| %>
+          <tr class="<%= cycle('odd', 'even') %>">
+            <td class="name"><%= holiday.name %></td>
+            
+            <td class="type">
+              <% if !holiday.is_recurring %>
+                <span class="badge">One-Time</span>
+              <% else %>
+                <span class="badge" style="color: #169;">Recurring (<%= holiday.recurrence_type.capitalize %>)</span>
+              <% end %>
+            </td>
+
+            <td class="date-rule">
+              <% if !holiday.is_recurring || holiday.recurrence_type == 'fixed' %>
+                <%= holiday.exact_date&.strftime('%B %d, %Y') %>
+              <% elsif holiday.recurrence_type == 'dynamic' %>
+                <%= ['1st', '2nd', '3rd', '4th', 'Last'][holiday.week_of_month - 1] %> 
+                <%= Date::DAYNAMES[holiday.day_of_week] %> of 
+                <%= Date::MONTHNAMES[holiday.month] %>
+              <% end %>
+            </td>
+
+            <td class="buttons">
+              <%= link_to l(:button_edit), edit_holiday_path(holiday), class: 'icon icon-edit' %>
+              <%= link_to l(:button_delete), holiday_path(holiday), 
+                          method: :delete, 
+                          data: { confirm: l(:text_are_you_sure) }, 
+                          class: 'icon icon-del' %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>
