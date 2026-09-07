@@ -82,8 +82,28 @@ Before using this plugin:
 
 ## Usage
 
-Add appointments
-    
+1. Managing Customer Appointments
+    * Viewing the Calendar: Navigate to the Customer Calendar tab within a project or via the top menu to view scheduled customer appointments.
+    * Adding Appointments: Click on available days on the calendar grid to schedule a new appointment (restricted by user permissions, working days, and configured holidays).
+    * Editing & Deleting: Existing appointments can be modified or removed directly from the calendar interface depending on user privileges.
+    * My Page Integration: Users can add the Upcoming Appointments block to their personal My Page dashboard to track their schedule at a glance.
+
+2. Holidays and Non-Working Days
+Administrators can manage the holiday calendar to prevent appointments from being scheduled on non-working days.
+    * Go to Administration -> Holidays (or the corresponding holidays menu item).
+    * Fixed Holidays: Set specific dates (e.g., December 25th) that recur annually or apply to a single year.
+    * Dynamic Holidays: Configure rules for floating holidays (e.g., the 1st Monday of September).
+    * Validation: The system automatically blocks appointment creation on standard weekends, non-working days, and defined holidays.
+
+3. Permissions & Global Access
+Appointment permissions are configured globally to apply system-wide:
+    1. Navigate to Administration -> Roles and permissions.
+    2.  Scroll to the global permissions section.
+    3.  Assign the following permissions as needed based on user roles (such as Non-member or custom staff roles):
+        * View customer appointments
+        * Add customer appointments
+        * Edit customer appointments
+        * Delete customer appointments
 
 ---
 
