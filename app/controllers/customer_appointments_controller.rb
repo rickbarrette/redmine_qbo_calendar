@@ -86,7 +86,7 @@ class CustomerAppointmentsController < ApplicationController
   def destroy
     @appointment.destroy
     flash[:notice] = l(:notice_successful_delete)
-    redirect_to project_customer_appointments_path( @project)
+    redirect_to issues_calendar_path
   end
 
   private
@@ -117,6 +117,8 @@ class CustomerAppointmentsController < ApplicationController
 
   def find_appointment
     @appointment = CustomerAppointment.find(params[:id])
+  rescue
+    render_404
   end
 
   def log(msg)
