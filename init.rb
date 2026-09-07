@@ -30,22 +30,6 @@ Redmine::Plugin.register :redmine_qbo_calendar do
     raise 'Please install the redmine_qbo plugin (https://github.com/rickbarrette/redmine_qbo)'
   end
 
-  project_module :customer_calendar do
-    permission :view_customer_appointments,
-              { customer_appointments: [:index, :show] }
-
-    permission :manage_customer_appointments,
-              {
-                customer_appointments: [
-                  :new,
-                  :create,
-                  :edit,
-                  :update,
-                  :destroy
-                ]
-              }
-end
-
   # Global Permissions
   permission :view_customer_appointments, { customer_appointments: [:index, :show] }, global: true
   permission :add_customer_appointments, { customer_appointments: [:new, :create] }, global: true
@@ -55,16 +39,6 @@ end
   # Register top menu items
   menu :top_menu, :calendar, { controller: :calendars, action: :show }, caption: :label_calendar, if: Proc.new {User.current.logged?}
   
-end
-
-Rails.configuration.to_prepare do
-  ApplicationController.prepend_view_path( File.expand_path("app/views", __dir__) )
-
-  Redmine::Views::MyPage::Block.register(
-      'upcoming_appointments',
-      label: :label_upcoming_appointments,
-      partial: 'my/blocks/upcoming_appointments'
-    )
 end
 
 RedmineQboCalendar.setup
