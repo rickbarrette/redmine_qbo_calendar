@@ -64,22 +64,6 @@ Restart your application server (Puma, Passenger, etc.) to initialize the plugin
 
 ---
 
-## Configuration
-
-This plugin depends on the **Redmine QuickBooks Online** plugin.
-
-Before using this plugin:
-
-1.  Install and configure the parent plugin.
-    
-2.  Ensure your **QuickBooks Online** company file is connected.
-
-3.  Sync Accounts & Items via plugin settings
-
-4.  Set default income account for new items via plugin settings
-
----
-
 ## Usage
 
 1. Managing Customer Appointments
