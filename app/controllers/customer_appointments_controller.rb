@@ -12,7 +12,8 @@ class CustomerAppointmentsController < ApplicationController
   before_action :require_login
   before_action :find_project, except: [:index]
   before_action :find_appointment, only: [ :show, :edit, :update, :destroy ]
-  #before_action :authorize
+  # This tells Redmine to check global permissions for the current controller/action
+  before_action :authorize_global
 
   helper :projects
 

@@ -5,8 +5,10 @@
     <i class="fa-regular fa-calendar-days"></i> <%= l(:button_calendar) %>
   <% end %>
 
-  <%= link_to new_customer_appointment_path do %>
-    <i class="fa-regular fa-pen-to-square"></i> <%= l(:button_add) %>
+  <% if User.current.allowed_to?(:add_customer_appointments, nil, global: true) %>
+    <%= link_to new_customer_appointment_path do %>
+      <i class="fa-regular fa-pen-to-square"></i> <%= l(:button_add) %>
+    <% end %>
   <% end %>
 
 </div>

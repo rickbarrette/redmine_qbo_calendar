@@ -197,15 +197,17 @@
             </span>
 
             <!-- Center: New Appointment Action -->
-            <span class="day-num-center" style="display: inline-flex; align-items: center; justify-self: center;">
-              <%# Only show ADD button if it's in the future, NOT a weekend, and NOT a custom holiday %>
-              <% if day >= User.current.today && !is_standard_weekend && !is_custom_holiday %>
-                <%= link_to sprite_icon('add'),
-                            new_customer_appointment_path(start_date: day),
-                            class: 'icon-only icon-add',
-                            title: l(:label_appointment_new, default: 'New Appointment') %>
-              <% end %>
-            </span>
+            <% if User.current.allowed_to?(:add_customer_appointments, nil, global: true) %>
+              <span class="day-num-center" style="display: inline-flex; align-items: center; justify-self: center;">
+                <%# Only show ADD button if it's in the future, NOT a weekend, NOT a holiday, AND user has permission %>
+                <% if day >= User.current.today && !is_standard_weekend && !is_custom_holiday && User.current.allowed_to?(:add_customer_appointments, nil, global: true) %>
+                  <%= link_to sprite_icon('add'),
+                              new_customer_appointment_path(start_date: day),
+                              class: 'icon-only icon-add',
+                              title: l(:label_appointment_new, default: 'New Appointment') %>
+                <% end %>
+              </span>
+            <% end %>
 
             <!-- Right: Total Hours -->
             <span class="day-num-right" style="display: inline-flex; align-items: center; justify-self: end;">

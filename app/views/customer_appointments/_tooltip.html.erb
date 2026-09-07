@@ -92,6 +92,8 @@
 
 <hr>
 
-<p class="buttons">
-  <%= link_to l(:label_open_appointment), customer_appointment_path(appointment), class: "icon icon-edit" %>
-</p>
+<% if User.current.allowed_to?(:edit_customer_appointments, nil, global: true) %>
+  <p class="buttons">
+    <%= link_to l(:label_open_appointment), customer_appointment_path(appointment), class: "icon icon-edit" %>
+  </p>
+<% end %>

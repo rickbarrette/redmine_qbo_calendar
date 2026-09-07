@@ -34,6 +34,7 @@ en:
   field_vehicle: Vehicle
   label_add_appointment: Add Appointment
   label_appointment: Appointment
+  label_appointment_new: "New Appointment"
   label_appointments: Appointments
   label_customer_appointment: Customer Appointment
   label_customer_calendar: Customer Calendar
@@ -43,9 +44,11 @@ en:
   label_end_date: End Date
   label_estimated_hours: Estimated Time
   label_event: Event
+  label_hide_past_weeks: "Hide Past Weeks"
   label_holiday_edit: Edit Holiday
   label_holiday_new: New Holiday
   label_holiday_plural: Holidays
+  label_legend: "Legend"
   label_new_appointment: New Appointment
   label_of: "of"
   label_only_customer_appointments: Show Customer Appointments Only
@@ -65,6 +68,9 @@ en:
   label_week_4th: "4th"
   label_week_last: "Last"
   notice_unable_delete_holiday: "Unable to delete holiday"
+  permission_add_customer_appointments: "Add customer appointments"
+  permission_delete_customer_appointments: "Delete customer appointments"
+  permission_edit_customer_appointments: "Edit customer appointments"
   permission_manage_customer_appointments: Manage Customer Appointments
-  permission_view_customer_appointments: View Customer Appointments
+  permission_view_customer_appointments: "View customer appointments"
   title_customer_appointments: Customer Appointments

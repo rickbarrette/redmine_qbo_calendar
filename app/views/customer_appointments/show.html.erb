@@ -3,16 +3,22 @@
     <i class="fa-regular fa-calendar-days"></i> <%= l(:button_calendar) %>
   <% end %>
 
-  <%= link_to new_issue_path(issue: { customer_id: @appointment.customer_id, vehicle_id: @appointment.vehicle_id, estimate_id: @appointment.estimate_id }), target: :_blank do %>
-    <i class="fa-solid fa-plus"></i> <%= l(:label_new_issue) %>
+  <% if User.current.allowed_to?(:add_customer_appointments, nil, global: true) %>
+    <%= link_to new_issue_path(issue: { customer_id: @appointment.customer_id, vehicle_id: @appointment.vehicle_id, estimate_id: @appointment.estimate_id }), target: :_blank do %>
+      <i class="fa-solid fa-plus"></i> <%= l(:label_new_issue) %>
+    <% end %>
   <% end %>
 
-  <%= link_to edit_customer_appointment_path(@appointment) do %>
-    <i class="fa-solid fa-pen-to-square"></i> <%= l(:button_edit) %>
+  <% if User.current.allowed_to?(:edit_customer_appointments, nil, global: true) %>
+    <%= link_to edit_customer_appointment_path(@appointment) do %>
+      <i class="fa-solid fa-pen-to-square"></i> <%= l(:button_edit) %>
+    <% end %>
   <% end %>
 
-  <%= link_to customer_appointment_path(@appointment), method: :delete, data: { confirm: l(:text_are_you_sure) } do %>
-    <i class="fa-solid fa-trash"></i> <%= l(:button_delete) %>
+  <% if User.current.allowed_to?(:delete_customer_appointments, nil, global: true) %>
+    <%= link_to customer_appointment_path(@appointment), method: :delete, data: { confirm: l(:text_are_you_sure) } do %>
+      <i class="fa-solid fa-trash"></i> <%= l(:button_delete) %>
+    <% end %>
   <% end %>
 </div>
 
@@ -36,20 +42,22 @@
   </span>
 </h2>
 
-<%# Quick Status Action Buttons %>
-<% 
-  statuses = CustomerAppointment::STATUSES 
-  current_status = @appointment.status.to_s.parameterize.underscore
-%>
-<div class="appointment-quick-actions">
-  <span class="quick-action-label"><%= l(:label_change_status, default: 'Change Status:') %></span>
-  <% statuses.reject { |s| s == current_status }.each do |status_key| %>
-    <%= link_to status_key.humanize,
-                customer_appointment_path(@appointment, customer_appointment: { status: status_key }),
-                method: :patch,
-                class: "quick-status-btn status-#{status_key.parameterize}" %>
-  <% end %>
-</div>
+<% if User.current.allowed_to?(:edit_customer_appointments, nil, global: true) %>
+  <%# Quick Status Action Buttons %>
+  <% 
+    statuses = CustomerAppointment::STATUSES 
+    current_status = @appointment.status.to_s.parameterize.underscore
+  %>
+  <div class="appointment-quick-actions">
+    <span class="quick-action-label"><%= l(:label_change_status, default: 'Change Status:') %></span>
+    <% statuses.reject { |s| s == current_status }.each do |status_key| %>
+      <%= link_to status_key.humanize,
+                  customer_appointment_path(@appointment, customer_appointment: { status: status_key }),
+                  method: :patch,
+                  class: "quick-status-btn status-#{status_key.parameterize}" %>
+    <% end %>
+  </div>
+<% end %>
 
 <div class="issue details">
   <div class="attributes">
