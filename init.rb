@@ -14,7 +14,7 @@ Redmine::Plugin.register :redmine_qbo_calendar do
   name 'Redmine QBO Calendar plugin'
   author 'Rick Barrette'
   description 'A plugin for Redmine to extend the capabilitys of the Redmine QuickBooks Online plugin to create customer appointments for the Redmine Calendar'
-  version '2026.9.0'
+  version '2026.9.1'
   url 'https://github.com/rickbarrette/redmine_qbo_calendar'
   author_url 'https://barrettefabrication.com'
   requires_redmine version_or_higher: '7.0.0'
