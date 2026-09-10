@@ -173,7 +173,34 @@
             if event.is_a?(Issue)
               event.estimated_hours.to_f
             elsif event.is_a?(CustomerAppointment)
-              if event.respond_to?(:estimated_hours) && event.estimated_hours.present?
+              if event.duration.to_i > 1
+                # Get the total hours (fallback to duration * 8 if estimated_hours is blank)
+                app_total_hours = if event.respond_to?(:estimated_hours) && event.estimated_hours.present?
+                                    event.estimated_hours.to_f
+                                  else
+                                    event.duration.to_f * 8.0
+                                  end
+                
+                start_date = (event.respond_to?(:date) && event.date.present? ? event.date : event.start_date).to_date
+                
+                # Count how many working days occurred before the current calendar 'day'
+                working_day_index = 0
+                date_cursor = start_date
+                
+                while date_cursor < day
+                  is_weekend = non_working_days.include?(date_cursor.cwday.to_s)
+                  is_holiday = all_holidays.any? { |h| h.occurs_on?(date_cursor) }
+                  working_day_index += 1 unless is_weekend || is_holiday
+                  date_cursor += 1
+                end
+                
+                # Subtract previous days' hours (8h/day) from the total
+                hours_already_allocated = working_day_index * 8.0
+                remaining_hours = app_total_hours - hours_already_allocated
+                
+                # Allocate up to 8 hours for today, but don't go below 0
+                [[remaining_hours, 8.0].min, 0.0].max
+              elsif event.respond_to?(:estimated_hours) && event.estimated_hours.present?
                 event.estimated_hours.to_f
               else
                 event.duration.to_f
