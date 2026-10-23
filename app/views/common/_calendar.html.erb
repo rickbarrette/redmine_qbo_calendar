@@ -57,6 +57,44 @@
 
     false
   end
+
+  # Lambda to calculate hours for a single event on a specific day (Front-Loaded Method)
+  calculate_event_hours = lambda do |event, target_day|
+    if event.is_a?(Issue)
+      event.estimated_hours.to_f
+    elsif event.is_a?(CustomerAppointment)
+      if event.duration.to_i > 1
+        app_total_hours = if event.respond_to?(:estimated_hours) && event.estimated_hours.present?
+                            event.estimated_hours.to_f
+                          else
+                            event.duration.to_f * 8.0
+                          end
+        
+        start_date = (event.respond_to?(:date) && event.date.present? ? event.date : event.start_date).to_date
+        
+        working_day_index = 0
+        date_cursor = start_date
+        
+        while date_cursor < target_day
+          is_weekend = non_working_days.include?(date_cursor.cwday.to_s)
+          is_holiday = all_holidays.any? { |h| h.occurs_on?(date_cursor) }
+          working_day_index += 1 unless is_weekend || is_holiday
+          date_cursor += 1
+        end
+        
+        hours_already_allocated = working_day_index * 8.0
+        remaining_hours = app_total_hours - hours_already_allocated
+        
+        [[remaining_hours, 8.0].min, 0.0].max
+      elsif event.respond_to?(:estimated_hours) && event.estimated_hours.present?
+        event.estimated_hours.to_f
+      else
+        event.duration.to_f
+      end
+    else
+      0.0
+    end
+  end
 %>
 
 <%# Calendar Status Legend Key %>
@@ -97,7 +135,7 @@
                 style: 'display: inline-flex; align-items: center; gap: 5px; text-decoration: none; font-weight: 600; font-size: 0.9em; padding: 4px 10px; border-radius: 3px;',
                 title: l(:label_today) do %>
       <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
-      <%= l(:label_today,) %>
+      <%= l(:label_today) %>
     <% end %>
   <% end %>
 
@@ -136,9 +174,46 @@
       <%# Skip week if "hide past weeks" is active and every day in the week is in the past %>
       <% next if hide_past_weeks && week.last < User.current.today %>
 
+      <% 
+        # --- Pre-calculate daily events and weekly total hours ---
+        week_data = {}
+        weekly_total_hours = 0.0
+
+        week.each do |day|
+          standard_events = only_appointments ? [] : calendar.events_on(day).reject { |e| e.is_a?(CustomerAppointment) }
+          matching_appointments = all_appointments.select { |app| appointment_occurs_on.call(app, day) }
+
+          day_events = (standard_events + matching_appointments).sort_by do |event|
+            if event.is_a?(CustomerAppointment) && event.date.present?
+              event.date.strftime('%H:%M:%S')
+            elsif event.respond_to?(:start_date) && event.start_date.present?
+              event.start_date.to_time.strftime('%H:%M:%S')
+            else
+              '00:00:00'
+            end
+          end
+
+          day_total_hours = day_events.sum { |event| calculate_event_hours.call(event, day) }
+          weekly_total_hours += day_total_hours
+
+          # Store it so we don't calculate it twice
+          week_data[day] = {
+            events: day_events,
+            total_hours: day_total_hours
+          }
+        end
+      %>
+
       <li class="week-number">
         <span class="label-week"><%= l(:label_week) %></span>
         <%= calendar.week_number(week.first) %>
+        
+        <%# Render the Weekly Total Hours under the Week Number %>
+        <% if weekly_total_hours > 0 %>
+          <div class="weekly-hours-total" style="margin-top: 12px; font-weight: bold; font-size: 0.95em; color: #444;" title="<%= l(:label_estimated_hours, default: 'Estimated hours') %>">
+            <%= weekly_total_hours.round(1) %>h
+          </div>
+        <% end %>
       </li>
 
       <% week.each do |day| %>
@@ -151,64 +226,9 @@
           is_custom_holiday = current_holiday.present?
           is_standard_weekend = non_working_days.include?(day.cwday.to_s)
 
-          # Filter out standard events if "only appointments" toggle is active
-          standard_events = only_appointments ? [] : calendar.events_on(day).reject { |e| e.is_a?(CustomerAppointment) }
-
-          # Appointments matching duration on this working day
-          matching_appointments = all_appointments.select { |app| appointment_occurs_on.call(app, day) }
-
-          # Sort events chronologically by time of day
-          day_events = (standard_events + matching_appointments).sort_by do |event|
-            if event.is_a?(CustomerAppointment) && event.date.present?
-              event.date.strftime('%H:%M:%S')
-            elsif event.respond_to?(:start_date) && event.start_date.present?
-              event.start_date.to_time.strftime('%H:%M:%S')
-            else
-              '00:00:00'
-            end
-          end
-
-          # Sum estimated hours for Issues and CustomerAppointments
-          total_hours = day_events.sum do |event|
-            if event.is_a?(Issue)
-              event.estimated_hours.to_f
-            elsif event.is_a?(CustomerAppointment)
-              if event.duration.to_i > 1
-                # Get the total hours (fallback to duration * 8 if estimated_hours is blank)
-                app_total_hours = if event.respond_to?(:estimated_hours) && event.estimated_hours.present?
-                                    event.estimated_hours.to_f
-                                  else
-                                    event.duration.to_f * 8.0
-                                  end
-                
-                start_date = (event.respond_to?(:date) && event.date.present? ? event.date : event.start_date).to_date
-                
-                # Count how many working days occurred before the current calendar 'day'
-                working_day_index = 0
-                date_cursor = start_date
-                
-                while date_cursor < day
-                  is_weekend = non_working_days.include?(date_cursor.cwday.to_s)
-                  is_holiday = all_holidays.any? { |h| h.occurs_on?(date_cursor) }
-                  working_day_index += 1 unless is_weekend || is_holiday
-                  date_cursor += 1
-                end
-                
-                # Subtract previous days' hours (8h/day) from the total
-                hours_already_allocated = working_day_index * 8.0
-                remaining_hours = app_total_hours - hours_already_allocated
-                
-                # Allocate up to 8 hours for today, but don't go below 0
-                [[remaining_hours, 8.0].min, 0.0].max
-              elsif event.respond_to?(:estimated_hours) && event.estimated_hours.present?
-                event.estimated_hours.to_f
-              else
-                event.duration.to_f
-              end
-            else
-              0.0
-            end
-          end
+          # Retrieve the pre-calculated data for this day
+          day_events = week_data[day][:events]
+          total_hours = week_data[day][:total_hours]
         %>
 
         <%# Added 'week-end' class and background color styling for custom holidays to mimic weekends %>
