@@ -14,8 +14,10 @@ RedmineApp::Application.routes.draw do
   resources :customer_appointments do
     collection do
       get :customer_options
-      get :create_issues
       get :history
+    end
+    member do
+      post :create_issues
     end
   end
 

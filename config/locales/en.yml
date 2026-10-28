@@ -21,6 +21,8 @@ en:
   day_name_thursday: "Thursday"
   day_name_tuesday: "Tuesday"
   day_name_wednesday: "Wednesday"
+  button_create_issues_from_estimate: "Create Issues from Estimate"
+  error_no_labor_lines_found: "No Labor lines with a description were found on the estimate"
   error_holiday: "Cannot be scheduled on holiday: %{name}"
   error_non_working_day: "Cannot be scheduled on a non-working day"
   field_customer_name: Customer
@@ -78,8 +80,12 @@ en:
   label_week_3rd: "3rd"
   label_week_4th: "4th"
   label_week_last: "Last"
+  notice_appointment_issues_created:
+    one: "1 issue created from the estimate"
+    other: "%{count} issues created from the estimate"
   notice_unable_delete_holiday: "Unable to delete holiday"
   permission_add_customer_appointments: "Add customer appointments"
+  permission_create_customer_appointment_issues: "Create issues from appointment estimates"
   permission_delete_customer_appointments: "Delete customer appointments"
   permission_edit_customer_appointments: "Edit customer appointments"
   permission_manage_customer_appointments: Manage Customer Appointments

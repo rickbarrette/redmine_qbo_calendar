@@ -15,6 +15,9 @@ class Holiday < ApplicationRecord
       dynamic
   ]
 
+  # Value saved by the holiday form for "Last" in the week-of-month select
+  LAST_WEEK = 5
+
   validates :recurrence_type, inclusion: { in: TYPES }, allow_blank: true
 
   def occurs_on?(target_date)
@@ -23,6 +26,7 @@ class Holiday < ApplicationRecord
     end
 
     if recurrence_type == 'fixed'
+      return false if exact_date.nil?
       return target_date.month == exact_date.month && target_date.day == exact_date.day
     end
 
@@ -30,7 +34,11 @@ class Holiday < ApplicationRecord
       # Check if month and day of week match
       return false unless target_date.month == month && target_date.wday == day_of_week
       
-      # Calculate if it's the correct week of the month (1st, 2nd, 3rd, etc.)
+      # Week 5 means "Last": the final occurrence of that weekday in the month
+      # (e.g. Memorial Day, which falls in week 4 in some years and week 5 in others)
+      return (target_date + 7).month != target_date.month if week_of_month == LAST_WEEK
+
+      # Otherwise the Nth occurrence (1st, 2nd, 3rd, 4th)
       week_in_month = ((target_date.day - 1) / 7) + 1
       return week_in_month == week_of_month
     end

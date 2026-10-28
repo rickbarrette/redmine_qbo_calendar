@@ -34,7 +34,20 @@ module RedmineQboCalendar
 
         log "events: #{events.inspect}"
 
-        appointments = CustomerAppointment.visible(User.current)
+        # Only users with "View customer appointments" see appointments on the calendar
+        appointments = CustomerAppointment.visible(User.current).includes(:customer, :vehicle, :user, :project)
+
+        # Only load appointments that can appear in the displayed range. Multi-day appointments
+        # can start before the range, so look back far enough to cover the longest one
+        # (working days only, so allow ~2x calendar days plus slack for holidays).
+        max_duration = [appointments.maximum(:duration).to_i, 1].max
+        range_start = (@calendar.startdt - (max_duration * 2 + 14)).beginning_of_day
+        range_end = @calendar.enddt.end_of_day
+        appointments = appointments.where(date: range_start..range_end).to_a
+
+        # Hand the list to the calendar view directly, so appointments that span the whole
+        # displayed range (neither starting nor ending in it) still render
+        @qbo_calendar_appointments = appointments
 
         log "appointments: #{appointments.inspect}"
 

@@ -15,7 +15,9 @@
   all_holidays = Holiday.all
 
   # Safely collect all unique CustomerAppointments across the entire calendar date range
-  all_appointments = (calendar.startdt..calendar.enddt).flat_map { |date|
+  # Prefer the list loaded by CalendarsControllerPatch; fall back to the calendar's own events
+  # (e.g. if this partial is rendered somewhere else)
+  all_appointments = @qbo_calendar_appointments || (calendar.startdt..calendar.enddt).flat_map { |date|
     calendar.events_on(date)
   }.select { |e| e.is_a?(CustomerAppointment) }.uniq
 
@@ -62,6 +64,9 @@
   calculate_event_hours = lambda do |event, target_day|
     if event.is_a?(Issue)
       event.estimated_hours.to_f
+    elsif event.is_a?(CustomerAppointment) && !event.counts_toward_hours?
+      # Cancelled / call-out appointments stay on the calendar but don't use scheduled time
+      0.0
     elsif event.is_a?(CustomerAppointment)
       if event.duration.to_i > 1
         app_total_hours = if event.respond_to?(:estimated_hours) && event.estimated_hours.present?

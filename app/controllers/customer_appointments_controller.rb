@@ -11,7 +11,7 @@
 class CustomerAppointmentsController < ApplicationController
   before_action :require_login
   before_action :find_project, except: [:index]
-  before_action :find_appointment, only: [ :show, :edit, :update, :destroy ]
+  before_action :find_appointment, only: [ :show, :edit, :update, :destroy, :create_issues ]
   # This tells Redmine to check global permissions for the current controller/action
   before_action :authorize_global
 
@@ -26,17 +26,22 @@ class CustomerAppointmentsController < ApplicationController
     }
   end
 
+  # Creates one issue per "Labor" line on the appointment's QBO estimate.
   def create_issues
-    @appointment = CustomerAppointment.find(params[:id])
-    created_issues = @appointment.create_issues_from_labor_lines(project: @project, author: User.current)
+    # Same fallback order as CustomerAppointment#create_issues_from_labor_lines
+    target_project = @project || @appointment.project || Project.first
+
+    # The user must also be allowed to add issues to the project they'll be created in
+    return deny_access unless target_project && User.current.allowed_to?(:add_issues, target_project)
+
+    created_issues = @appointment.create_issues_from_labor_lines(project: target_project, author: User.current)
 
     if created_issues.any?
-      flash[:notice] = l(:notice_successful_create)
-      redirect_to project_customer_appointments_path(@project)
+      flash[:notice] = l(:notice_appointment_issues_created, count: created_issues.size)
     else
       flash[:error] = l(:error_no_labor_lines_found)
-      redirect_to customer_appointment_path(@appointment)
     end
+    redirect_to customer_appointment_path(@appointment)
   end
 
   def index

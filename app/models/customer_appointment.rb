@@ -22,7 +22,8 @@ class CustomerAppointment < ActiveRecord::Base
   # Prevent scheduling on non-working days or holidays
   validate :validate_working_day
 
-  normalizes :subject, with: ->(subject) { subject.strip.titleize }
+  # Capitalize the first letter only; titleize mangled vehicle names and acronyms (JL -> Jl, LED -> Led)
+  normalizes :subject, with: ->(subject) { subject.strip.sub(/\A[a-z]/, &:upcase) }
 
   STATUSES = %w[
       Scheduled
@@ -33,6 +34,17 @@ class CustomerAppointment < ActiveRecord::Base
       Cancelled
       Call_Out
   ]
+
+  # Statuses whose time should not count toward scheduled hours totals
+  NON_SCHEDULED_STATUSES = %w[
+      Cancelled
+      Call_Out
+  ]
+
+  # False for cancelled / call-out appointments, which stay on the calendar but free up their hours
+  def counts_toward_hours?
+    !NON_SCHEDULED_STATUSES.include?(status.to_s)
+  end
 
   # Scans the QBO Estimate's InvoiceLineItems for "Labor" sales items
   # and generates a Redmine Issue for each matching line.
@@ -98,14 +110,22 @@ class CustomerAppointment < ActiveRecord::Base
     date&.to_date
   end
 
+  # Last working day of the appointment. Weekends and holidays are skipped, matching how the
+  # calendar spreads a multi-day appointment (a 3-day job starting Friday ends Tuesday).
   def due_date
     return nil unless date
-    # Accounts for multi-day duration spanning across dates
-    start_date + ([duration.to_i, 1].max - 1).days
+    @due_date_cache ||= {}
+    @due_date_cache[[start_date, duration.to_i]] ||=
+      RedmineQboCalendar::WorkingDays.nth_working_day(start_date, duration)
   end
 
-  def self.visible(user)
-    return CustomerAppointment.all
+  # Appointments the user may see. Requires the global "View customer appointments" permission.
+  def self.visible(user = User.current)
+    if user.allowed_to?(:view_customer_appointments, nil, global: true)
+      all
+    else
+      none
+    end
   end
 
   def to_s

@@ -31,9 +31,11 @@ Redmine::Plugin.register :redmine_qbo_calendar do
 
   # Global Permissions
   permission :view_customer_appointments, { customer_appointments: [:index, :show, :history] }, global: true
-  permission :add_customer_appointments, { customer_appointments: [:new, :create] }, global: true
-  permission :edit_customer_appointments, { customer_appointments: [:edit, :update] }, global: true
+  # customer_options feeds the vehicle/estimate dropdowns on the new and edit forms
+  permission :add_customer_appointments, { customer_appointments: [:new, :create, :customer_options] }, global: true
+  permission :edit_customer_appointments, { customer_appointments: [:edit, :update, :customer_options] }, global: true
   permission :delete_customer_appointments, { customer_appointments: [:destroy] }, global: true
+  permission :create_customer_appointment_issues, { customer_appointments: [:create_issues] }, global: true
 
   # Register top menu items
   menu :top_menu, :calendar, { controller: :calendars, action: :show }, caption: :label_calendar, if: Proc.new {User.current.logged?}
