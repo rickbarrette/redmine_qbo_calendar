@@ -1,0 +1,106 @@
+<div class="contextual">
+  <%= link_to issues_calendar_path do %>
+    <i class="fa-regular fa-calendar-days"></i> <%= l(:button_calendar) %>
+  <% end %>
+  <%= link_to customer_appointments_path do %>
+    <i class="fa-regular fa-clock"></i> <%= l(:label_appointments) %>
+  <% end %>
+  <% if @customer %>
+    <%= link_to @customer do %>
+      <i class="fa-regular fa-user"></i> <%= l(:label_customer) %>
+    <% end %>
+  <% end %>
+</div>
+
+<h2>
+  <% if @customer %>
+    <%= l(:label_appointment_history_for, name: @customer.name) %>
+  <% else %>
+    <%= l(:label_appointment_history) %>
+  <% end %>
+</h2>
+
+<%= form_tag history_customer_appointments_path, method: :get, id: 'appointment-history-filters' do %>
+  <fieldset class="box">
+    <legend><%= l(:label_filter_plural) %></legend>
+    <p>
+      <label for="history_customer_name"><%= l(:label_customer) %></label>
+      <%= text_field_tag :customer_name, @customer&.name,
+                         id: 'history_customer_name',
+                         class: 'customer-name',
+                         autocomplete: 'off',
+                         size: 30,
+                         data: { autocomplete_url: '/customers/autocomplete' } %>
+      <%= hidden_field_tag :customer_id, @customer&.id, id: 'customer_id' %>
+
+      <label for="status"><%= l(:field_status) %></label>
+      <%= select_tag :status,
+                     options_for_select(CustomerAppointment::STATUSES.map { |s| [s.humanize, s] }, @status),
+                     include_blank: l(:label_all_statuses) %>
+
+      <label for="from"><%= l(:label_date_from) %></label>
+      <%= date_field_tag :from, @from %>
+
+      <label for="to"><%= l(:label_date_to) %></label>
+      <%= date_field_tag :to, @to %>
+    </p>
+    <p class="buttons">
+      <%= submit_tag l(:button_apply), name: nil, class: 'button-small' %>
+      <%= link_to l(:button_clear), history_customer_appointments_path(customer_id: @customer&.id), class: 'icon icon-reload' %>
+    </p>
+  </fieldset>
+<% end %>
+
+<% if @appointments.empty? %>
+  <p class="nodata"><%= l(:label_no_past_appointments) %></p>
+<% else %>
+  <table class="list appointment-history">
+    <thead>
+      <tr>
+        <th><%= l(:label_date) %></th>
+        <% unless @customer %>
+          <th><%= l(:label_customer) %></th>
+        <% end %>
+        <th><%= l(:label_vehicle) %></th>
+        <th><%= l(:label_appointment) %></th>
+        <th><%= l(:label_technician) %></th>
+        <th><%= l(:label_duration) %></th>
+        <th><%= l(:label_status) %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @appointments.each do |appointment| %>
+        <tr class="<%= cycle('odd', 'even') %>">
+          <td><%= format_date(appointment.date) %></td>
+          <% unless @customer %>
+            <td><%= link_to appointment.customer, history_customer_appointments_path(customer_id: appointment.customer_id) if appointment.customer %></td>
+          <% end %>
+          <td><%= link_to appointment.vehicle if appointment.vehicle %></td>
+          <td class="subject"><%= link_to appointment.subject, customer_appointment_path(appointment) %></td>
+          <td><%= link_to_user(appointment.user) if appointment.user %></td>
+          <td><%= appointment.duration %> <%= l(:label_days) %></td>
+          <td>
+            <% if appointment.status.present? %>
+              <span class="status-badge status-<%= appointment.status.to_s.parameterize %>">
+                <%= appointment.status.to_s.humanize %>
+              </span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <span class="pagination"><%= pagination_links_full @appointment_pages, @appointment_count %></span>
+<% end %>
+
+<%= javascript_tag do %>
+  // Clear the hidden customer id if the name field is emptied, so "all customers" works.
+  document.addEventListener('DOMContentLoaded', function () {
+    var name = document.getElementById('history_customer_name');
+    var id = document.getElementById('customer_id');
+    if (name && id) {
+      name.addEventListener('input', function () { if (!name.value.trim()) id.value = ''; });
+    }
+  });
+<% end %>

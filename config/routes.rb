@@ -15,6 +15,7 @@ RedmineApp::Application.routes.draw do
     collection do
       get :customer_options
       get :create_issues
+      get :history
     end
   end
 

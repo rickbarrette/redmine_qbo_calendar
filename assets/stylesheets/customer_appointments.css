@@ -597,3 +597,15 @@ table.cal td.today {
     right: auto !important;
   }
 }
+
+/* Appointment history page */
+#appointment-history-filters fieldset p label {
+  margin: 0 4px 0 12px;
+  font-weight: bold;
+}
+#appointment-history-filters fieldset p label:first-child {
+  margin-left: 0;
+}
+table.appointment-history td.subject {
+  text-align: left;
+}

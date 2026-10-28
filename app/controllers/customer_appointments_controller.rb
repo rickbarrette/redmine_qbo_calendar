@@ -48,6 +48,29 @@ class CustomerAppointmentsController < ApplicationController
     end
   end
 
+  # Lists past appointments, optionally filtered by customer, status and date range.
+  def history
+    @customer = Customer.find_by(id: params[:customer_id]) if params[:customer_id].present?
+    @status = params[:status].presence
+    @from = parse_date(params[:from])
+    @to = parse_date(params[:to])
+
+    scope = CustomerAppointment
+      .includes(:customer, :vehicle, :user)
+      .where('date < ?', Time.zone.now.beginning_of_day)
+    scope = scope.where(customer_id: @customer.id) if @customer
+    scope = scope.where(status: @status) if @status
+    scope = scope.where('date >= ?', @from.in_time_zone.beginning_of_day) if @from
+    scope = scope.where('date <= ?', @to.in_time_zone.end_of_day) if @to
+
+    @appointment_count = scope.count
+    @appointment_pages = Paginator.new(@appointment_count, per_page_option, params[:page])
+    @appointments = scope
+      .order(date: :desc)
+      .offset(@appointment_pages.offset)
+      .limit(@appointment_pages.per_page)
+  end
+
   def show
     @appointment = CustomerAppointment.find(params[:id])
   end
@@ -109,6 +132,12 @@ class CustomerAppointmentsController < ApplicationController
         :duration
       )
 
+  end
+
+  def parse_date(value)
+    Date.parse(value) if value.present?
+  rescue ArgumentError
+    nil
   end
 
   def find_project

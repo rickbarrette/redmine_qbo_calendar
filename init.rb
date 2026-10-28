@@ -30,7 +30,7 @@ Redmine::Plugin.register :redmine_qbo_calendar do
   end
 
   # Global Permissions
-  permission :view_customer_appointments, { customer_appointments: [:index, :show] }, global: true
+  permission :view_customer_appointments, { customer_appointments: [:index, :show, :history] }, global: true
   permission :add_customer_appointments, { customer_appointments: [:new, :create] }, global: true
   permission :edit_customer_appointments, { customer_appointments: [:edit, :update] }, global: true
   permission :delete_customer_appointments, { customer_appointments: [:destroy] }, global: true
