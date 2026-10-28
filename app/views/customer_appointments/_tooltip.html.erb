@@ -19,7 +19,13 @@
   <% if appointment.customer %>
     <tr>
       <th><%= l(:label_customer) %></th>
-      <td><%= link_to appointment.customer %></td>
+      <td>
+        <%= link_to appointment.customer %>
+        <%= link_to history_customer_appointments_path(customer_id: appointment.customer_id),
+                    title: l(:label_appointment_history), class: 'appointment-history-icon' do %>
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        <% end %>
+      </td>
     </tr>
   <% end %>
 

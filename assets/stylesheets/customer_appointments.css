@@ -609,3 +609,16 @@ table.cal td.today {
 table.appointment-history td.subject {
   text-align: left;
 }
+
+/* Upcoming appointments on the customer page */
+.customer-appointments-simple .contextual {
+  margin-top: 0;
+}
+.customer-appointments-simple .appointment-history-link {
+  margin-top: 6px;
+  text-align: right;
+}
+.appointment-history-icon {
+  margin-left: 6px;
+  text-decoration: none;
+}

@@ -20,12 +20,19 @@ module RedmineQboCalendar
         log "show_customer_view_right called"
 
         customer = context[:customer]
-        appointments = customer.customer_appointments.where('date >= ?', Date.today).order(date: :asc)
+        return unless customer
+        return unless User.current.allowed_to?(:view_customer_appointments, nil, global: true)
 
-        return if appointments.empty?
+        cutoff = Time.zone.now.beginning_of_day
+        appointments = customer.customer_appointments.where('date >= ?', cutoff).order(date: :asc)
+        past_count = customer.customer_appointments.where('date < ?', cutoff).count
 
-        context[:controller].send(:render_to_string, { 
-          partial: 'customer_appointments/list_simple', locals: { appointments: appointments } 
+        # Nothing upcoming and no history: keep the customer page clean
+        return if appointments.empty? && past_count.zero?
+
+        context[:controller].send(:render_to_string, {
+          partial: 'customer_appointments/list_simple',
+          locals: { appointments: appointments, customer: customer, past_count: past_count }
         })
 
       end
@@ -37,4 +44,4 @@ module RedmineQboCalendar
       end
     end
   end
-end
+end

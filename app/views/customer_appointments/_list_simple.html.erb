@@ -1,58 +1,49 @@
-<h4><%=t(:label_appointments)%>:</h4>
-<table class="list">
+<div class="customer-appointments-simple">
+  <div class="contextual">
+    <%= link_to history_customer_appointments_path(customer_id: customer.id), title: l(:label_appointment_history) do %>
+      <i class="fa-solid fa-clock-rotate-left"></i> <%= l(:label_history) %>
+    <% end %>
+  </div>
 
-<thead>
+  <h4><%= l(:label_upcoming_customer_appointments) %>:</h4>
 
-<tr>
+  <% if appointments.any? %>
+    <table class="list">
+      <thead>
+        <tr>
+          <th><%= l(:label_appointment) %></th>
+          <th><%= l(:label_user) %></th>
+          <th><%= l(:label_date) %></th>
+          <th><%= l(:label_status) %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% appointments.each do |appointment| %>
+          <tr>
+            <td><%= link_to appointment %></td>
+            <td><%= link_to appointment.user unless appointment.user.nil? %></td>
+            <td><%= format_date(appointment.date) %></td>
+            <td>
+              <% if appointment.status.present? %>
+                <span class="status-badge status-<%= appointment.status.to_s.parameterize %>">
+                  <%= appointment.status.to_s.humanize %>
+                </span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="nodata"><%= l(:label_no_upcoming_appointments) %></p>
+  <% end %>
 
-<th><%= l(:label_appointment) %></th>
-
-<th><%= l(:label_user) %></th>
-
-<th><%= l(:label_date) %></th>
-
-<th><%= l(:label_status) %></th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<% appointments.each do |appointment| %>
-
-<tr>
-
-<td>
-
-<%= link_to appointment %>
-
-</td>
-
-<td>
-
-<%= link_to appointment.user unless appointment.user.nil? %>
-
-</td>
-
-<td>
-
-<%= format_date(
-      appointment.date
-    ) %>
-
-</td>
-
-<td>
-
-<%= appointment.status %>
-
-</td>
-
-</tr>
-
-<% end %>
-
-</tbody>
-
-</table>
+  <% if past_count.to_i > 0 %>
+    <p class="appointment-history-link">
+      <%= link_to history_customer_appointments_path(customer_id: customer.id) do %>
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <%= l(:label_view_past_appointments, count: past_count) %>
+      <% end %>
+    </p>
+  <% end %>
+</div>

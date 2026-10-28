@@ -37,6 +37,11 @@ en:
   label_appointment_new: "New Appointment"
   label_appointments: Appointments
   label_appointment_history: Appointment History
+  label_upcoming_customer_appointments: Upcoming Appointments
+  label_no_upcoming_appointments: "No upcoming appointments"
+  label_view_past_appointments:
+    one: "View 1 past appointment"
+    other: "View all %{count} past appointments"
   label_appointment_history_for: "Appointment History: %{name}"
   label_all_statuses: "All statuses"
   label_date_from: From
