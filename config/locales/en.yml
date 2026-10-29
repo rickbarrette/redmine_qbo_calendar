@@ -104,7 +104,7 @@ en:
   permission_view_customer_appointments: "View customer appointments"
   text_default_tracker_info: "Pre-selected for each proposed issue. Leave blank to use the project's first tracker."
   text_estimate_issue_fields_info: "Entered once and applied to every created issue whose tracker uses the field. Fields marked * are required by the selected trackers."
-  text_estimate_issues_hint: "The subject comes from the estimate line's description and estimated hours from its quantity. Edit anything before creating. Issues created together are related to each other."
-  text_estimate_issues_template_hint: "The subject comes from the estimate line's description and estimated hours from its quantity. A template supplies the issue's description. Issues created together are related to each other."
+  text_estimate_issues_hint: "The subject comes from the estimate line's description and estimated hours from its quantity. Edit anything before creating. New issues are related to each other and to issues already created from this estimate."
+  text_estimate_issues_template_hint: "The subject comes from the estimate line's description and estimated hours from its quantity. A template supplies the issue's description. New issues are related to each other and to issues already created from this estimate."
   text_estimate_item_codes_info: "QBO item names that can become issues, one per line (e.g. Labor, Alignments). Matches the full item name or any part of a Category:Item name, ignoring case."
   title_customer_appointments: Customer Appointments
