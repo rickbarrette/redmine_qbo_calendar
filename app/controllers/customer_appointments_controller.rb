@@ -16,6 +16,7 @@ class CustomerAppointmentsController < ApplicationController
   before_action :authorize_global
 
   helper :projects
+  helper :custom_fields
 
   def customer_options
     customer = Customer.find_by(id: params[:customer_id])
@@ -38,12 +39,17 @@ class CustomerAppointmentsController < ApplicationController
     return if performed?
 
     @rows = params[:lines].respond_to?(:to_unsafe_h) ? params[:lines].to_unsafe_h : {}
-    created_issues = @builder.create_issues(project: @target_project, rows: @rows)
+    @custom_field_values = submitted_custom_field_values
+    created_issues = @builder.create_issues(project: @target_project, rows: @rows,
+                                            custom_field_values: @custom_field_values)
 
     if created_issues.any?
       flash[:notice] = l(:notice_appointment_issues_created, count: created_issues.size)
       redirect_to customer_appointment_path(@appointment)
     else
+      # Rebuild the fields so the form keeps what was entered
+      @field_set = RedmineQboCalendar::IssueFieldSet.new(project: @target_project, trackers: @trackers,
+                                                         values: @custom_field_values)
       render :issues_preview, status: :unprocessable_entity
     end
   end
@@ -168,7 +174,14 @@ class CustomerAppointmentsController < ApplicationController
     @trackers = Issue.allowed_target_trackers(@target_project, User.current).to_a
     @default_tracker = @trackers.detect { |t| t.id == RedmineQboCalendar::EstimateIssueBuilder.default_tracker_id } || @trackers.first
     @templates = RedmineQboCalendar::IssueTemplateSupport.templates_for(@target_project)
+    @field_set = RedmineQboCalendar::IssueFieldSet.new(project: @target_project, trackers: @trackers)
     @rows ||= {}
+  end
+
+  # The shared custom field values from the preview form: { custom_field_id => value }
+  def submitted_custom_field_values
+    values = params.dig(:issue, :custom_field_values)
+    values.respond_to?(:to_unsafe_h) ? values.to_unsafe_h : {}
   end
 
   def find_project

@@ -136,6 +136,25 @@
       </tbody>
     </table>
 
+    <%# Custom fields for the chosen trackers, entered once and applied to every issue that uses them %>
+    <% if @field_set&.any? %>
+      <fieldset class="box tabular estimate-issue-fields" id="estimate-issue-fields">
+        <legend><%= l(:label_estimate_issue_fields) %></legend>
+        <p class="estimate-issue-fields-info"><em class="info"><%= l(:text_estimate_issue_fields_info) %></em></p>
+        <% @field_set.fields.each do |field| %>
+          <p class="estimate-issue-field"
+             data-tracker-ids="<%= field.tracker_ids.join(',') %>"
+             data-required-tracker-ids="<%= field.required_tracker_ids.join(',') %>">
+            <label for="<%= custom_field_tag_id('issue', field.custom_field) %>">
+              <%= custom_field_name_tag(field.custom_field) %>
+              <span class="required estimate-field-required"<%= ' style="display:none"'.html_safe unless field.required_for_any? %>> *</span>
+            </label>
+            <%= custom_field_tag('issue', field.custom_value) %>
+          </p>
+        <% end %>
+      </fieldset>
+    <% end %>
+
     <p class="estimate-issues-hint">
       <% if templates_enabled %>
         <%= l(:text_estimate_issues_template_hint) %>
@@ -193,6 +212,40 @@
         fillTemplates(template, tracker.value, false);
         tracker.addEventListener('change', function () { fillTemplates(template, tracker.value, true); });
       });
+
+      // Show only the custom fields used by the trackers of the selected lines, and star the required ones
+      var fieldBox = document.getElementById('estimate-issue-fields');
+
+      function idList(value) {
+        return (value || '').split(',').filter(function (v) { return v !== ''; });
+      }
+
+      function updateFields() {
+        if (!fieldBox) return;
+        var trackerIds = [];
+        form.querySelectorAll('tr.estimate-line').forEach(function (row) {
+          var box = row.querySelector('.estimate-line-select');
+          var tracker = row.querySelector('.estimate-line-tracker');
+          if (box && tracker && box.checked && trackerIds.indexOf(tracker.value) < 0) trackerIds.push(tracker.value);
+        });
+
+        var visibleCount = 0;
+        fieldBox.querySelectorAll('.estimate-issue-field').forEach(function (field) {
+          var used = idList(field.dataset.trackerIds).some(function (id) { return trackerIds.indexOf(id) >= 0; });
+          var required = idList(field.dataset.requiredTrackerIds).some(function (id) { return trackerIds.indexOf(id) >= 0; });
+          field.style.display = used ? '' : 'none';
+          var star = field.querySelector('.estimate-field-required');
+          if (star) star.style.display = required ? '' : 'none';
+          if (used) visibleCount++;
+        });
+        fieldBox.style.display = visibleCount > 0 ? '' : 'none';
+      }
+
+      form.querySelectorAll('.estimate-line-select, .estimate-line-tracker').forEach(function (el) {
+        el.addEventListener('change', updateFields);
+      });
+      if (toggleAll) toggleAll.addEventListener('change', updateFields);
+      updateFields();
     })();
   <% end %>
 <% end %>

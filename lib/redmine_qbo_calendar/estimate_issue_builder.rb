@@ -68,8 +68,9 @@ module RedmineQboCalendar
     end
 
     # rows: { line_id => { 'selected' => '1', 'subject' => ..., 'tracker_id' => ..., 'template' => 'global:3', 'estimated_hours' => ... } }
+    # custom_field_values: { custom_field_id => value }, applied to every issue whose tracker uses the field
     # Returns the created issues, or [] with #errors filled in.
-    def create_issues(project:, rows:, author: User.current)
+    def create_issues(project:, rows:, custom_field_values: {}, author: User.current)
       @errors = []
       rows = (rows || {}).to_h.transform_keys(&:to_s)
 
@@ -82,7 +83,7 @@ module RedmineQboCalendar
       allowed_trackers = Issue.allowed_target_trackers(project, author).to_a
 
       built = selected.map do |proposal|
-        [proposal, build_issue(proposal, rows[proposal.line_id] || {}, project, author, allowed_trackers)]
+        [proposal, build_issue(proposal, rows[proposal.line_id] || {}, project, author, allowed_trackers, custom_field_values)]
       end
 
       Issue.transaction do
@@ -153,9 +154,15 @@ module RedmineQboCalendar
       key.to_s
     end
 
-    def build_issue(proposal, row, project, author, allowed_trackers)
+    def build_issue(proposal, row, project, author, allowed_trackers, custom_field_values)
       issue = Issue.new(project: project, author: author)
       issue.tracker = allowed_trackers.detect { |t| t.id == row['tracker_id'].to_i }
+
+      # Shared custom field values. Going through safe_attributes means fields the tracker doesn't
+      # use, or that this user can't edit (hidden / read-only by workflow), are ignored.
+      if custom_field_values.present? && issue.tracker
+        issue.send(:safe_attributes=, { 'custom_field_values' => custom_field_values.to_h }, author)
+      end
       issue.subject = (row['subject'].presence || proposal.description).to_s.strip.truncate(255)
 
       template = IssueTemplateSupport.find(row['template'], project)

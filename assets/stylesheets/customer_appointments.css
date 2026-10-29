@@ -642,3 +642,6 @@ table.estimate-issues-preview tr.created td {
   color: #777;
   font-size: 0.9em;
 }
+.estimate-issue-fields .estimate-issue-fields-info {
+  padding-left: 0;
+}
