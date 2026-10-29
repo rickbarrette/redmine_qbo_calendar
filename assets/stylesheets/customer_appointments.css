@@ -622,3 +622,23 @@ table.appointment-history td.subject {
   margin-left: 6px;
   text-decoration: none;
 }
+
+/* Create issues from estimate preview */
+.estimate-preview-subtitle {
+  font-weight: normal;
+  font-size: 0.8em;
+  color: #777;
+}
+table.estimate-issues-preview td.subject {
+  text-align: left;
+}
+table.estimate-issues-preview td.subject input {
+  width: 98%;
+}
+table.estimate-issues-preview tr.created td {
+  color: #888;
+}
+.estimate-issues-hint {
+  color: #777;
+  font-size: 0.9em;
+}

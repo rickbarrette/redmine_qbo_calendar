@@ -19,6 +19,10 @@ Redmine::Plugin.register :redmine_qbo_calendar do
   author_url 'https://barrettefabrication.com'
   requires_redmine version_or_higher: '7.0.0'
 
+  # Item codes: which QBO estimate items can become issues (e.g. Labor, Alignments)
+  settings default: { 'item_codes' => "Labor", 'default_tracker_id' => '' },
+           partial: 'settings/qbo_calendar_settings'
+
   # Add Holidays index to the Redmine Administration Menu
   menu :admin_menu, :holidays, { controller: 'holidays', action: 'index' }, caption: :label_holiday_plural, html: { class: 'icon icon-list' }
 
@@ -35,7 +39,7 @@ Redmine::Plugin.register :redmine_qbo_calendar do
   permission :add_customer_appointments, { customer_appointments: [:new, :create, :customer_options] }, global: true
   permission :edit_customer_appointments, { customer_appointments: [:edit, :update, :customer_options] }, global: true
   permission :delete_customer_appointments, { customer_appointments: [:destroy] }, global: true
-  permission :create_customer_appointment_issues, { customer_appointments: [:create_issues] }, global: true
+  permission :create_customer_appointment_issues, { customer_appointments: [:issues_preview, :create_issues] }, global: true
 
   # Register top menu items
   menu :top_menu, :calendar, { controller: :calendars, action: :show }, caption: :label_calendar, if: Proc.new {User.current.logged?}

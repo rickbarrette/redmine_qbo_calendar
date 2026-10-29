@@ -16,6 +16,10 @@ class CustomerAppointment < ActiveRecord::Base
   belongs_to :vehicle, optional: true
   belongs_to :estimate, optional: true
 
+  # Issues created from this appointment's estimate lines
+  has_many :appointment_estimate_issues, dependent: :nullify
+  has_many :created_issues, through: :appointment_estimate_issues, source: :issue
+
   validates :subject, presence: true
   validates :date, presence: true
   
@@ -44,65 +48,6 @@ class CustomerAppointment < ActiveRecord::Base
   # False for cancelled / call-out appointments, which stay on the calendar but free up their hours
   def counts_toward_hours?
     !NON_SCHEDULED_STATUSES.include?(status.to_s)
-  end
-
-  # Scans the QBO Estimate's InvoiceLineItems for "Labor" sales items
-  # and generates a Redmine Issue for each matching line.
-  #
-  # @param project [Project] Target project (defaults to appointment's project)
-  # @param author [User] Author for the new issues
-  # @param tracker [Tracker] Target tracker (defaults to project's first tracker)
-  # @return [Array<Issue>] Created issues
-  def create_issues_from_labor_lines(project: self.project, author: User.current, tracker: nil)
-    return [] if estimate.blank?
-
-    target_project = project || self.project || Project.first
-    target_tracker = tracker || target_project&.trackers&.first
-    return [] unless target_project && target_tracker
-
-    created_issues = []
-
-    # estimate.line_items returns array of Quickbooks::Model::InvoiceLineItem
-    estimate.line_items.each do |line|
-      detail = line.respond_to?(:sales_line_item_detail) ? line.sales_line_item_detail : nil
-      next if detail.nil? || detail.item_ref.nil?
-
-      item_name = detail.item_ref.name.to_s.strip
-      description = line.description.to_s.strip
-
-      # Match "Labor" (case-insensitive) and ensure description is present
-      next unless item_name.casecmp('Labor').zero?
-      next if description.blank?
-
-      # detail.quantity contains line quantity/hours; line.amount is total line cost fallback
-      qty = detail.respond_to?(:quantity) ? detail.quantity.to_f : 0.0
-      hours = qty.positive? ? qty : line.amount.to_f
-
-      issue = Issue.new(
-        project: target_project,
-        tracker: target_tracker,
-        assigned_to_id: self.user&.id,
-        author: author,
-        subject: description.truncate(255),
-        description: "The purpose of this work is to bill the time spent on this issue for Estimate ##{estimate.doc_number} for Appointment: #{subject}",
-        estimated_hours: hours,
-        start_date: self.start_date,
-        due_date: self.due_date,
-        vehicle: self.vehicle,
-        estimate: self.estimate,
-        customer: self.customer,
-        created_on: Time.current,
-        updated_on: Time.current
-      )
-
-      if issue.save
-        created_issues << issue
-      else
-        log "Failed to create issue for Estimate ##{estimate.id}: #{issue.errors.full_messages.join(', ')}"
-      end
-    end
-
-    created_issues
   end
 
   # Cast datetime to Date for Redmine Calendar compatibility
@@ -152,24 +97,6 @@ class CustomerAppointment < ActiveRecord::Base
       if matched_holiday.present?
         errors.add(:date, :invalid, message: I18n.t(:error_holiday, name: matched_holiday.name))
       end
-    end
-  end
-
-  # Helper to parse item name across Quickbooks::Model::Line and Hash structures
-  def extract_item_name(line)
-    if line.respond_to?(:sales_line_item_detail) && line.sales_line_item_detail.present?
-      line.sales_line_item_detail.item_ref&.name
-    elsif line.is_a?(Hash)
-      line[:item_name] || line.dig('sales_line_item_detail', 'item_ref', 'name')
-    end
-  end
-
-  # Helper to parse description across Quickbooks::Model::Line and Hash structures
-  def extract_description(line)
-    if line.respond_to?(:description)
-      line.description
-    elsif line.is_a?(Hash)
-      line[:description] || line['description']
     end
   end
 

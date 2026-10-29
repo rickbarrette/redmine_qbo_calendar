@@ -17,6 +17,7 @@ RedmineApp::Application.routes.draw do
       get :history
     end
     member do
+      get :issues_preview
       post :create_issues
     end
   end

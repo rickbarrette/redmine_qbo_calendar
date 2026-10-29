@@ -13,6 +13,7 @@ module RedmineQboCalendar
     # Patches
     Customer.prepend(RedmineQboCalendar::Patches::CustomerPatch)
     User.prepend(RedmineQboCalendar::Patches::UserPatch)
+    Issue.prepend(RedmineQboCalendar::Patches::IssuePatch)
     CalendarsController.prepend(RedmineQboCalendar::Patches::CalendarsControllerPatch)
     ApplicationHelper.prepend(RedmineQboCalendar::Patches::ApplicationHelperPatch)
 

@@ -15,9 +15,7 @@
   <% end %>
 
   <% if @appointment.estimate && User.current.allowed_to?(:create_customer_appointment_issues, nil, global: true) %>
-    <%= link_to create_issues_customer_appointment_path(@appointment),
-                method: :post,
-                data: { confirm: l(:text_are_you_sure) } do %>
+    <%= link_to issues_preview_customer_appointment_path(@appointment) do %>
       <i class="fa-solid fa-list-check"></i> <%= l(:button_create_issues_from_estimate) %>
     <% end %>
   <% end %>

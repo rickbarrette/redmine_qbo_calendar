@@ -11,7 +11,7 @@
 class CustomerAppointmentsController < ApplicationController
   before_action :require_login
   before_action :find_project, except: [:index]
-  before_action :find_appointment, only: [ :show, :edit, :update, :destroy, :create_issues ]
+  before_action :find_appointment, only: [ :show, :edit, :update, :destroy, :issues_preview, :create_issues ]
   # This tells Redmine to check global permissions for the current controller/action
   before_action :authorize_global
 
@@ -26,22 +26,26 @@ class CustomerAppointmentsController < ApplicationController
     }
   end
 
-  # Creates one issue per "Labor" line on the appointment's QBO estimate.
+  # Preview of the issues that can be created from the appointment's QBO estimate.
+  # Each line gets a tracker and (optionally) a template before anything is created.
+  def issues_preview
+    load_issue_preview
+  end
+
+  # Creates the issues selected on the preview page, all or nothing.
   def create_issues
-    # Same fallback order as CustomerAppointment#create_issues_from_labor_lines
-    target_project = @project || @appointment.project || Project.first
+    load_issue_preview
+    return if performed?
 
-    # The user must also be allowed to add issues to the project they'll be created in
-    return deny_access unless target_project && User.current.allowed_to?(:add_issues, target_project)
-
-    created_issues = @appointment.create_issues_from_labor_lines(project: target_project, author: User.current)
+    @rows = params[:lines].respond_to?(:to_unsafe_h) ? params[:lines].to_unsafe_h : {}
+    created_issues = @builder.create_issues(project: @target_project, rows: @rows)
 
     if created_issues.any?
       flash[:notice] = l(:notice_appointment_issues_created, count: created_issues.size)
+      redirect_to customer_appointment_path(@appointment)
     else
-      flash[:error] = l(:error_no_labor_lines_found)
+      render :issues_preview, status: :unprocessable_entity
     end
-    redirect_to customer_appointment_path(@appointment)
   end
 
   def index
@@ -143,6 +147,28 @@ class CustomerAppointmentsController < ApplicationController
     Date.parse(value) if value.present?
   rescue ArgumentError
     nil
+  end
+
+  # Sets up everything the preview page needs: the target project, its trackers and templates.
+  def load_issue_preview
+    @builder = RedmineQboCalendar::EstimateIssueBuilder.new(@appointment)
+    @available_projects = Project.allowed_to(User.current, :add_issues).sorted.to_a
+
+    # A project chosen on the page wins, then the appointment's project, then the first allowed one
+    @target_project =
+      if @project
+        @project if @available_projects.include?(@project)
+      elsif @available_projects.include?(@appointment.project)
+        @appointment.project
+      else
+        @available_projects.first
+      end
+    return deny_access unless @target_project
+
+    @trackers = Issue.allowed_target_trackers(@target_project, User.current).to_a
+    @default_tracker = @trackers.detect { |t| t.id == RedmineQboCalendar::EstimateIssueBuilder.default_tracker_id } || @trackers.first
+    @templates = RedmineQboCalendar::IssueTemplateSupport.templates_for(@target_project)
+    @rows ||= {}
   end
 
   def find_project
