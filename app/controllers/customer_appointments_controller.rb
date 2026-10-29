@@ -160,14 +160,16 @@ class CustomerAppointmentsController < ApplicationController
     @builder = RedmineQboCalendar::EstimateIssueBuilder.new(@appointment)
     @available_projects = Project.allowed_to(User.current, :add_issues).sorted.to_a
 
-    # A project chosen on the page wins, then the appointment's project, then the first allowed one
+    # A project chosen on the page wins, then the appointment's project, then the default project
+    # from the plugin settings, then the first project the user can add issues to
+    default_project = @available_projects.detect { |p| p.id == RedmineQboCalendar::EstimateIssueBuilder.default_project_id }
     @target_project =
       if @project
         @project if @available_projects.include?(@project)
       elsif @available_projects.include?(@appointment.project)
         @appointment.project
       else
-        @available_projects.first
+        default_project || @available_projects.first
       end
     return deny_access unless @target_project
 

@@ -60,6 +60,7 @@ en:
   label_edit_appointment: Edit Appointment
   label_end_date: End Date
   label_estimated_hours: Estimated Time
+  label_default_project: "Default project"
   label_default_tracker: "Default tracker"
   label_estimate_issue_settings: "Issues from estimates"
   label_estimate_issue_fields: "Issue fields"
@@ -102,6 +103,7 @@ en:
   permission_edit_customer_appointments: "Edit customer appointments"
   permission_manage_customer_appointments: Manage Customer Appointments
   permission_view_customer_appointments: "View customer appointments"
+  text_default_project_info: "Where issues from estimates are created when the appointment has no project. Users who can't add issues there get their first allowed project. It can still be changed on the preview page."
   text_default_tracker_info: "Pre-selected for each proposed issue. Leave blank to use the project's first tracker."
   text_estimate_issue_fields_info: "Entered once and applied to every created issue whose tracker uses the field. Fields marked * are required by the selected trackers."
   text_estimate_issues_hint: "The subject comes from the estimate line's description and estimated hours from its quantity. Edit anything before creating. New issues are related to each other and to issues already created from this estimate."

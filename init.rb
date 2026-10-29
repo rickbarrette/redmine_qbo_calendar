@@ -20,7 +20,7 @@ Redmine::Plugin.register :redmine_qbo_calendar do
   requires_redmine version_or_higher: '7.0.0'
 
   # Item codes: which QBO estimate items can become issues (e.g. Labor, Alignments)
-  settings default: { 'item_codes' => "Labor", 'default_tracker_id' => '' },
+  settings default: { 'item_codes' => "Labor", 'default_tracker_id' => '', 'default_project_id' => '' },
            partial: 'settings/qbo_calendar_settings'
 
   # Add Holidays index to the Redmine Administration Menu

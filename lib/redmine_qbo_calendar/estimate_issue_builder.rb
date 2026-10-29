@@ -39,6 +39,10 @@ module RedmineQboCalendar
       settings['default_tracker_id'].to_i
     end
 
+    def self.default_project_id
+      settings['default_project_id'].to_i
+    end
+
     def self.settings
       Setting.plugin_redmine_qbo_calendar || {}
     rescue StandardError

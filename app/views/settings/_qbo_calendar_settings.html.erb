@@ -8,6 +8,15 @@
   </p>
 
   <p>
+    <label for="settings_default_project_id"><%= l(:label_default_project) %></label>
+    <%= select_tag 'settings[default_project_id]',
+                   project_tree_options_for_select(Project.active.sorted,
+                                                   selected: Project.find_by(id: settings['default_project_id'].to_i)),
+                   include_blank: true, id: 'settings_default_project_id' %>
+    <em class="info"><%= l(:text_default_project_info) %></em>
+  </p>
+
+  <p>
     <label for="settings_default_tracker_id"><%= l(:label_default_tracker) %></label>
     <%= select_tag 'settings[default_tracker_id]',
                    options_from_collection_for_select(Tracker.sorted, :id, :name, settings['default_tracker_id'].to_i),
