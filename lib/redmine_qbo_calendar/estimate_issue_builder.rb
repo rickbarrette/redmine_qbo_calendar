@@ -16,6 +16,7 @@ module RedmineQboCalendar
   # - Subject = the line's description; estimated hours = the line's quantity
   # - Lines already turned into issues are shown but can't be created again
   # - Creation is all-or-nothing: if any issue fails validation, none are saved
+  # - Issues created together are all related to each other
   class EstimateIssueBuilder
     include Redmine::I18n
 
@@ -105,6 +106,8 @@ module RedmineQboCalendar
             issue: issue
           )
         end
+
+        relate_issues(built.map(&:last))
       end
 
       @errors.any? ? [] : built.map(&:last)
@@ -152,6 +155,20 @@ module RedmineQboCalendar
       key = line.line_num if key.blank? && line.respond_to?(:line_num)
       key = "pos-#{index}" if key.blank?
       key.to_s
+    end
+
+    # Relates every issue in the batch to every other one ("Related to"), since they're work on the
+    # same estimate done at the same time. New issues have no open journal, so this adds no history
+    # entries and sends no "issue updated" emails. A failed relation is logged, not fatal.
+    def relate_issues(issues)
+      issues.combination(2).each do |issue_from, issue_to|
+        relation = IssueRelation.new(issue_from: issue_from, issue_to: issue_to,
+                                     relation_type: IssueRelation::TYPE_RELATES)
+        next if relation.save
+
+        Rails.logger.warn "[EstimateIssueBuilder] Could not relate ##{issue_from.id} and ##{issue_to.id}: " \
+                          "#{relation.errors.full_messages.join(', ')}"
+      end
     end
 
     def build_issue(proposal, row, project, author, allowed_trackers, custom_field_values)
