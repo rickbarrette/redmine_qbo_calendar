@@ -13,14 +13,11 @@ module RedmineQboCalendar
 
     class CustomerActionsHookListener < Redmine::Hook::ViewListener
 
-      # This hook is called in the customer view, and allows us to add a link to create a new appointment for the customer.
-      def customer_actions_top(context = {})
-        context[:controller].send(:render_to_string, {
-            partial: 'customer_appointments/customer_actions',
-              locals: {
-                context: context
-              } 
-            })
+      # Adds "Add appointment" to the customer page's top-right action area
+      # (redmine_qbo's :view_customers_show_contextual hook).
+      def view_customers_show_contextual(context = {})
+        context[:hook_caller].render(partial: 'customer_appointments/customer_actions',
+                                     locals: { customer: context[:customer] })
       end
       
     end

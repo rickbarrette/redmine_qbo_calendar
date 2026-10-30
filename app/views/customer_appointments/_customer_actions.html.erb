@@ -1,6 +1,5 @@
-<% customer = context[:customer] %>
-<% if User.current.allowed_to?(:add_customer_appointments, nil, global: true) %>
-  <p>
-  <%= link_to l(:label_add_appointment), new_customer_appointment_path(customer_id: customer.id), target: :_blank, id: :appointment_link %>
-  </p>
+<% if customer && User.current.allowed_to?(:add_customer_appointments, nil, global: true) %>
+  <%= link_to sprite_icon('time-add', l(:label_add_appointment)),
+              new_customer_appointment_path(customer_id: customer.id),
+              class: 'icon icon-time-add', target: :_blank, id: 'appointment_link' %>
 <% end %>
