@@ -125,15 +125,6 @@
 
 <!-- Toggle Bar -->
 <div class="calendar-filter-toolbar" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: flex-end; gap: 16px;">
-  <% if User.current.allowed_to?(:view_customer_appointments, nil, global: true) %>
-    <%= link_to history_customer_appointments_path,
-                class: 'button-small',
-                style: 'display: inline-flex; align-items: center; gap: 5px; text-decoration: none; font-weight: 600; font-size: 0.9em; padding: 4px 10px; border-radius: 3px;',
-                title: l(:label_appointment_history) do %>
-      <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
-      <%= l(:label_appointment_history) %>
-    <% end %>
-  <% end %>
 
   <% if is_current_month %>
     <button type="button" 

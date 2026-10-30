@@ -4,8 +4,3 @@
   <%= link_to l(:label_add_appointment), new_customer_appointment_path(customer_id: customer.id), target: :_blank, id: :appointment_link %>
   </p>
 <% end %>
-<% if User.current.allowed_to?(:view_customer_appointments, nil, global: true) %>
-  <p>
-  <%= link_to l(:label_appointment_history), history_customer_appointments_path(customer_id: customer.id), id: :appointment_history_link %>
-  </p>
-<% end %>
