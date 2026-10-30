@@ -95,6 +95,7 @@ class CustomerAppointmentsController < ApplicationController
     @appointment.project = @project
     @appointment.date = (params[:start_date].to_date + 9.hours) if params[:start_date].present?
     @appointment.customer_id = params[:customer_id] if params[:customer_id].present?
+    prefill_estimate_and_vehicle
   end
 
   def create
@@ -128,6 +129,20 @@ class CustomerAppointmentsController < ApplicationController
   end
 
   private
+
+  # Links from an estimate (redmine_qbo_billing) pass the estimate and vehicle; each is used only when it
+  # belongs to the appointment's customer
+  def prefill_estimate_and_vehicle
+    customer = @appointment.customer
+    return unless customer
+
+    if params[:estimate_id].present? && customer.estimates.exists?(id: params[:estimate_id])
+      @appointment.estimate_id = params[:estimate_id]
+    end
+    if params[:vehicle_id].present? && customer.respond_to?(:vehicles) && customer.vehicles.exists?(id: params[:vehicle_id])
+      @appointment.vehicle_id = params[:vehicle_id]
+    end
+  end
 
   def appointment_params
 
