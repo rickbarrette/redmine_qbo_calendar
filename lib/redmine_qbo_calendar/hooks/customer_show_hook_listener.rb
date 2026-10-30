@@ -44,4 +44,4 @@ module RedmineQboCalendar
       end
     end
   end
-end
+end
