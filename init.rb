@@ -20,6 +20,8 @@ Redmine::Plugin.register :redmine_qbo_calendar do
   requires_redmine version_or_higher: '7.0.0'
 
   # Item codes: which QBO estimate items can become issues (e.g. Labor, Alignments)
+  # The issues-from-estimate settings moved to redmine_qbo_billing, which reads these old values until its
+  # own are saved, so they're still registered here
   settings default: { 'item_codes' => "Labor", 'default_tracker_id' => '', 'default_project_id' => '' },
            partial: 'settings/qbo_calendar_settings'
 
@@ -33,13 +35,21 @@ Redmine::Plugin.register :redmine_qbo_calendar do
     raise 'Please install the redmine_qbo plugin (https://github.com/rickbarrette/redmine_qbo)'
   end
 
+  # Creating issues from estimates and estimate labor hours live in redmine_qbo_billing (it sorts before this
+  # plugin, so Redmine has already loaded it)
+  begin
+    requires_redmine_plugin :redmine_qbo_billing, version_or_higher: '2026.10.0'
+  rescue Redmine::PluginNotFound
+    raise 'Please install the redmine_qbo_billing plugin (https://github.com/rickbarrette/redmine_qbo_billing)'
+  end
+
   # Global Permissions
   permission :view_customer_appointments, { customer_appointments: [:index, :show, :history] }, global: true
   # customer_options feeds the vehicle/estimate dropdowns on the new and edit forms
-  permission :add_customer_appointments, { customer_appointments: [:new, :create, :customer_options] }, global: true
-  permission :edit_customer_appointments, { customer_appointments: [:edit, :update, :customer_options] }, global: true
+  permission :add_customer_appointments, { customer_appointments: [:new, :create, :customer_options, :estimate_hours] }, global: true
+  permission :edit_customer_appointments, { customer_appointments: [:edit, :update, :customer_options, :estimate_hours] }, global: true
   permission :delete_customer_appointments, { customer_appointments: [:destroy] }, global: true
-  permission :create_customer_appointment_issues, { customer_appointments: [:issues_preview, :create_issues] }, global: true
+  # Creating issues from an appointment's estimate is redmine_qbo_billing's "Create issues from estimates"
 
   # Register top menu items
   menu :top_menu, :calendar, { controller: :calendars, action: :show }, caption: :label_calendar, if: Proc.new {User.current.logged?}

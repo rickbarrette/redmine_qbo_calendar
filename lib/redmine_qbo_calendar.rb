@@ -21,6 +21,7 @@ module RedmineQboCalendar
     RedmineQboCalendar::Hooks::ViewHookListener
     RedmineQboCalendar::Hooks::CustomerActionsHookListener
     RedmineQboCalendar::Hooks::CustomerShowHookListener
+    RedmineQboCalendar::Hooks::BillingHookListener
 
     Rails.configuration.to_prepare do
       ApplicationController.prepend_view_path( File.expand_path("app/views", __dir__) )

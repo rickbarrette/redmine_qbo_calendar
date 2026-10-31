@@ -48,6 +48,22 @@
   <%= submit_tag l(:button_save) %>
 <% end %>
 
+<%# When an estimate is picked, the hours are raised to at least its labor hours %>
+<%= javascript_tag do %>
+  $(function () {
+    var $estimate = $('#appointment_estimate_id');
+    var $hours = $('#customer_appointment_estimated_hours');
+    if (!$estimate.length || !$hours.length) return;
+    $estimate.on('change', function () {
+      if (!this.value) return;
+      $.getJSON('<%= j estimate_hours_customer_appointments_path %>', { estimate_id: this.value }).done(function (data) {
+        var hours = parseInt(data.hours, 10) || 0;
+        if (hours > (parseInt($hours.val(), 10) || 0)) $hours.val(hours);
+      });
+    });
+  });
+<% end %>
+
 <!-- Modal Container for Inline Customer Creation -->
 <div id="new-customer-dialog" style="display:none;" title="<%= t(:label_new_customer, default: 'New Customer') %>">
   <!-- The form will be dynamically loaded via JS or rendered here -->

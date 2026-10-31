@@ -1,26 +1,5 @@
-<fieldset class="box tabular">
-  <legend><%= l(:label_estimate_issue_settings) %></legend>
-
-  <p>
-    <label for="settings_item_codes"><%= l(:label_estimate_item_codes) %></label>
-    <%= text_area_tag 'settings[item_codes]', settings['item_codes'], rows: 5, cols: 30, id: 'settings_item_codes' %>
-    <em class="info"><%= l(:text_estimate_item_codes_info) %></em>
-  </p>
-
-  <p>
-    <label for="settings_default_project_id"><%= l(:label_default_project) %></label>
-    <%= select_tag 'settings[default_project_id]',
-                   project_tree_options_for_select(Project.active.sorted,
-                                                   selected: Project.find_by(id: settings['default_project_id'].to_i)),
-                   include_blank: true, id: 'settings_default_project_id' %>
-    <em class="info"><%= l(:text_default_project_info) %></em>
-  </p>
-
-  <p>
-    <label for="settings_default_tracker_id"><%= l(:label_default_tracker) %></label>
-    <%= select_tag 'settings[default_tracker_id]',
-                   options_from_collection_for_select(Tracker.sorted, :id, :name, settings['default_tracker_id'].to_i),
-                   include_blank: true, id: 'settings_default_tracker_id' %>
-    <em class="info"><%= l(:text_default_tracker_info) %></em>
-  </p>
-</fieldset>
+<%# The issues-from-estimate settings moved to redmine_qbo_billing %>
+<p>
+  <%= l(:text_estimate_issue_settings_moved) %>
+  <%= link_to l(:label_redmine_qbo_billing_settings), plugin_settings_path(id: 'redmine_qbo_billing') %>
+</p>

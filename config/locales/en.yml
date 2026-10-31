@@ -21,11 +21,7 @@ en:
   day_name_thursday: "Thursday"
   day_name_tuesday: "Tuesday"
   day_name_wednesday: "Wednesday"
-  button_create_issues: "Create issues"
   button_create_issues_from_estimate: "Create Issues from Estimate"
-  error_estimate_lines_already_created: "Some of these estimate lines were just turned into issues by someone else. Please review and try again."
-  error_no_estimate_lines_selected: "Select at least one estimate line"
-  error_no_labor_lines_found: "No lines with a description and a matching item code were found on the estimate"
   error_holiday: "Cannot be scheduled on holiday: %{name}"
   error_non_working_day: "Cannot be scheduled on a non-working day"
   field_customer_name: Customer
@@ -40,7 +36,6 @@ en:
   label_add_appointment: Add Appointment
   label_appointment: Appointment
   label_appointment_new: "New Appointment"
-  label_appointment_has_no_estimate: "This appointment has no estimate attached"
   label_appointments: Appointments
   label_appointment_history: Appointment History
   label_upcoming_customer_appointments: Upcoming Appointments
@@ -60,16 +55,7 @@ en:
   label_edit_appointment: Edit Appointment
   label_end_date: End Date
   label_estimated_hours: Estimated Time
-  label_default_project: "Default project"
-  label_default_tracker: "Default tracker"
-  label_estimate_issue_settings: "Issues from estimates"
-  label_estimate_issue_fields: "Issue fields"
-  label_estimate_item: "Item"
-  label_estimate_item_codes: "Estimate item codes"
-  label_estimate_line_already_created: "Already created"
   label_event: Event
-  label_issue_template: "Template"
-  label_no_issue_template: "(no template)"
   label_hide_past_weeks: "Hide Past Weeks"
   label_holiday_edit: Edit Holiday
   label_holiday_new: New Holiday
@@ -93,20 +79,14 @@ en:
   label_week_3rd: "3rd"
   label_week_4th: "4th"
   label_week_last: "Last"
-  notice_appointment_issues_created:
-    one: "1 issue created from the estimate"
-    other: "%{count} issues created from the estimate"
   notice_unable_delete_holiday: "Unable to delete holiday"
   permission_add_customer_appointments: "Add customer appointments"
-  permission_create_customer_appointment_issues: "Create issues from appointment estimates"
   permission_delete_customer_appointments: "Delete customer appointments"
   permission_edit_customer_appointments: "Edit customer appointments"
   permission_manage_customer_appointments: Manage Customer Appointments
   permission_view_customer_appointments: "View customer appointments"
-  text_default_project_info: "Where issues from estimates are created when the appointment has no project. Users who can't add issues there get their first allowed project. It can still be changed on the preview page."
-  text_default_tracker_info: "Pre-selected for each proposed issue. Leave blank to use the project's first tracker."
-  text_estimate_issue_fields_info: "Entered once and applied to every created issue whose tracker uses the field. Fields marked * are required by the selected trackers."
-  text_estimate_issues_hint: "The subject comes from the estimate line's description and estimated hours from its quantity. Edit anything before creating. New issues are related to each other and to issues already created from this estimate."
-  text_estimate_issues_template_hint: "The subject comes from the estimate line's description and estimated hours from its quantity. A template supplies the issue's description. New issues are related to each other and to issues already created from this estimate."
-  text_estimate_item_codes_info: "QBO item names that can become issues, one per line (e.g. Labor, Alignments). Matches the full item name or any part of a Category:Item name, ignoring case."
   title_customer_appointments: Customer Appointments
+  error_hours_less_than_estimate: "The hours can't be less than the %{hours} labor hours on estimate #%{estimate}"
+  label_estimate_issues: "Issues for estimate #%{estimate}"
+  label_redmine_qbo_billing_settings: "Redmine QBO Billing settings"
+  text_estimate_issue_settings_moved: "Creating issues from estimates moved to redmine_qbo_billing: the item codes, default project and default tracker are set there."

@@ -14,11 +14,8 @@ RedmineApp::Application.routes.draw do
   resources :customer_appointments do
     collection do
       get :customer_options
+      get :estimate_hours
       get :history
-    end
-    member do
-      get :issues_preview
-      post :create_issues
     end
   end
 

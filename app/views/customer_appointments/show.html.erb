@@ -14,8 +14,9 @@
     <% end %>
   <% end %>
 
-  <% if @appointment.estimate && User.current.allowed_to?(:create_customer_appointment_issues, nil, global: true) %>
-    <%= link_to issues_preview_customer_appointment_path(@appointment) do %>
+  <%# Issues from the estimate are made by redmine_qbo_billing, with this appointment's dates, technician and vehicle %>
+  <% if @appointment.estimate && User.current.allowed_to?(:create_estimate_issues, nil, global: true) %>
+    <%= link_to issues_preview_qbo_estimate_path(@appointment.estimate_id, appointment_id: @appointment.id) do %>
       <i class="fa-solid fa-list-check"></i> <%= l(:button_create_issues_from_estimate) %>
     <% end %>
   <% end %>
@@ -134,5 +135,10 @@
     </div>
   <% end %>
 </div>
+
+<% if @appointment.estimate %>
+  <h3><%= l(:label_estimate_issues, estimate: @appointment.estimate.doc_number) %></h3>
+  <%= render partial: 'issues/list_simple', locals: { issues: @estimate_issues } %>
+<% end %>
 
 <%= call_hook :show_customer_appointment, { appointment: @appointment } %>

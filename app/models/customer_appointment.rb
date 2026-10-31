@@ -26,6 +26,9 @@ class CustomerAppointment < ActiveRecord::Base
   # Prevent scheduling on non-working days or holidays
   validate :validate_working_day
 
+  # The hours can't be less than the attached estimate's labor hours
+  validate :validate_hours_cover_estimate
+
   # Capitalize the first letter only; titleize mangled vehicle names and acronyms (JL -> Jl, LED -> Led)
   normalizes :subject, with: ->(subject) { subject.strip.sub(/\A[a-z]/, &:upcase) }
 
@@ -77,10 +80,33 @@ class CustomerAppointment < ActiveRecord::Base
     subject
   end
 
+  # The estimate's labor hours rounded up to whole hours (appointment hours are whole numbers): the
+  # quantities of its lines whose item matches redmine_qbo_billing's item codes (e.g. Labor). 0 if the
+  # estimate can't be read from QuickBooks.
+  def self.estimate_labor_hours(estimate)
+    return 0 if estimate.nil?
+    RedmineQboBilling::EstimateIssueBuilder.labor_hours(estimate).ceil
+  rescue StandardError => e
+    Rails.logger.warn "[CustomerAppointment] Could not read labor hours for estimate #{estimate&.id}: #{e.message}"
+    0
+  end
+
   private
 
   def log(msg)
     Rails.logger.info "[CustomerAppointment] #{msg}"
+  end
+
+  # Checked when the estimate or the hours change, so changing just the status (the quick status buttons)
+  # never fails on an older appointment
+  def validate_hours_cover_estimate
+    return if estimate.nil?
+    return unless new_record? || will_save_change_to_estimate_id? || will_save_change_to_estimated_hours?
+
+    labor = self.class.estimate_labor_hours(estimate)
+    return if labor.zero? || estimated_hours.to_i >= labor
+
+    errors.add(:base, I18n.t(:error_hours_less_than_estimate, hours: labor, estimate: estimate.doc_number))
   end
 
   # Validates that the appointment date does not land on a weekend or holiday

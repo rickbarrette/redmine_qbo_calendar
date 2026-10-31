@@ -11,12 +11,9 @@
 class CustomerAppointmentsController < ApplicationController
   before_action :require_login
   before_action :find_project, except: [:index]
-  before_action :find_appointment, only: [ :show, :edit, :update, :destroy, :issues_preview, :create_issues ]
+  before_action :find_appointment, only: [ :show, :edit, :update, :destroy ]
   # This tells Redmine to check global permissions for the current controller/action
   before_action :authorize_global
-
-  helper :projects
-  helper :custom_fields
 
   def customer_options
     customer = Customer.find_by(id: params[:customer_id])
@@ -27,31 +24,11 @@ class CustomerAppointmentsController < ApplicationController
     }
   end
 
-  # Preview of the issues that can be created from the appointment's QBO estimate.
-  # Each line gets a tracker and (optionally) a template before anything is created.
-  def issues_preview
-    load_issue_preview
-  end
-
-  # Creates the issues selected on the preview page, all or nothing.
-  def create_issues
-    load_issue_preview
-    return if performed?
-
-    @rows = params[:lines].respond_to?(:to_unsafe_h) ? params[:lines].to_unsafe_h : {}
-    @custom_field_values = submitted_custom_field_values
-    created_issues = @builder.create_issues(project: @target_project, rows: @rows,
-                                            custom_field_values: @custom_field_values)
-
-    if created_issues.any?
-      flash[:notice] = l(:notice_appointment_issues_created, count: created_issues.size)
-      redirect_to customer_appointment_path(@appointment)
-    else
-      # Rebuild the fields so the form keeps what was entered
-      @field_set = RedmineQboCalendar::IssueFieldSet.new(project: @target_project, trackers: @trackers,
-                                                         values: @custom_field_values)
-      render :issues_preview, status: :unprocessable_entity
-    end
+  # The estimate's labor hours (redmine_qbo_billing's item codes), so the form can make sure the
+  # appointment's hours aren't less
+  def estimate_hours
+    estimate = Estimate.find_by(id: params[:estimate_id])
+    render json: { hours: CustomerAppointment.estimate_labor_hours(estimate) }
   end
 
   def index
@@ -88,6 +65,8 @@ class CustomerAppointmentsController < ApplicationController
 
   def show
     @appointment = CustomerAppointment.find(params[:id])
+    # Issues linked to the appointment's estimate (made from it, or linked by hand)
+    @estimate_issues = @appointment.estimate_id ? Issue.visible.where(estimate_id: @appointment.estimate_id).order(:id).to_a : []
   end
 
   def new
@@ -138,6 +117,9 @@ class CustomerAppointmentsController < ApplicationController
 
     if params[:estimate_id].present? && customer.estimates.exists?(id: params[:estimate_id])
       @appointment.estimate_id = params[:estimate_id]
+      # At least the estimate's labor hours
+      labor = CustomerAppointment.estimate_labor_hours(@appointment.estimate)
+      @appointment.estimated_hours = labor if labor > @appointment.estimated_hours.to_i
     end
     if params[:vehicle_id].present? && customer.respond_to?(:vehicles) && customer.vehicles.exists?(id: params[:vehicle_id])
       @appointment.vehicle_id = params[:vehicle_id]
@@ -168,37 +150,6 @@ class CustomerAppointmentsController < ApplicationController
     Date.parse(value) if value.present?
   rescue ArgumentError
     nil
-  end
-
-  # Sets up everything the preview page needs: the target project, its trackers and templates.
-  def load_issue_preview
-    @builder = RedmineQboCalendar::EstimateIssueBuilder.new(@appointment)
-    @available_projects = Project.allowed_to(User.current, :add_issues).sorted.to_a
-
-    # A project chosen on the page wins, then the appointment's project, then the default project
-    # from the plugin settings, then the first project the user can add issues to
-    default_project = @available_projects.detect { |p| p.id == RedmineQboCalendar::EstimateIssueBuilder.default_project_id }
-    @target_project =
-      if @project
-        @project if @available_projects.include?(@project)
-      elsif @available_projects.include?(@appointment.project)
-        @appointment.project
-      else
-        default_project || @available_projects.first
-      end
-    return deny_access unless @target_project
-
-    @trackers = Issue.allowed_target_trackers(@target_project, User.current).to_a
-    @default_tracker = @trackers.detect { |t| t.id == RedmineQboCalendar::EstimateIssueBuilder.default_tracker_id } || @trackers.first
-    @templates = RedmineQboCalendar::IssueTemplateSupport.templates_for(@target_project)
-    @field_set = RedmineQboCalendar::IssueFieldSet.new(project: @target_project, trackers: @trackers)
-    @rows ||= {}
-  end
-
-  # The shared custom field values from the preview form: { custom_field_id => value }
-  def submitted_custom_field_values
-    values = params.dig(:issue, :custom_field_values)
-    values.respond_to?(:to_unsafe_h) ? values.to_unsafe_h : {}
   end
 
   def find_project

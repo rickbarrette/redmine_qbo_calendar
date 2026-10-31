@@ -11,6 +11,8 @@ This plugin allows for adding customer appointment capability to the Redmine cal
 *   **Redmine:** 6.1+
     
 *   **Parent Plugin:** [Redmine QuickBooks Online](https://github.com/rickbarrette/redmine_qbo) (must be installed and configured)
+
+*   **Billing Plugin:** [Redmine QuickBooks Billing](https://github.com/rickbarrette/redmine_qbo_billing). It creates issues from an appointment's estimate and works out the estimate's labor hours.
     
 ---
 
@@ -25,6 +27,10 @@ This plugin allows for adding customer appointment capability to the Redmine cal
 ## Features
 
 Add appointments to the redmine calanedar with the abiltiy to attach a QBO customer, QBO Vehicle, QBO Estimate, ect.
+
+* An appointment's hours can't be less than its estimate's labor hours (the lines matching redmine_qbo_billing's estimate item codes). Picking an estimate raises the hours to match.
+* The appointment page lists the issues linked to its estimate, and **Create Issues from Estimate** opens redmine_qbo_billing's Create issues page with the appointment's dates, technician and vehicle.
+* Estimate pages in redmine_qbo_billing get an **Add appointment** link.
 
 ---
 
