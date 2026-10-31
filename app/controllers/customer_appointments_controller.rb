@@ -24,7 +24,7 @@ class CustomerAppointmentsController < ApplicationController
     }
   end
 
-  # The estimate's labor hours (redmine_qbo's item codes), so the form can make sure the
+  # The estimate's labor hours (redmine_qbo's labor products/services), so the form can make sure the
   # appointment's hours aren't less
   def estimate_hours
     estimate = Estimate.find_by(id: params[:estimate_id])

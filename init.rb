@@ -19,11 +19,8 @@ Redmine::Plugin.register :redmine_qbo_calendar do
   author_url 'https://barrettefabrication.com'
   requires_redmine version_or_higher: '7.0.0'
 
-  # Item codes: which QBO estimate items can become issues (e.g. Labor, Alignments)
-  # The issues-from-estimate settings moved to redmine_qbo, which reads these old values until its
-  # own are saved, so they're still registered here
-  settings default: { 'item_codes' => "Labor", 'default_tracker_id' => '', 'default_project_id' => '' },
-           partial: 'settings/qbo_calendar_settings'
+  # No settings of its own: labor products/services and the issues-from-estimates defaults are set in
+  # redmine_qbo's plugin settings
 
   # Add Holidays index to the Redmine Administration Menu
   menu :admin_menu, :holidays, { controller: 'holidays', action: 'index' }, caption: :label_holiday_plural, html: { class: 'icon icon-list' }

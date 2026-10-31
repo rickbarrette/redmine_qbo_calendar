@@ -81,7 +81,7 @@ class CustomerAppointment < ActiveRecord::Base
   end
 
   # The estimate's labor hours rounded up to whole hours (appointment hours are whole numbers): the
-  # quantities of its lines whose item matches redmine_qbo's item codes (e.g. Labor). 0 if the
+  # quantities of its lines with redmine_qbo's labor products/services (e.g. Labor). 0 if the
   # estimate can't be read from QuickBooks.
   def self.estimate_labor_hours(estimate)
     return 0 if estimate.nil?
