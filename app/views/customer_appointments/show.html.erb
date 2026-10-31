@@ -14,7 +14,7 @@
     <% end %>
   <% end %>
 
-  <%# Issues from the estimate are made by redmine_qbo_billing, with this appointment's dates, technician and vehicle %>
+  <%# Issues from the estimate are made by redmine_qbo, with this appointment's dates, technician and vehicle %>
   <% if @appointment.estimate && User.current.allowed_to?(:create_estimate_issues, nil, global: true) %>
     <%= link_to issues_preview_qbo_estimate_path(@appointment.estimate_id, appointment_id: @appointment.id) do %>
       <i class="fa-solid fa-list-check"></i> <%= l(:button_create_issues_from_estimate) %>

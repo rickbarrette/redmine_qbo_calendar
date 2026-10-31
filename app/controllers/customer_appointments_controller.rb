@@ -24,7 +24,7 @@ class CustomerAppointmentsController < ApplicationController
     }
   end
 
-  # The estimate's labor hours (redmine_qbo_billing's item codes), so the form can make sure the
+  # The estimate's labor hours (redmine_qbo's item codes), so the form can make sure the
   # appointment's hours aren't less
   def estimate_hours
     estimate = Estimate.find_by(id: params[:estimate_id])
@@ -109,7 +109,7 @@ class CustomerAppointmentsController < ApplicationController
 
   private
 
-  # Links from an estimate (redmine_qbo_billing) pass the estimate and vehicle; each is used only when it
+  # Links from an estimate (redmine_qbo) pass the estimate and vehicle; each is used only when it
   # belongs to the appointment's customer
   def prefill_estimate_and_vehicle
     customer = @appointment.customer

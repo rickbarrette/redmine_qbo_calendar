@@ -11,7 +11,7 @@
 module RedmineQboCalendar
   module Hooks
 
-    # Hooks for redmine_qbo_billing
+    # Hooks for redmine_qbo's billing
     class BillingHookListener < Redmine::Hook::Listener
 
       # "Create issues" opened from an appointment (?appointment_id=): the issues get the appointment's dates,

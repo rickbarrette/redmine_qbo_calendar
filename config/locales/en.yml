@@ -88,5 +88,5 @@ en:
   title_customer_appointments: Customer Appointments
   error_hours_less_than_estimate: "The hours can't be less than the %{hours} labor hours on estimate #%{estimate}"
   label_estimate_issues: "Issues for estimate #%{estimate}"
-  label_redmine_qbo_billing_settings: "Redmine QBO Billing settings"
-  text_estimate_issue_settings_moved: "Creating issues from estimates moved to redmine_qbo_billing: the item codes, default project and default tracker are set there."
+  label_redmine_qbo_settings: "Redmine QBO settings (Billing)"
+  text_estimate_issue_settings_moved: "Creating issues from estimates moved to redmine_qbo: the item codes, default project and default tracker are set there."

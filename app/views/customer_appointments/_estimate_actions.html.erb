@@ -1,4 +1,4 @@
-<%# Add appointment link on an estimate's page (redmine_qbo_billing) %>
+<%# Add appointment link on an estimate's page (redmine_qbo) %>
 <% if User.current.allowed_to?(:add_customer_appointments, nil, global: true) %>
   <% vehicle = customer.vehicles.detect { |v| v.vin.to_s.casecmp?(vin.to_s.strip) } if vin.present? && customer.respond_to?(:vehicles) %>
   <%= link_to sprite_icon('time-add', l(:label_add_appointment)),
