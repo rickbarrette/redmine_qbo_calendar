@@ -31,7 +31,7 @@ Add appointments to the redmine calanedar with the abiltiy to attach a QBO custo
 
 * An appointment's hours can't be less than its estimate's labor hours (the quantities of its lines with redmine_qbo's labor products/services). Picking an estimate raises the hours to match.
 * The appointment page lists the issues linked to its estimate, and **Create Issues from Estimate** opens redmine_qbo's Create issues page with the appointment's dates, technician and vehicle.
-* Estimate pages in redmine_qbo get an **Add appointment** link.
+* Estimate pages in redmine_qbo get an **Add appointment** link. Other plugins can add to the new appointment through the `:qbo_calendar_appointment_params, { customer:, estimate_id:, custom_fields: }` hook (e.g. redmine_qbo_vehicles: the vehicle with the estimate's VIN).
 
 ---
 

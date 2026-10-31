@@ -20,14 +20,15 @@ module RedmineQboCalendar
                                      locals: { customer: context[:customer] })
       end
 
-      # Adds "Add appointment" to an estimate's page in redmine_qbo (:view_qbo_estimate_contextual),
-      # with the customer, the estimate and the vehicle matching its VIN filled in
+      # Adds "Add appointment" to an estimate's page in redmine_qbo (:view_qbo_estimate_contextual), with the
+      # customer and the estimate filled in, plus what other plugins add (e.g. redmine_qbo_vehicles: the vehicle)
       def view_qbo_estimate_contextual(context = {})
         customer = Customer.find_by(id: context[:customer_id])
         return '' unless customer
 
         context[:hook_caller].render(partial: 'customer_appointments/estimate_actions',
-                                     locals: { customer: customer, estimate_id: context[:estimate_id], vin: context[:vin] })
+                                     locals: { customer: customer, estimate_id: context[:estimate_id],
+                                               custom_fields: context[:custom_fields] })
       end
       
     end

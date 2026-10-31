@@ -1,7 +1,13 @@
-<%# Add appointment link on an estimate's page (redmine_qbo) %>
+<%# Add appointment link on an estimate's page (redmine_qbo). Other plugins add to the new appointment's
+    params through :qbo_calendar_appointment_params, { customer:, estimate_id:, custom_fields: } (e.g.
+    redmine_qbo_vehicles: the vehicle with the estimate's VIN). %>
 <% if User.current.allowed_to?(:add_customer_appointments, nil, global: true) %>
-  <% vehicle = customer.vehicles.detect { |v| v.vin.to_s.casecmp?(vin.to_s.strip) } if vin.present? && customer.respond_to?(:vehicles) %>
+  <%
+    extra = Redmine::Hook.call_hook(:qbo_calendar_appointment_params,
+                                    { customer: customer, estimate_id: estimate_id, custom_fields: custom_fields || {} })
+                         .select { |result| result.is_a?(Hash) }.reduce({}) { |merged, result| merged.merge(result.symbolize_keys) }
+  %>
   <%= link_to sprite_icon('time-add', l(:label_add_appointment)),
-              new_customer_appointment_path(customer_id: customer.id, estimate_id: estimate_id, vehicle_id: vehicle&.id),
+              new_customer_appointment_path({ customer_id: customer.id, estimate_id: estimate_id }.merge(extra)),
               class: 'icon icon-time-add', target: :_blank %>
 <% end %>
