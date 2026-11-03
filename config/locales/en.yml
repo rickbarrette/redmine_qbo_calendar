@@ -88,3 +88,31 @@ en:
   title_customer_appointments: Customer Appointments
   error_hours_less_than_estimate: "The hours can't be less than the %{hours} labor hours on estimate #%{estimate}"
   label_estimate_issues: "Issues for estimate #%{estimate}"
+
+  # Call-outs: an employee off work, shown on the calendar (not a customer appointment)
+  label_call_out: "Call-out"
+  label_call_out_plural: "Call-outs"
+  label_call_out_subject: "%{name} called out"
+  label_employee: "Employee"
+  label_new_call_out: "New Call-out"
+  label_edit_call_out: "Edit Call-out"
+  text_call_out_subject_placeholder: "Left blank: \"<employee> called out\""
+
+  # Appointment statuses (plugin settings)
+  label_appointment_statuses: "Appointment statuses"
+  text_appointment_statuses: "The first status is the default for new appointments. Drag to reorder. Statuses that don't count toward hours (e.g. Cancelled) stay on the calendar, crossed out, but free up their time."
+  text_call_outs_not_statuses: "Employee call-outs aren't a status: add them from the calendar with the call-out button next to each day's add button."
+  field_color: "Colour"
+  label_status_counts_hours: "Counts toward hours"
+  label_new_status: "New status"
+  label_status_in_use:
+    one: "Used by 1 appointment"
+    other: "Used by %{count} appointments"
+  button_add_status: "Add a status"
+  label_drag_to_reorder_status: "Drag to reorder"
+  text_move_status_appointments: "Removing \"%{name}\": move its %{count} appointment(s) to"
+  label_keep_removed_status: "(keep it, shown in grey)"
+  button_undo_remove_status: "Undo"
+  notice_appointments_moved:
+    one: "Moved 1 appointment from %{from} to %{to}."
+    other: "Moved %{count} appointments from %{from} to %{to}."

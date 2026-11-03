@@ -1,3 +1,3 @@
-<h2><%=l(:label_new_appointment)%></h2>
+<h2><%= l(@appointment.call_out? ? :label_new_call_out : :label_new_appointment) %></h2>
 
 <%= render "form" %>

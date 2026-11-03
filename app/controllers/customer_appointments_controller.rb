@@ -51,7 +51,12 @@ class CustomerAppointmentsController < ApplicationController
       .includes(:customer, :vehicle, :user)
       .where('date < ?', Time.zone.now.beginning_of_day)
     scope = scope.where(customer_id: @customer.id) if @customer
-    scope = scope.where(status: @status) if @status
+    # The status filter also offers call-outs, which have no status
+    if @status == CustomerAppointment::CALL_OUT
+      scope = scope.where(event_type: CustomerAppointment::CALL_OUT)
+    elsif @status
+      scope = scope.where(status: @status).where(event_type: [nil, ''])
+    end
     scope = scope.where('date >= ?', @from.in_time_zone.beginning_of_day) if @from
     scope = scope.where('date <= ?', @to.in_time_zone.end_of_day) if @to
 
@@ -72,6 +77,9 @@ class CustomerAppointmentsController < ApplicationController
   def new
     @appointment = CustomerAppointment.new
     @appointment.project = @project
+    # The calendar's "call-out" link makes an employee's call-out instead of a customer appointment
+    @appointment.event_type = CustomerAppointment::CALL_OUT if params[:event_type] == CustomerAppointment::CALL_OUT
+    @appointment.status = RedmineQboCalendar::AppointmentStatus.default.key unless @appointment.call_out?
     @appointment.date = (params[:start_date].to_date + 9.hours) if params[:start_date].present?
     @appointment.customer_id = params[:customer_id] if params[:customer_id].present?
     prefill_estimate_and_vehicle
@@ -137,6 +145,7 @@ class CustomerAppointmentsController < ApplicationController
         :vehicle_id,
         :description,
         :status,
+        :event_type,
         :user_id,
         :date,
         :estimated_hours,

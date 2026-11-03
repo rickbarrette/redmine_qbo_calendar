@@ -19,8 +19,10 @@ Redmine::Plugin.register :redmine_qbo_calendar do
   author_url 'https://barrettefabrication.com'
   requires_redmine version_or_higher: '7.0.0'
 
-  # No settings of its own: labor products/services and the issues-from-estimates defaults are set in
-  # redmine_qbo's plugin settings
+  # Appointment statuses. Labor products/services and the issues-from-estimates defaults are set in
+  # redmine_qbo's plugin settings.
+  # No saved statuses means the defaults (RedmineQboCalendar::AppointmentStatus::DEFAULTS)
+  settings default: {}, partial: 'settings/qbo_calendar'
 
   # Add Holidays index to the Redmine Administration Menu
   menu :admin_menu, :holidays, { controller: 'holidays', action: 'index' }, caption: :label_holiday_plural, html: { class: 'icon icon-list' }

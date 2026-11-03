@@ -102,11 +102,8 @@
   end
 %>
 
-<%# Calendar Status Legend Key %>
-<% 
-  # Collect status keys from CustomerAppointment enum
-  statuses = CustomerAppointment::STATUSES
-%>
+<%# Calendar Status Legend Key: the statuses set up in the plugin settings, then call-outs %>
+<% statuses = CustomerAppointment.statuses %>
 
 <% if statuses.any? %>
   <div class="calendar-status-legend" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 8px 0;">
@@ -114,12 +111,14 @@
       <%= l(:label_legend, default: 'Legend') %>:
     </span>
 
-    <% statuses.each do |status_key| %>
-      <span class="status-key-badge status-<%= status_key.parameterize %>" 
-            style="padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 600; text-transform: capitalize;">
-        <%= status_key.humanize %>
+    <% statuses.each do |status| %>
+      <span class="status-key-badge" style="<%= status.style %>; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 600;">
+        <%= status.name %>
       </span>
     <% end %>
+    <span class="status-key-badge status-call-out" style="padding: 2px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 600;">
+      <i class="fa-solid fa-user-slash"></i> <%= l(:label_call_out) %>
+    </span>
   </div>
 <% end %>
 
@@ -189,14 +188,17 @@
           standard_events = only_appointments ? [] : calendar.events_on(day).reject { |e| e.is_a?(CustomerAppointment) }
           matching_appointments = all_appointments.select { |app| appointment_occurs_on.call(app, day) }
 
+          # Call-outs first (who's off that day), then everything else by time
           day_events = (standard_events + matching_appointments).sort_by do |event|
-            if event.is_a?(CustomerAppointment) && event.date.present?
-              event.date.strftime('%H:%M:%S')
-            elsif event.respond_to?(:start_date) && event.start_date.present?
-              event.start_date.to_time.strftime('%H:%M:%S')
-            else
-              '00:00:00'
-            end
+            call_out = event.is_a?(CustomerAppointment) && event.call_out? ? 0 : 1
+            time = if event.is_a?(CustomerAppointment) && event.date.present?
+                     event.date.strftime('%H:%M:%S')
+                   elsif event.respond_to?(:start_date) && event.start_date.present?
+                     event.start_date.to_time.strftime('%H:%M:%S')
+                   else
+                     '00:00:00'
+                   end
+            [call_out, time]
           end
 
           day_total_hours = day_events.sum { |event| calculate_event_hours.call(event, day) }
@@ -258,6 +260,10 @@
                               new_customer_appointment_path(start_date: day),
                               class: 'icon-only icon-add',
                               title: l(:label_appointment_new, default: 'New Appointment') %>
+                  <%= link_to new_customer_appointment_path(start_date: day, event_type: CustomerAppointment::CALL_OUT),
+                              class: 'calendar-add-call-out', title: l(:label_new_call_out) do %>
+                    <i class="fa-solid fa-user-slash"></i>
+                  <% end %>
                 <% end %>
               </span>
             <% end %>

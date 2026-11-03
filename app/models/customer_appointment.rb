@@ -22,6 +22,11 @@ class CustomerAppointment < ActiveRecord::Base
 
   validates :subject, presence: true
   validates :date, presence: true
+  # A call-out is about the employee who's off (checked when set, so older call-outs without one still save)
+  validates :user, presence: true, if: -> { call_out? && (new_record? || will_save_change_to_user_id?) }
+
+  # Call-outs have no customer side; appointments get the default status when none is chosen
+  before_validation :prepare_entry
   
   # Prevent scheduling on non-working days or holidays
   validate :validate_working_day
@@ -32,25 +37,32 @@ class CustomerAppointment < ActiveRecord::Base
   # Capitalize the first letter only; titleize mangled vehicle names and acronyms (JL -> Jl, LED -> Led)
   normalizes :subject, with: ->(subject) { subject.strip.sub(/\A[a-z]/, &:upcase) }
 
-  STATUSES = %w[
-      Scheduled
-      Checked_In
-      In_Progress
-      Ready
-      Completed
-      Cancelled
-      Call_Out
-  ]
+  # An employee off work (sick, a day off): shown on the calendar, but not an appointment with a customer
+  CALL_OUT = 'call_out'
 
-  # Statuses whose time should not count toward scheduled hours totals
-  NON_SCHEDULED_STATUSES = %w[
-      Cancelled
-      Call_Out
-  ]
+  # The statuses set up in the plugin settings (see RedmineQboCalendar::AppointmentStatus)
+  def self.statuses
+    RedmineQboCalendar::AppointmentStatus.all
+  end
 
-  # False for cancelled / call-out appointments, which stay on the calendar but free up their hours
+  # Status keys, for other plugins' settings (e.g. redmine_qbo_reminders' "statuses that get reminders")
+  def self.status_options
+    statuses.map { |s| [s.name, s.key] }
+  end
+
+  def call_out?
+    event_type == CALL_OUT
+  end
+
+  # This appointment's status from the settings; nil for call-outs, which have none
+  def status_record
+    return nil if call_out?
+    RedmineQboCalendar::AppointmentStatus.find(status) || RedmineQboCalendar::AppointmentStatus.default
+  end
+
+  # False for call-outs and statuses like Cancelled, which stay on the calendar but free up their hours
   def counts_toward_hours?
-    !NON_SCHEDULED_STATUSES.include?(status.to_s)
+    !call_out? && status_record.counts_hours?
   end
 
   # Cast datetime to Date for Redmine Calendar compatibility
@@ -95,6 +107,21 @@ class CustomerAppointment < ActiveRecord::Base
 
   def log(msg)
     Rails.logger.info "[CustomerAppointment] #{msg}"
+  end
+
+  def prepare_entry
+    if call_out?
+      self.customer = nil
+      self.vehicle = nil
+      self.estimate = nil
+      self.status = nil
+      self.estimated_hours = 0
+      self.subject = I18n.t(:label_call_out_subject, name: user.name) if subject.blank? && user
+    else
+      self.event_type = nil
+      self.status = RedmineQboCalendar::AppointmentStatus.default.key if status.blank?
+    end
+    self.description = description.to_s
   end
 
   # Checked when the estimate or the hours change, so changing just the status (the quick status buttons)

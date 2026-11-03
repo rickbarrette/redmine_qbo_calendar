@@ -8,7 +8,7 @@
       <i class="fa-solid fa-clock-rotate-left"></i> <%= l(:label_appointment_history) %>
     <% end %>
   <% end %>
-  <% if User.current.allowed_to?(:add_customer_appointments, nil, global: true) %>
+  <% if !@appointment.call_out? && User.current.allowed_to?(:add_customer_appointments, nil, global: true) %>
     <%= link_to new_issue_path(issue: { customer_id: @appointment.customer_id, vehicle_id: @appointment.vehicle_id, estimate_id: @appointment.estimate_id }), target: :_blank do %>
       <i class="fa-solid fa-plus"></i> <%= l(:label_new_issue) %>
     <% end %>
@@ -53,19 +53,15 @@
   </span>
 </h2>
 
-<% if User.current.allowed_to?(:edit_customer_appointments, nil, global: true) %>
-  <%# Quick Status Action Buttons %>
-  <% 
-    statuses = CustomerAppointment::STATUSES 
-    current_status = @appointment.status.to_s.parameterize.underscore
-  %>
+<%# Quick status buttons; call-outs have no status %>
+<% if !@appointment.call_out? && User.current.allowed_to?(:edit_customer_appointments, nil, global: true) %>
   <div class="appointment-quick-actions">
     <span class="quick-action-label"><%= l(:label_change_status, default: 'Change Status:') %></span>
-    <% statuses.reject { |s| s == current_status }.each do |status_key| %>
-      <%= link_to status_key.humanize,
-                  customer_appointment_path(@appointment, customer_appointment: { status: status_key }),
+    <% CustomerAppointment.statuses.reject { |s| s.key == @appointment.status_record.key }.each do |status| %>
+      <%= link_to status.name,
+                  customer_appointment_path(@appointment, customer_appointment: { status: status.key }),
                   method: :patch,
-                  class: "quick-status-btn status-#{status_key.parameterize}" %>
+                  class: 'quick-status-btn', style: status.style %>
     <% end %>
   </div>
 <% end %>
@@ -74,6 +70,13 @@
   <div class="attributes">
     <div class="splitcontent">
       <div class="splitcontentleft">
+        <% if @appointment.call_out? %>
+        <%# A call-out is about the employee who's off, not a customer %>
+        <div class="attribute">
+          <div class="label"><%= l(:label_employee) %>:</div>
+          <div class="value"><%= link_to_user(@appointment.user) %></div>
+        </div>
+        <% else %>
         <div class="attribute">
           <div class="label"><%= l(:label_customer, default: 'Customer') %>:</div>
           <div class="value"><%= link_to_if @appointment.customer, @appointment.customer&.name, @appointment.customer %></div>
@@ -92,15 +95,14 @@
             <div class="value"><%= link_to @appointment.estimate, @appointment.estimate, target: "_blank" %></div>
           <% end %>
         </div>
+        <% end %>
       </div>
 
       <div class="splitcontentright">
         <div class="attribute">
           <div class="label"><%= l(:field_status) %>:</div>
           <div class="value">
-            <span class="status-badge status-<%= @appointment.status.to_s.parameterize %>">
-              <%= @appointment.status.to_s.humanize %>
-            </span>
+            <%= appointment_status_badge(@appointment) %>
           </div>
         </div>
         <div class="attribute">
@@ -109,18 +111,22 @@
             <%= @appointment.date ? @appointment.date.strftime('%I:%M %p') : '-' %>
           </div>
         </div>
+        <% unless @appointment.call_out? %>
         <div class="attribute">
           <div class="label"><%= l(:field_user) %>:</div>
           <div class="value"><%= link_to_user(@appointment.user) %></div>
         </div>
+        <% end %>
         <div class="attribute">
           <div class="label"><%= l(:label_duration, default: 'Duration') %>:</div>
           <div class="value"><%= @appointment.duration %> <%= l(:label_days) %></div>
         </div>
+        <% unless @appointment.call_out? %>
         <div class="attribute">
           <div class="label"><%= l(:field_estimated_hours) %>:</div>
           <div class="value"><%= @appointment.estimated_hours %> <%= l(:label_hours) %></div>
         </div>
+        <% end %>
       </div>
     </div>
   </div>

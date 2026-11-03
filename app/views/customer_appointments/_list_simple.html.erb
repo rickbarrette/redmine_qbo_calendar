@@ -19,11 +19,7 @@
             <td><%= link_to appointment.user unless appointment.user.nil? %></td>
             <td><%= format_date(appointment.date) %></td>
             <td>
-              <% if appointment.status.present? %>
-                <span class="status-badge status-<%= appointment.status.to_s.parameterize %>">
-                  <%= appointment.status.to_s.humanize %>
-                </span>
-              <% end %>
+              <%= appointment_status_badge(appointment) %>
             </td>
           </tr>
         <% end %>

@@ -35,7 +35,7 @@
 
       <label for="status"><%= l(:field_status) %></label>
       <%= select_tag :status,
-                     options_for_select(CustomerAppointment::STATUSES.map { |s| [s.humanize, s] }, @status),
+                     options_for_select(CustomerAppointment.status_options + [[l(:label_call_out_plural), CustomerAppointment::CALL_OUT]], @status),
                      include_blank: l(:label_all_statuses) %>
 
       <label for="from"><%= l(:label_date_from) %></label>
@@ -80,11 +80,7 @@
           <td><%= link_to_user(appointment.user) if appointment.user %></td>
           <td><%= appointment.duration %> <%= l(:label_days) %></td>
           <td>
-            <% if appointment.status.present? %>
-              <span class="status-badge status-<%= appointment.status.to_s.parameterize %>">
-                <%= appointment.status.to_s.humanize %>
-              </span>
-            <% end %>
+            <%= appointment_status_badge(appointment) %>
           </td>
         </tr>
       <% end %>

@@ -4,7 +4,7 @@
 </h3>
 
 <p class="subtitle">
-  <strong><%= appointment.status.to_s.humanize %></strong>
+  <strong><%= appointment.call_out? ? l(:label_call_out) : appointment.status_record.name %></strong>
 </p>
 
 <table class="attributes">
@@ -38,7 +38,7 @@
 
   <% if appointment.user %>
     <tr>
-      <th><%= l(:label_technician) %></th>
+      <th><%= l(appointment.call_out? ? :label_employee : :label_technician) %></th>
       <td>
         <%= avatar(appointment.user, size: 16) %>
         <%= link_to appointment.user %>
@@ -74,10 +74,12 @@
     </tr>
   <% end %>
 
+  <% unless appointment.call_out? %>
   <tr>
     <th><%= l(:label_estimated_hours) %></th>
     <td><%= number_with_precision(appointment.estimated_hours, precision: 1) %> hrs</td>
   </tr>
+  <% end %>
 
   <tr>
     <th><%= l(:label_duration) %></th>

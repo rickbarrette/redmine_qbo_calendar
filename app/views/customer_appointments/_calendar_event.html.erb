@@ -22,7 +22,11 @@
   end
 %>
 
-<%= tag.div class: ['appointment-block', 'tooltip', appointment.status.to_s.parameterize] do %>
+<%
+  status = appointment.status_record
+  css = ['appointment-block', 'tooltip', (appointment.call_out? ? 'call-out' : status.key.parameterize), ('no-hours' if status && !status.counts_hours?)]
+%>
+<%= tag.div class: css.compact, style: status&.style do %>
 
   <div class="appointment-bar"></div>
 
@@ -51,9 +55,14 @@
        <span class="appointment-days">(Day <%= day_number %> of <%= duration %>)</span>
       <% end %>
 
-      <span class="appointment-hours">
-        <%= number_with_precision(appointment.estimated_hours.to_f, precision: 1) %>h
-      </span>
+      <%# Call-outs don't use hours %>
+      <% if appointment.call_out? %>
+        <span class="appointment-call-out-label" title="<%= l(:label_call_out) %>"><i class="fa-solid fa-user-slash"></i></span>
+      <% else %>
+        <span class="appointment-hours">
+          <%= number_with_precision(appointment.estimated_hours.to_f, precision: 1) %>h
+        </span>
+      <% end %>
     </div>
 
     <%# Row 3: Details %>

@@ -66,8 +66,7 @@
     <tbody>
       <% expanded_appointments.each do |item| %>
         <% appt = item[:appointment] %>
-        <% status_slug = appt.status.to_s.parameterize %>
-        <tr class="<%= cycle('odd', 'even') %> appointment-row status-<%= status_slug %>">
+        <tr class="<%= cycle('odd', 'even') %> appointment-row">
           <td class="subject">
             <%= link_to appt.subject, customer_appointment_path(appt) %>
             <% if item[:total_days] > 1 %>
@@ -84,11 +83,7 @@
             <%= format_date(item[:date]) %>
           </td>
           <td class="status">
-            <% if appt.status.present? %>
-              <span class="badge status-badge status-<%= status_slug %>">
-                <%= appt.status.to_s.humanize %>
-              </span>
-            <% end %>
+            <%= appointment_status_badge(appt, css: 'badge status-badge') %>
           </td>
         </tr>
       <% end %>

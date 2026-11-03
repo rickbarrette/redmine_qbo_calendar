@@ -12,6 +12,15 @@ module RedmineQboCalendar
   module Patches
     module ApplicationHelperPatch
 
+      # The appointment's status as a badge in the status's colour, or "Call-out" for an employee's call-out
+      def appointment_status_badge(appointment, css: 'status-badge')
+        if appointment.call_out?
+          content_tag(:span, l(:label_call_out), class: "#{css} status-call-out")
+        elsif (status = appointment.status_record)
+          content_tag(:span, status.name, class: css, style: status.style)
+        end
+      end
+
       def favicon
         if calendar_or_appointments_view?
           tag.link(rel: 'icon', type: 'image/png', href: favicon_path)

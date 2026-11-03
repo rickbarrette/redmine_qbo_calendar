@@ -15,6 +15,7 @@ module RedmineQboCalendar
     User.prepend(RedmineQboCalendar::Patches::UserPatch)
     Issue.prepend(RedmineQboCalendar::Patches::IssuePatch)
     CalendarsController.prepend(RedmineQboCalendar::Patches::CalendarsControllerPatch)
+    SettingsController.prepend(RedmineQboCalendar::Patches::SettingsControllerPatch)
     ApplicationHelper.prepend(RedmineQboCalendar::Patches::ApplicationHelperPatch)
 
     # Hooks

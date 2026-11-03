@@ -1,0 +1,128 @@
+<%
+  statuses = RedmineQboCalendar::AppointmentStatus.all
+  # How many appointments use each status: removing one in use asks where to move them
+  in_use = CustomerAppointment.where(event_type: nil).group(:status).count
+  status_row = lambda do |index, status|
+    count = status ? in_use[status.key].to_i : 0
+    name = "settings[statuses][#{index}]"
+    content_tag(:tr, class: 'appointment-status-row', data: { in_use: count }) do
+      safe_join([
+        content_tag(:td, sprite_icon('reorder'), class: 'appointment-status-handle', title: l(:label_drag_to_reorder_status)),
+        content_tag(:td, safe_join([
+          hidden_field_tag("#{name}[key]", status&.key, id: nil),
+          text_field_tag("#{name}[name]", status&.name, id: nil, size: 24, class: 'appointment-status-name',
+                         'aria-label': l(:field_name))
+        ])),
+        content_tag(:td, color_field_tag("#{name}[color]", status&.color || '#1fc0ff', id: nil,
+                                         class: 'appointment-status-color', 'aria-label': l(:field_color))),
+        content_tag(:td, safe_join([
+          hidden_field_tag("#{name}[counts_hours]", '0', id: nil),
+          check_box_tag("#{name}[counts_hours]", '1', status.nil? || status.counts_hours?, id: nil,
+                        'aria-label': l(:label_status_counts_hours))
+        ]), class: 'appointment-status-hours'),
+        content_tag(:td, content_tag(:span, status&.name || l(:label_new_status), class: 'status-badge appointment-status-preview',
+                                     style: "--status-color: #{status&.color || '#1fc0ff'}")),
+        content_tag(:td, count.positive? ? l(:label_status_in_use, count: count) : '', class: 'appointment-status-count'),
+        content_tag(:td, link_to(sprite_icon('del', l(:button_delete)), '#', class: 'icon-only icon-del appointment-status-remove',
+                                 title: l(:button_delete)), class: 'buttons')
+      ])
+    end
+  end
+%>
+
+<fieldset class="box">
+  <legend><%= l(:label_appointment_statuses) %></legend>
+  <p><em class="info"><%= l(:text_appointment_statuses) %></em></p>
+
+  <table class="list appointment-statuses">
+    <thead>
+      <tr>
+        <th></th>
+        <th><%= l(:field_name) %></th>
+        <th><%= l(:field_color) %></th>
+        <th><%= l(:label_status_counts_hours) %></th>
+        <th><%= l(:label_preview) %></th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="appointment-statuses">
+      <% statuses.each_with_index do |status, index| %>
+        <%= status_row.call(index, status) %>
+      <% end %>
+    </tbody>
+  </table>
+
+  <template id="appointment-status-template">
+    <%= status_row.call('NEW_STATUS', nil) %>
+  </template>
+
+  <p>
+    <%= link_to sprite_icon('add', l(:button_add_status)), '#', id: 'appointment-status-add', class: 'icon icon-add' %>
+  </p>
+  <p><em class="info"><%= l(:text_call_outs_not_statuses) %></em></p>
+</fieldset>
+
+<%= javascript_tag do %>
+  $(function () {
+    var $body = $('#appointment-statuses');
+    $body.sortable({ handle: '.appointment-status-handle', axis: 'y' });
+
+    // The preview badge follows the name and colour
+    $body.on('input', '.appointment-status-name, .appointment-status-color', function () {
+      var $row = $(this).closest('tr');
+      var $preview = $row.find('.appointment-status-preview');
+      $preview.text($row.find('.appointment-status-name').val() || <%= raw l(:label_new_status).to_json %>);
+      $preview[0].style.setProperty('--status-color', $row.find('.appointment-status-color').val());
+    });
+
+    $('#appointment-status-add').on('click', function (e) {
+      e.preventDefault();
+      var html = $('#appointment-status-template').html().replace(/NEW_STATUS/g, 'new' + Date.now());
+      $body.append(html);
+      $body.find('tr:last .appointment-status-name').focus();
+    });
+
+    // Removing a status its appointments use: its row becomes a choice of status to move them to (done when
+    // the settings are saved), or keeping it (shown grey). Undo puts the row back.
+    $body.on('click', '.appointment-status-remove', function (e) {
+      e.preventDefault();
+      var $row = $(this).closest('tr');
+      var count = parseInt($row.data('in-use'), 10) || 0;
+      var key = $row.find('input[name$="[key]"]').val();
+      if (!count || !key) { $row.remove(); return; }
+
+      var $select = $('<select>').attr('name', 'settings[status_moves][' + key + ']');
+      $body.find('tr.appointment-status-row').not($row).each(function () {
+        var otherKey = $(this).find('input[name$="[key]"]').val();
+        if (otherKey) $select.append($('<option>').val(otherKey).text($(this).find('.appointment-status-name').val()));
+      });
+      $select.append($('<option>').val('').text(<%= raw l(:label_keep_removed_status).to_json %>));
+
+      var text = <%= raw l(:text_move_status_appointments).to_json %>
+        .replace('%{count}', count).replace('%{name}', $row.find('.appointment-status-name').val());
+      var $move = $('<tr class="appointment-status-move">').append(
+        $('<td>'),
+        $('<td colspan="5">').append($('<span>').text(text + ' '), $select),
+        $('<td class="buttons">').append(
+          $('<a href="#" class="appointment-status-undo">').text(<%= raw l(:button_undo_remove_status).to_json %>)));
+      $move.data('row', $row);
+      $row.after($move).detach();
+    });
+
+    $body.on('click', '.appointment-status-undo', function (e) {
+      e.preventDefault();
+      var $move = $(this).closest('tr');
+      $move.replaceWith($move.data('row'));
+    });
+  });
+<% end %>
+
+<style>
+  table.appointment-statuses { width: auto; min-width: 640px; }
+  table.appointment-statuses td { vertical-align: middle; }
+  table.appointment-statuses .appointment-status-handle { cursor: grab; color: #8d9096; width: 18px; }
+  table.appointment-statuses input[type=color] { width: 44px; height: 26px; padding: 0 2px; }
+  table.appointment-statuses .appointment-status-count { color: #6b6c72; font-size: .9em; }
+  table.appointment-statuses tr.appointment-status-move td { background: #fff8e1; text-align: left; }
+</style>

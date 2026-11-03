@@ -4,6 +4,21 @@
   <%= error_messages_for @appointment %>
 
   <div class="box tabular">
+    <%= f.hidden_field :event_type %>
+  <% if @appointment.call_out? %>
+    <%# An employee off work: no customer, vehicle, estimate, hours or status %>
+    <p>
+      <label for="customer_appointment_user_id"><%= l(:label_employee) %> <span class="required">*</span></label>
+      <%= f.collection_select :user_id, User.active.sorted, :id, :name, { include_blank: true }, { label: false } %>
+    </p>
+
+    <p>
+      <%= f.text_field :subject, style: "width: 95%;", placeholder: l(:text_call_out_subject_placeholder) %>
+    </p>
+
+    <p><%= f.datetime_local_field :date %></p>
+    <p><%= f.number_field :duration, step: 1, size: 6, label: :label_duration %></p>
+  <% else %>
     <p><%= f.text_field :subject, required: true, style: "width: 95%;" %></p>
 
     <p>
@@ -33,7 +48,11 @@
     <p><%= f.number_field :estimated_hours, step: 1, size: 6 %></p>
     <p><%= f.number_field :duration, step: 1, size: 6, label: :label_duration %></p>
 
-    <p><%= f.select :status, CustomerAppointment::STATUSES, label: :field_status %></p>
+    <%# The statuses set up in the plugin settings, plus a removed one this appointment still has %>
+    <% status_options = CustomerAppointment.status_options %>
+    <% status_options += [[@appointment.status_record.name, @appointment.status]] if @appointment.status.present? && !@appointment.status_record.known? %>
+    <p><%= f.select :status, status_options, label: :field_status %></p>
+  <% end %>
 
     <p>
       <%= f.text_area :description,
