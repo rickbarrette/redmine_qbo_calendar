@@ -24,6 +24,17 @@ module RedmineQboCalendar
           params[:month] ||= session[:qbo_calendar_month]
         end
 
+        # The "Hide past weeks" and "Show customer appointments only" toggles stick for the session, so
+        # month links (which don't carry them) keep them without a second page load
+        %w[only_appointments hide_past_weeks].each do |name|
+          key = :"qbo_calendar_#{name}"
+          if params.key?(name)
+            session[key] = params[name] == '1'
+          elsif session[key]
+            params[name] = '1'
+          end
+        end
+
         # 2. Call Redmine core CalendarsController#show
         super
 
@@ -35,7 +46,7 @@ module RedmineQboCalendar
         log "events: #{events.inspect}"
 
         # Only users with "View customer appointments" see appointments on the calendar
-        appointments = CustomerAppointment.visible(User.current).includes(:customer, :vehicle, :user, :project)
+        appointments = CustomerAppointment.visible(User.current).includes(:customer, :vehicle, :user, :project, :estimate)
 
         # Only load appointments that can appear in the displayed range. Multi-day appointments
         # can start before the range, so look back far enough to cover the longest one

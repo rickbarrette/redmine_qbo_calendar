@@ -1,25 +1,7 @@
 <%
-  non_working_days = Setting.non_working_week_days || []
-  app_datetime = (appointment.respond_to?(:date) && appointment.date.present?) ? appointment.date : appointment.start_date
-  start_date = app_datetime.to_date
-  target_date = day.to_date
+  # Which working day of the appointment this is (the calendar passes it; weekends and holidays skipped)
   duration = [appointment.duration.to_i, 1].max
-
-  day_number = 0
-  if target_date >= start_date
-    date_cursor = start_date
-    working_count = 0
-    while date_cursor <= target_date
-      unless non_working_days.include?(date_cursor.cwday.to_s)
-        working_count += 1
-      end
-      if date_cursor == target_date
-        day_number = working_count
-        break
-      end
-      date_cursor += 1
-    end
-  end
+  day_number = local_assigns[:day_number] || appointment.working_day_number(day).to_i
 %>
 
 <%

@@ -151,8 +151,10 @@ table.cal td {
     cursor: default;
 }
 
-/* Align tooltips to the right on Friday/Saturday columns */
-table.cal td:nth-child(n+6) .appointment-block .tip {
+/* Tooltips in the two rightmost day columns open leftward, so they stay on screen. Each calendar row is
+   8 items (week number, then 7 days), so the last two days are items 8n+7 and 8n. */
+ul.cal li.calbody:nth-child(8n+7) .appointment-block .tip,
+ul.cal li.calbody:nth-child(8n) .appointment-block .tip {
     left: auto !important;
     right: 0 !important;
 }
@@ -460,7 +462,8 @@ table.cal td.today {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
   }
 
-  table.cal td:nth-child(n+6) .appointment-block .tip {
+  ul.cal li.calbody:nth-child(8n+7) .appointment-block .tip,
+  ul.cal li.calbody:nth-child(8n) .appointment-block .tip {
     left: 50% !important;
     right: auto !important;
   }

@@ -1,18 +1,20 @@
 <%= javascript_include_tag("calendar", plugin: :redmine_qbo_calendar) %>
 
 <%
-  # Check if toggles are active via query params
+  # Toggles: kept in the session by CalendarsControllerPatch, so month links keep them
   only_appointments = params[:only_appointments] == '1'
   hide_past_weeks   = params[:hide_past_weeks] == '1'
 
-  # Current date context
+  # Current date context: the Today button scrolls when today is on the page, else opens today's month
   today = User.current.today
-  is_current_month = (calendar.instance_variable_get(:@month) == today.month && calendar.instance_variable_get(:@year) == today.year)
+  is_current_month = (calendar.startdt..calendar.enddt).cover?(today)
 
-  # Get Redmine's configured non-working week days (e.g., ["6", "7"] for Sat/Sun)
+  # Read once for the whole page
   non_working_days = Setting.non_working_week_days || []
-
-  all_holidays = Holiday.all
+  all_holidays = Holiday.all.to_a
+  working_days_between = lambda do |first, last|
+    RedmineQboCalendar::WorkingDays.between(first, last, holidays: all_holidays, week_days: non_working_days)
+  end
 
   # Safely collect all unique CustomerAppointments across the entire calendar date range
   # Prefer the list loaded by CalendarsControllerPatch; fall back to the calendar's own events
@@ -21,83 +23,42 @@
     calendar.events_on(date)
   }.select { |e| e.is_a?(CustomerAppointment) }.uniq
 
-  # Lambda to determine if an appointment should render on a specific calendar day
-  appointment_occurs_on = lambda do |appointment, current_day|
-    app_datetime = appointment.respond_to?(:date) && appointment.date.present? ? appointment.date : appointment.start_date
-    return false if app_datetime.nil?
-
-    start_date = app_datetime.to_date
-    target_date = current_day.to_date
-
-    return false if target_date < start_date
-    
-    # Skip rendering on Redmine standard non-working days
-    return false if non_working_days.include?(target_date.cwday.to_s)
-    
-    # Skip rendering on custom non-working days (Holidays)
-    return false if all_holidays.any? { |h| h.occurs_on?(target_date) }
-
-    duration = [appointment.duration.to_i, 1].max
-    date_cursor = start_date
-    working_days_count = 0
-
-    while date_cursor <= target_date
-      is_standard_weekend = non_working_days.include?(date_cursor.cwday.to_s)
-      is_custom_holiday   = all_holidays.any? { |h| h.occurs_on?(date_cursor) }
-
-      # Only increment duration count if it's a standard working day AND not a holiday
-      unless is_standard_weekend || is_custom_holiday
-        working_days_count += 1
-      end
-
-      if date_cursor == target_date
-        return working_days_count <= duration
-      end
-
-      date_cursor += 1 # Pure Ruby Date increment stays a Date object
+  # Each appointment on each of its working days (weekends and holidays skipped), worked out once:
+  # { date => [[appointment, day number], ...] }
+  appointments_by_day = Hash.new { |h, k| h[k] = [] }
+  all_appointments.each do |appointment|
+    appointment.working_days(holidays: all_holidays).each_with_index do |date, index|
+      appointments_by_day[date] << [appointment, index + 1] if date.between?(calendar.startdt, calendar.enddt)
     end
-
-    false
   end
 
-  # Lambda to calculate hours for a single event on a specific day (Front-Loaded Method)
-  calculate_event_hours = lambda do |event, target_day|
-    if event.is_a?(Issue)
-      event.estimated_hours.to_f
-    elsif event.is_a?(CustomerAppointment) && !event.counts_toward_hours?
-      # Cancelled / call-out appointments stay on the calendar but don't use scheduled time
-      0.0
-    elsif event.is_a?(CustomerAppointment)
-      if event.duration.to_i > 1
-        app_total_hours = if event.respond_to?(:estimated_hours) && event.estimated_hours.present?
-                            event.estimated_hours.to_f
-                          else
-                            event.duration.to_f * 8.0
-                          end
-        
-        start_date = (event.respond_to?(:date) && event.date.present? ? event.date : event.start_date).to_date
-        
-        working_day_index = 0
-        date_cursor = start_date
-        
-        while date_cursor < target_day
-          is_weekend = non_working_days.include?(date_cursor.cwday.to_s)
-          is_holiday = all_holidays.any? { |h| h.occurs_on?(date_cursor) }
-          working_day_index += 1 unless is_weekend || is_holiday
-          date_cursor += 1
-        end
-        
-        hours_already_allocated = working_day_index * 8.0
-        remaining_hours = app_total_hours - hours_already_allocated
-        
-        [[remaining_hours, 8.0].min, 0.0].max
-      elsif event.respond_to?(:estimated_hours) && event.estimated_hours.present?
-        event.estimated_hours.to_f
-      else
-        event.duration.to_f
-      end
+  # An appointment's hours on its Nth day: multi-day appointments use up to a working day's hours (plugin
+  # setting, 8 by default) a day from the start (front-loaded); cancelled appointments and call-outs use none
+  hours_per_day = RedmineQboCalendar.hours_per_day
+  appointment_hours = lambda do |appointment, day_number|
+    next 0.0 unless appointment.counts_toward_hours?
+
+    if appointment.duration.to_i > 1
+      total = appointment.estimated_hours.present? ? appointment.estimated_hours.to_f : appointment.duration.to_f * hours_per_day
+      [[total - (day_number - 1) * hours_per_day, hours_per_day].min, 0.0].max
+    elsif appointment.estimated_hours.present?
+      appointment.estimated_hours.to_f
     else
-      0.0
+      appointment.duration.to_f
+    end
+  end
+
+  # Issues' estimated hours, spread evenly over the working days from start to due date. Redmine shows an
+  # issue on its start and due dates only, so counting it on the days it shows would count it twice and
+  # miss the days between. { date => hours }
+  issue_hours_by_day = Hash.new(0.0)
+  unless only_appointments
+    calendar.instance_variable_get(:@events).to_a.grep(Issue).each do |issue|
+      next unless issue.estimated_hours.to_f > 0
+
+      days = working_days_between.call(issue.start_date || issue.due_date, issue.due_date || issue.start_date)
+      days = [issue.start_date || issue.due_date].compact if days.empty?
+      days.each { |d| issue_hours_by_day[d] += issue.estimated_hours.to_f / days.size }
     end
   end
 %>
@@ -186,7 +147,8 @@
 
         week.each do |day|
           standard_events = only_appointments ? [] : calendar.events_on(day).reject { |e| e.is_a?(CustomerAppointment) }
-          matching_appointments = all_appointments.select { |app| appointment_occurs_on.call(app, day) }
+          day_appointments = appointments_by_day.fetch(day, [])
+          matching_appointments = day_appointments.map(&:first)
 
           # Call-outs first (who's off that day), then everything else by time
           day_events = (standard_events + matching_appointments).sort_by do |event|
@@ -201,12 +163,13 @@
             [call_out, time]
           end
 
-          day_total_hours = day_events.sum { |event| calculate_event_hours.call(event, day) }
+          day_total_hours = issue_hours_by_day[day] + day_appointments.sum { |appointment, number| appointment_hours.call(appointment, number) }
           weekly_total_hours += day_total_hours
 
           # Store it so we don't calculate it twice
           week_data[day] = {
             events: day_events,
+            day_numbers: day_appointments.to_h { |appointment, number| [appointment.id, number] },
             total_hours: day_total_hours
           }
         end
@@ -237,6 +200,7 @@
           # Retrieve the pre-calculated data for this day
           day_events = week_data[day][:events]
           total_hours = week_data[day][:total_hours]
+          day_numbers = week_data[day][:day_numbers]
         %>
 
         <%# Added 'week-end' class and background color styling for custom holidays to mimic weekends %>
@@ -342,6 +306,7 @@
                          locals: {
                            appointment: event,
                            day: day,
+                           day_number: day_numbers[event.id],
                            project: @project
                          } %>
 

@@ -116,3 +116,7 @@ en:
   notice_appointments_moved:
     one: "Moved 1 appointment from %{from} to %{to}."
     other: "Moved %{count} appointments from %{from} to %{to}."
+
+  # Calendar settings
+  label_hours_per_day: "Hours in a working day"
+  text_hours_per_day: "Multi-day appointments count up to this many hours a day on the calendar, from their first day; one without its own hours counts this many a day. Default 8."

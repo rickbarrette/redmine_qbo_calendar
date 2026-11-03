@@ -30,6 +30,16 @@
   end
 %>
 
+<fieldset class="box tabular">
+  <legend><%= l(:label_calendar) %></legend>
+  <p>
+    <label for="settings_hours_per_day"><%= l(:label_hours_per_day) %></label>
+    <%= number_field_tag 'settings[hours_per_day]', number_with_precision(RedmineQboCalendar.hours_per_day, precision: 2, strip_insignificant_zeros: true),
+                         id: 'settings_hours_per_day', min: 0.5, max: 24, step: 0.5, size: 6 %>
+    <em class="info"><%= l(:text_hours_per_day) %></em>
+  </p>
+</fieldset>
+
 <fieldset class="box">
   <legend><%= l(:label_appointment_statuses) %></legend>
   <p><em class="info"><%= l(:text_appointment_statuses) %></em></p>

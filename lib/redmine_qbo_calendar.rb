@@ -9,6 +9,15 @@
 #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 module RedmineQboCalendar
+  DEFAULT_HOURS_PER_DAY = 8.0
+
+  # A working day's hours (plugin setting): multi-day appointments use up to this many hours a day on the
+  # calendar, and one without its own hours takes this many a day
+  def self.hours_per_day
+    hours = (Setting.plugin_redmine_qbo_calendar || {})['hours_per_day'].to_f
+    hours.positive? && hours <= 24 ? hours : DEFAULT_HOURS_PER_DAY
+  end
+
   def self.setup
     # Patches
     Customer.prepend(RedmineQboCalendar::Patches::CustomerPatch)

@@ -1,11 +1,11 @@
 <h3><%= l(:label_upcoming_appointments, default: 'My Upcoming Appointments') %></h3>
 
 <%
-  # Get Redmine's configured non-working week days (e.g., ["6", "7"] for Sat/Sun)
-  non_working_days = Setting.non_working_week_days || []
+  today = User.current.today
+  holidays = Holiday.all.to_a
 
   # Safely filter appointments by logged-in user across possible user column names
-  appointments_scope = CustomerAppointment.all
+  appointments_scope = CustomerAppointment.includes(:customer, :vehicle)
   if CustomerAppointment.column_names.include?('user_id')
     appointments_scope = appointments_scope.where(user_id: User.current.id)
   elsif CustomerAppointment.column_names.include?('assigned_to_id')
@@ -15,41 +15,18 @@
   end
 
   # Look back up to 60 days to capture multi-day appointments starting in the past
-  raw_appointments = appointments_scope.where('date >= ?', Date.today - 60.days)
+  raw_appointments = appointments_scope.where('date >= ?', today - 60.days)
 
-  expanded_appointments = []
-
-  raw_appointments.each do |appointment|
-    next if appointment.start_date.nil?
-
-    start_date = appointment.start_date.to_date
-    duration = [appointment.duration.to_i, 1].max
-    date_cursor = start_date
-    working_days_counted = 0
-
-    # Expand appointment dates strictly across working days based on duration
-    while working_days_counted < duration
-      unless non_working_days.include?(date_cursor.cwday.to_s)
-        working_days_counted += 1
-
-        # Only list dates falling on or after today
-        if date_cursor >= Date.today
-          expanded_appointments << {
-            appointment: appointment,
-            date: date_cursor,
-            day_number: working_days_counted,
-            total_days: duration
-          }
-        end
-      end
-
-      date_cursor += 1
+  # One row per working day (weekends and holidays skipped, as on the calendar), from today on
+  expanded_appointments = raw_appointments.flat_map do |appointment|
+    days = appointment.working_days(holidays: holidays)
+    days.each_with_index.filter_map do |date, index|
+      { appointment: appointment, date: date, day_number: index + 1, total_days: days.size } if date >= today
     end
   end
 
   # Sort upcoming occurrences chronologically and take top 10
-  expanded_appointments.sort_by! { |item| item[:date] }
-  expanded_appointments = expanded_appointments.first(10)
+  expanded_appointments = expanded_appointments.sort_by { |item| [item[:date], item[:appointment].date] }.first(10)
 %>
 
 <% if expanded_appointments.any? %>

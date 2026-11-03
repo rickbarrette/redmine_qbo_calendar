@@ -33,6 +33,7 @@ Add appointments to the redmine calanedar with the abiltiy to attach a QBO custo
 * The appointment page lists the issues linked to its estimate, and **Create Issues from Estimate** opens redmine_qbo's Create issues page with the appointment's dates, technician and vehicle.
 * Estimate pages in redmine_qbo get an **Add appointment** link. Other plugins can add to the new appointment through the `:qbo_calendar_appointment_params, { customer:, estimate_id:, custom_fields: }` hook (e.g. redmine_qbo_vehicles: the vehicle with the estimate's VIN).
 * **Appointment statuses** are set up in the plugin's settings (Administration › Plugins › Configure): name, colour, whether the time counts toward the calendar's hours, and order (the first is the default). Renaming a status keeps its appointments; removing one in use asks which status to move them to. Statuses that don't count hours (e.g. Cancelled) stay on the calendar, crossed out.
+* **Hours in a working day** (plugin setting, default 8): multi-day appointments count up to this many hours a day on the calendar, from their first day. Issues' estimated hours are spread over their working days from start to due date.
 * **Call-outs**: an employee off work, added with the button next to each day's add button. They show at the top of the day in red stripes, have no customer or status, and never count toward hours. Upgrading (migration 004) turns appointments with the old Call_Out status into call-outs.
 
 ---

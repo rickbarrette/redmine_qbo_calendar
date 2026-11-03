@@ -73,10 +73,22 @@ class CustomerAppointment < ActiveRecord::Base
   # Last working day of the appointment. Weekends and holidays are skipped, matching how the
   # calendar spreads a multi-day appointment (a 3-day job starting Friday ends Tuesday).
   def due_date
-    return nil unless date
-    @due_date_cache ||= {}
-    @due_date_cache[[start_date, duration.to_i]] ||=
-      RedmineQboCalendar::WorkingDays.nth_working_day(start_date, duration)
+    working_days.last
+  end
+
+  # The working days the appointment takes (weekends and holidays skipped), in order: "Day 2 of 3" is the
+  # second. Pass the holidays when working this out for many appointments, to read them once.
+  def working_days(holidays: nil)
+    return [] unless date
+    @working_days ||= {}
+    @working_days[[start_date, duration.to_i]] ||=
+      RedmineQboCalendar::WorkingDays.dates(start_date, duration, **{ holidays: holidays }.compact)
+  end
+
+  # Which working day of the appointment a date is (1 for the first), or nil when it isn't one
+  def working_day_number(day)
+    index = working_days.index(day.to_date)
+    index && index + 1
   end
 
   # Appointments the user may see. Requires the global "View customer appointments" permission.

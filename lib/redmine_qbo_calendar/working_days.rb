@@ -29,17 +29,32 @@ module RedmineQboCalendar
     def nth_working_day(start_date, count, holidays: Holiday.all.to_a, week_days: non_working_week_days)
       return nil if start_date.nil?
 
+      dates(start_date, count, holidays: holidays, week_days: week_days).last || (start_date + MAX_SCAN_DAYS)
+    end
+
+    # The first N working days from start_date (itself included when it's a working day), e.g. a 3-day job
+    # starting Friday works Fri, Mon and Tue
+    def dates(start_date, count, holidays: Holiday.all.to_a, week_days: non_working_week_days)
+      return [] if start_date.nil?
+
       count = [count.to_i, 1].max
       cursor = start_date
-      worked = 0
+      worked = []
 
       MAX_SCAN_DAYS.times do
-        worked += 1 unless non_working?(cursor, holidays: holidays, week_days: week_days)
-        return cursor if worked >= count
+        worked << cursor unless non_working?(cursor, holidays: holidays, week_days: week_days)
+        break if worked.size >= count
         cursor += 1
       end
 
-      cursor
+      worked
+    end
+
+    # The working days from first to last, both included (e.g. the days an issue runs)
+    def between(first, last, holidays: Holiday.all.to_a, week_days: non_working_week_days)
+      return [] if first.nil? || last.nil? || last < first
+
+      (first..[last, first + MAX_SCAN_DAYS].min).reject { |d| non_working?(d, holidays: holidays, week_days: week_days) }
     end
   end
 end
