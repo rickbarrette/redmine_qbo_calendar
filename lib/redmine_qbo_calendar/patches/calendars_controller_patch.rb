@@ -24,14 +24,14 @@ module RedmineQboCalendar
           params[:month] ||= session[:qbo_calendar_month]
         end
 
-        # The "Hide past weeks" and "Show customer appointments only" toggles stick for the session, so
-        # month links (which don't carry them) keep them without a second page load
-        %w[only_appointments hide_past_weeks].each do |name|
-          key = :"qbo_calendar_#{name}"
+        # The "Hide past weeks" and "Show customer appointments only" toggles are each user's own setting,
+        # kept in their preferences (the session for anonymous users), so they stick across logins,
+        # browsers and month links (which don't carry them)
+        CALENDAR_TOGGLES.each do |name, default|
           if params.key?(name)
-            session[key] = params[name] == '1'
-          elsif session[key]
-            params[name] = '1'
+            save_calendar_toggle(name, params[name] == '1')
+          else
+            params[name] = calendar_toggle(name, default) ? '1' : '0'
           end
         end
 
@@ -84,7 +84,33 @@ module RedmineQboCalendar
         @calendar.events = events
       end
 
+      # Toggle => its value until the user changes it: customer appointments only, past weeks shown
+      CALENDAR_TOGGLES = { 'only_appointments' => true, 'hide_past_weeks' => false }.freeze
+
       private
+
+      def calendar_toggle_key(name)
+        :"qbo_calendar_#{name}"
+      end
+
+      def calendar_toggle(name, default)
+        key = calendar_toggle_key(name)
+        stored = User.current.logged? ? User.current.pref[key] : session[key]
+        stored.nil? ? default : ActiveModel::Type::Boolean.new.cast(stored)
+      end
+
+      def save_calendar_toggle(name, value)
+        key = calendar_toggle_key(name)
+        if User.current.logged?
+          pref = User.current.pref
+          return if pref[key] == (value ? '1' : '0')
+
+          pref[key] = value ? '1' : '0'
+          pref.save
+        else
+          session[key] = value
+        end
+      end
 
       def log(msg)
         Rails.logger.info "[CalendarsControllerPatch] #{msg}"

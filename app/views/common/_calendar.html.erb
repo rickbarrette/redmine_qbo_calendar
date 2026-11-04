@@ -1,7 +1,7 @@
 <%= javascript_include_tag("calendar", plugin: :redmine_qbo_calendar) %>
 
 <%
-  # Toggles: kept in the session by CalendarsControllerPatch, so month links keep them
+  # Toggles: each user's own, kept in their preferences by CalendarsControllerPatch (always in params here)
   only_appointments = params[:only_appointments] == '1'
   hide_past_weeks   = params[:hide_past_weeks] == '1'
 

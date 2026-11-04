@@ -24,8 +24,12 @@
     <p>
       <%= f.text_field :customer, label: :label_customer, class: "customer-name", autocomplete: "off", data: { autocomplete_url: "/customers/autocomplete" } %>
       <%= f.hidden_field :customer_id, id: "customer_id" %>
-      <!-- Add Quick Create Button -->
-      <a href="#" id="inline-create-customer-btn" class="icon-only icon-add" title="<%=l(:label_new_customer)%>"></a>
+      <%# Creates the customer in a dialog without leaving the appointment (customer-modal.js), for users who
+          may add customers %>
+      <% if User.current.allowed_to?(:add_customers, nil, global: true) %>
+        <%= link_to sprite_icon('add', l(:label_new_customer)), '#', id: 'inline-create-customer-btn',
+                    class: 'icon icon-add', title: l(:label_new_customer) %>
+      <% end %>
     </p>
 
     <p>
