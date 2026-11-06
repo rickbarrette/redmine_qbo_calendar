@@ -83,11 +83,14 @@ class CustomerAppointmentsController < ApplicationController
     @appointment.date = (params[:start_date].to_date + 9.hours) if params[:start_date].present?
     @appointment.customer_id = params[:customer_id] if params[:customer_id].present?
     prefill_estimate_and_vehicle
+    # Warn up front when the day picked on the calendar is in a no-new-work week
+    @no_work_weeks = @appointment.no_work_weeks_added
   end
 
   def create
     @appointment = CustomerAppointment.new(appointment_params)
     @appointment.project = @project
+    apply_no_work_week_override
     if @appointment.save
       flash[:notice] = l(:notice_successful_create)
       redirect_to customer_appointment_path( @appointment )
@@ -101,7 +104,9 @@ class CustomerAppointmentsController < ApplicationController
   end
 
   def update
-    if @appointment.update( appointment_params )
+    @appointment.assign_attributes(appointment_params)
+    apply_no_work_week_override
+    if @appointment.save
       flash[:notice] = l(:notice_successful_update)
       redirect_to customer_appointment_path( @appointment )
     else
@@ -116,6 +121,16 @@ class CustomerAppointmentsController < ApplicationController
   end
 
   private
+
+  # "Schedule anyway" on the form counts only for users with "Override no-new-work weeks"
+  def apply_no_work_week_override
+    @appointment.no_work_week_override = params[:override_no_work_week] == '1' && can_override_no_work_weeks?
+  end
+
+  def can_override_no_work_weeks?
+    User.current.allowed_to?(:override_no_work_weeks, nil, global: true)
+  end
+  helper_method :can_override_no_work_weeks?
 
   # Links from an estimate (redmine_qbo) pass the estimate and vehicle; each is used only when it
   # belongs to the appointment's customer

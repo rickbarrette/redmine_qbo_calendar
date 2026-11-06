@@ -120,3 +120,16 @@ en:
   # Calendar settings
   label_hours_per_day: "Hours in a working day"
   text_hours_per_day: "Multi-day appointments count up to this many hours a day on the calendar, from their first day; one without its own hours counts this many a day. Default 8."
+
+  # No-new-work weeks: flagged with the checkbox at the start of each calendar week
+  label_no_work_week: "No new work"
+  text_no_work_week_toggle: "No new work this week: it's circled in red, and new appointments in it warn"
+  permission_manage_no_work_weeks: "Flag no-new-work weeks"
+  permission_override_no_work_weeks: "Override no-new-work weeks"
+  warning_no_work_week: "The week of %{weeks} is marked no new work."
+  error_no_work_week: "The week of %{weeks} is marked no new work"
+  text_no_work_week_can_override: "Tick \"Schedule anyway\" to save it regardless."
+  text_no_work_week_cannot_override: "Ask someone who can override no-new-work weeks to schedule it."
+  label_override_no_work_week: "Schedule anyway (this week is marked no new work)"
+  error_no_work_week_save: "Could not save the week's no-new-work flag"
+  error_invalid_no_work_week: "Invalid week"

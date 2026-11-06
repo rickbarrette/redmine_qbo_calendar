@@ -42,6 +42,10 @@ Redmine::Plugin.register :redmine_qbo_calendar do
   permission :edit_customer_appointments, { customer_appointments: [:edit, :update, :customer_options, :estimate_hours] }, global: true
   permission :delete_customer_appointments, { customer_appointments: [:destroy] }, global: true
   # Creating issues from an appointment's estimate is redmine_qbo's "Create issues from estimates"
+  # Flag a calendar week "no new work": new appointments in it warn and need the override below
+  permission :manage_no_work_weeks, { no_work_weeks: [:update] }, global: true
+  # Save a new appointment in a no-new-work week anyway, after being warned
+  permission :override_no_work_weeks, {}, global: true
 
   # Register top menu items
   menu :top_menu, :calendar, { controller: :calendars, action: :show }, caption: :label_calendar, if: Proc.new {User.current.logged?}

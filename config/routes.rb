@@ -11,6 +11,8 @@
 RedmineApp::Application.routes.draw do
 
   resources :holidays, except: [:show] # Exclude :show since we don't need a separate page for individual holidays
+  # The calendar's per-week "no new work" checkbox
+  post 'no_work_weeks', to: 'no_work_weeks#update', as: :no_work_weeks
   resources :customer_appointments do
     collection do
       get :customer_options

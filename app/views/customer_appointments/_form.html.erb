@@ -3,6 +3,27 @@
 <%= labelled_form_for @appointment do |f| %>
   <%= error_messages_for @appointment %>
 
+  <%# No-new-work weeks: warned before saving (the day picked on the calendar), then after a save stopped
+      over one. Users with "Override no-new-work weeks" can tick "Schedule anyway". %>
+  <% if @no_work_weeks.present? %>
+    <div class="flash warning no-work-week-warning">
+      <%= l(:warning_no_work_week, weeks: @no_work_weeks.map { |w| format_date(w) }.to_sentence) %>
+      <%= l(can_override_no_work_weeks? ? :text_no_work_week_can_override : :text_no_work_week_cannot_override) %>
+    </div>
+  <% end %>
+  <% if @appointment.no_work_week_conflict? || @no_work_weeks.present? %>
+    <% if can_override_no_work_weeks? %>
+      <p class="no-work-week-override">
+        <label>
+          <%= check_box_tag 'override_no_work_week', '1', params[:override_no_work_week] == '1' %>
+          <%= l(:label_override_no_work_week) %>
+        </label>
+      </p>
+    <% elsif @appointment.no_work_week_conflict? %>
+      <p class="no-work-week-override"><em><%= l(:text_no_work_week_cannot_override) %></em></p>
+    <% end %>
+  <% end %>
+
   <div class="box tabular">
     <%= f.hidden_field :event_type %>
   <% if @appointment.call_out? %>

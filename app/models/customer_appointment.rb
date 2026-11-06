@@ -34,6 +34,13 @@ class CustomerAppointment < ActiveRecord::Base
   # The hours can't be less than the attached estimate's labor hours
   validate :validate_hours_cover_estimate
 
+  # New work landing in a week flagged "no new work" needs an override (see #no_work_week_override)
+  validate :validate_no_work_weeks
+
+  # Set by the controller when the user ticked "Schedule anyway" and holds the "Override no-new-work weeks"
+  # permission
+  attr_accessor :no_work_week_override
+
   # Capitalize the first letter only; titleize mangled vehicle names and acronyms (JL -> Jl, LED -> Led)
   normalizes :subject, with: ->(subject) { subject.strip.sub(/\A[a-z]/, &:upcase) }
 
@@ -104,6 +111,24 @@ class CustomerAppointment < ActiveRecord::Base
     subject
   end
 
+  # The Mondays of flagged no-new-work weeks this appointment adds work to: weeks its working days fall in
+  # that it didn't already cover before this change. Call-outs aren't work, so never any.
+  def no_work_weeks_added
+    return [] if call_out? || date.blank?
+
+    weeks = NoWorkWeek.flagged_week_starts(working_days)
+    if persisted? && date_in_database.present? && event_type_in_database != CALL_OUT
+      previous = RedmineQboCalendar::WorkingDays.dates(date_in_database.to_date, duration_in_database)
+      weeks -= previous.map { |d| NoWorkWeek.week_start_for(d) }
+    end
+    weeks.sort
+  end
+
+  # True after validation stopped the save over a no-new-work week, so the form can offer "Schedule anyway"
+  def no_work_week_conflict?
+    @no_work_week_conflict == true
+  end
+
   # The estimate's labor hours rounded up to whole hours (appointment hours are whole numbers): the
   # quantities of its lines with redmine_qbo's labor products/services (e.g. Labor). 0 if the
   # estimate can't be read from QuickBooks.
@@ -146,6 +171,18 @@ class CustomerAppointment < ActiveRecord::Base
     return if labor.zero? || estimated_hours.to_i >= labor
 
     errors.add(:base, I18n.t(:error_hours_less_than_estimate, hours: labor, estimate: estimate.doc_number))
+  end
+
+  def validate_no_work_weeks
+    @no_work_week_conflict = false
+    return if no_work_week_override
+    return unless new_record? || will_save_change_to_date? || will_save_change_to_duration? || will_save_change_to_event_type?
+
+    weeks = no_work_weeks_added
+    return if weeks.empty?
+
+    @no_work_week_conflict = true
+    errors.add(:base, I18n.t(:error_no_work_week, weeks: weeks.map { |w| I18n.l(w, format: :long) }.to_sentence))
   end
 
   # Validates that the appointment date does not land on a weekend or holiday

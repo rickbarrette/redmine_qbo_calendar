@@ -11,6 +11,10 @@
 
   # Read once for the whole page
   non_working_days = Setting.non_working_week_days || []
+
+  # Weeks flagged "no new work" (keyed by their Monday): circled in red, and new appointments in them warn
+  flagged_weeks = NoWorkWeek.where(week_start: (calendar.startdt - 6)..calendar.enddt).pluck(:week_start).to_set
+  can_flag_weeks = User.current.allowed_to?(:manage_no_work_weeks, nil, global: true)
   all_holidays = Holiday.all.to_a
   working_days_between = lambda do |first, last|
     RedmineQboCalendar::WorkingDays.between(first, last, holidays: all_holidays, week_days: non_working_days)
@@ -127,7 +131,8 @@
 <%= form_tag({}, data: { cm_url: issues_context_menu_path }) do %>
   <%= hidden_field_tag 'back_url', url_for(params: request.query_parameters), id: nil %>
 
-  <ul class="cal">
+  <%# data-no-work-weeks-url: where toggleNoWorkWeek (calendar.js) saves a week's flag %>
+  <ul class="cal" data-no-work-weeks-url="<%= no_work_weeks_path %>" data-no-work-week-error="<%= l(:error_no_work_week_save) %>">
     <li scope="col" title="<%= l(:label_week) %>" class="calhead week-number"></li>
 
     <% 7.times do |i| %>
@@ -175,9 +180,26 @@
         end
       %>
 
-      <li class="week-number">
+      <%
+        # Every 7-day row has exactly one Monday, whatever day the calendar starts on
+        week_monday = week.find { |d| d.cwday == 1 }
+        no_work_week = flagged_weeks.include?(week_monday)
+        week_css = no_work_week ? ['no-work-week'] : []
+      %>
+
+      <li class="week-number <%= week_css.join(' ') %>" data-no-work-week="<%= week_monday %>">
         <span class="label-week"><%= l(:label_week) %></span>
         <%= calendar.week_number(week.first) %>
+
+        <%# No-new-work flag: a checkbox for users who may set it, otherwise shown only when set %>
+        <% if can_flag_weeks || no_work_week %>
+          <label class="no-work-week-toggle" title="<%= l(:text_no_work_week_toggle) %>">
+            <%# No name, so the issues context menu form never sends it %>
+            <%= tag.input type: 'checkbox', checked: no_work_week, disabled: !can_flag_weeks,
+                          onchange: "toggleNoWorkWeek(this, '#{week_monday}')" %>
+            <span><%= l(:label_no_work_week) %></span>
+          </label>
+        <% end %>
         
         <%# Render the Weekly Total Hours under the Week Number %>
         <% if weekly_total_hours > 0 %>
@@ -187,7 +209,7 @@
         <% end %>
       </li>
 
-      <% week.each do |day| %>
+      <% week.each_with_index do |day, day_index| %>
 
         <% 
           is_today = (day == User.current.today)
@@ -204,7 +226,7 @@
         %>
 
         <%# Added 'week-end' class and background color styling for custom holidays to mimic weekends %>
-        <li class="<%= calendar.day_css_classes(day) %> calbody <%= 'week-end' if is_custom_holiday %>" style="<%= 'background-color: #f6f6f6;' if is_custom_holiday %>"<%= ' id="today"'.html_safe if is_today %>>
+        <li class="<%= calendar.day_css_classes(day) %> calbody <%= 'week-end' if is_custom_holiday %> <%= week_css.join(' ') %> <%= 'no-work-week-last' if day_index == 6 %>" data-no-work-week="<%= week_monday %>" style="<%= 'background-color: #f6f6f6;' if is_custom_holiday %>"<%= ' id="today"'.html_safe if is_today %>>
 
           <p class="day-num" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 4px;">
             <!-- Left: Day number and abbreviated weekday -->

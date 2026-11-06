@@ -54,4 +54,30 @@ document.addEventListener('DOMContentLoaded', function() {
   window.toggleHidePastWeeks = function(checked) {
     setToggle('hide_past_weeks', checked);
   };
+
+  // The checkbox at the start of each week: flags it "no new work" (circled in red) without reloading
+  window.toggleNoWorkWeek = function(checkbox, week) {
+    const calendar = checkbox.closest('ul.cal');
+    const token = document.querySelector('meta[name="csrf-token"]');
+    const body = new URLSearchParams({ week: week, flagged: checkbox.checked ? '1' : '0' });
+    const cells = calendar.querySelectorAll('li[data-no-work-week="' + week + '"]');
+    checkbox.disabled = true;
+
+    fetch(calendar.dataset.noWorkWeeksUrl, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'X-CSRF-Token': token ? token.content : '' },
+      body: body,
+      credentials: 'same-origin'
+    }).then(function(response) {
+      if (!response.ok) throw new Error(response.status);
+      return response.json();
+    }).then(function(data) {
+      cells.forEach(function(cell) { cell.classList.toggle('no-work-week', data.flagged); });
+    }).catch(function() {
+      checkbox.checked = !checkbox.checked;
+      alert(calendar.dataset.noWorkWeekError || 'Could not save the week');
+    }).finally(function() {
+      checkbox.disabled = false;
+    });
+  };
 })();
