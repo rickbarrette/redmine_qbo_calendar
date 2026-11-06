@@ -71,6 +71,11 @@
     <p><%= f.datetime_local_field :date %></p>
 
     <p><%= f.number_field :estimated_hours, step: 1, size: 6 %></p>
+    <%# Picking an estimate fills in its labor hours; ticked, the hours may be lowered below them %>
+    <p id="partial-estimate-row" style="<%= 'display: none;' unless @appointment.estimate_id %>">
+      <%= f.check_box :partial_estimate, label: :field_partial_estimate %>
+      <em class="info"><%= l(:text_partial_estimate) %></em>
+    </p>
     <p><%= f.number_field :duration, step: 1, size: 6, label: :label_duration %></p>
 
     <%# The statuses set up in the plugin settings, plus a removed one this appointment still has %>
@@ -99,7 +104,12 @@
     var $hours = $('#customer_appointment_estimated_hours');
     if (!$estimate.length || !$hours.length) return;
     $estimate.on('change', function () {
-      if (!this.value) return;
+      // "Partial estimate" only means something with an estimate picked
+      $('#partial-estimate-row').toggle(!!this.value);
+      if (!this.value) {
+        $('#customer_appointment_partial_estimate').prop('checked', false);
+        return;
+      }
       $.getJSON('<%= j estimate_hours_customer_appointments_path %>', { estimate_id: this.value }).done(function (data) {
         var hours = parseInt(data.hours, 10) || 0;
         if (hours > (parseInt($hours.val(), 10) || 0)) $hours.val(hours);

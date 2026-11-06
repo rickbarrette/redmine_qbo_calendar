@@ -31,7 +31,7 @@ class CustomerAppointment < ActiveRecord::Base
   # Prevent scheduling on non-working days or holidays
   validate :validate_working_day
 
-  # The hours can't be less than the attached estimate's labor hours
+  # The hours can't be less than the attached estimate's labor hours, unless it's a partial estimate
   validate :validate_hours_cover_estimate
 
   # New work landing in a week flagged "no new work" needs an override (see #no_work_week_override)
@@ -153,6 +153,7 @@ class CustomerAppointment < ActiveRecord::Base
       self.estimate = nil
       self.status = nil
       self.estimated_hours = 0
+      self.partial_estimate = false
       self.subject = I18n.t(:label_call_out_subject, name: user.name) if subject.blank? && user
     else
       self.event_type = nil
@@ -162,10 +163,10 @@ class CustomerAppointment < ActiveRecord::Base
   end
 
   # Checked when the estimate or the hours change, so changing just the status (the quick status buttons)
-  # never fails on an older appointment
+  # never fails on an older appointment. A partial estimate (only some of its work this time) may use fewer.
   def validate_hours_cover_estimate
-    return if estimate.nil?
-    return unless new_record? || will_save_change_to_estimate_id? || will_save_change_to_estimated_hours?
+    return if estimate.nil? || partial_estimate?
+    return unless new_record? || will_save_change_to_estimate_id? || will_save_change_to_estimated_hours? || will_save_change_to_partial_estimate?
 
     labor = self.class.estimate_labor_hours(estimate)
     return if labor.zero? || estimated_hours.to_i >= labor

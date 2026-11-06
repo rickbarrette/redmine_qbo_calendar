@@ -77,7 +77,10 @@
   <% unless appointment.call_out? %>
   <tr>
     <th><%= l(:label_estimated_hours) %></th>
-    <td><%= number_with_precision(appointment.estimated_hours, precision: 1) %> hrs</td>
+    <td>
+      <%= number_with_precision(appointment.estimated_hours, precision: 1) %> hrs
+      <% if appointment.partial_estimate? && appointment.estimate %>(<%= l(:label_partial_estimate) %>)<% end %>
+    </td>
   </tr>
   <% end %>
 

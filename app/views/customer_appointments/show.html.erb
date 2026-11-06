@@ -124,7 +124,10 @@
         <% unless @appointment.call_out? %>
         <div class="attribute">
           <div class="label"><%= l(:field_estimated_hours) %>:</div>
-          <div class="value"><%= @appointment.estimated_hours %> <%= l(:label_hours) %></div>
+          <div class="value">
+            <%= @appointment.estimated_hours %> <%= l(:label_hours) %>
+            <% if @appointment.partial_estimate? && @appointment.estimate %>(<%= l(:label_partial_estimate) %>)<% end %>
+          </div>
         </div>
         <% end %>
       </div>

@@ -86,7 +86,10 @@ en:
   permission_manage_customer_appointments: Manage Customer Appointments
   permission_view_customer_appointments: "View customer appointments"
   title_customer_appointments: Customer Appointments
-  error_hours_less_than_estimate: "The hours can't be less than the %{hours} labor hours on estimate #%{estimate}"
+  error_hours_less_than_estimate: "The hours can't be less than the %{hours} labor hours on estimate #%{estimate}. Tick \"Partial estimate\" to schedule only part of it."
+  field_partial_estimate: "Partial estimate"
+  label_partial_estimate: "partial estimate"
+  text_partial_estimate: "Only part of the estimate this time: the hours may be less than its labor hours"
   label_estimate_issues: "Issues for estimate #%{estimate}"
 
   # Call-outs: an employee off work, shown on the calendar (not a customer appointment)

@@ -165,6 +165,7 @@ class CustomerAppointmentsController < ApplicationController
         :date,
         :estimated_hours,
         :estimate_id,
+        :partial_estimate,
         :duration
       )
 
