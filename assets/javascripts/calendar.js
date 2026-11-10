@@ -26,9 +26,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 (function() {
   window.scrollToToday = function() {
+    // Line up today's day number near the top of the window. Centering the whole cell hid the number
+    // above the window when the day is busy (tall cell).
     const todayElement = document.getElementById('today');
     if (todayElement) {
-      todayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const target = todayElement.querySelector('.day-num') || todayElement;
+      const top = target.getBoundingClientRect().top + window.scrollY - 10;
+      window.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
     }
   };
 
