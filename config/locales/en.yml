@@ -57,6 +57,7 @@ en:
   label_estimated_hours: Estimated Time
   label_event: Event
   label_hide_past_weeks: "Hide Past Weeks"
+  label_month_total: "%{month} total"
   label_holiday_edit: Edit Holiday
   label_holiday_new: New Holiday
   label_holiday_plural: Holidays

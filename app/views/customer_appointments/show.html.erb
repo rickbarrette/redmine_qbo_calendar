@@ -33,7 +33,7 @@
   <% end %>
 </div>
 
-<h2>
+<h2 class="appointment-header">
   <% if @appointment.date %>
     <div class="calendar-badge">
       <div class="month"><%= @appointment.date.strftime('%b').upcase %></div>
@@ -41,16 +41,18 @@
     </div>
   <% end %>
 
-  <span class="appointment-title"><%= @appointment.subject %></span>
+  <div class="appointment-heading">
+    <span class="appointment-title"><%= @appointment.subject %></span>
 
-  <span class="appointment-dates">
     <% if @appointment.date %>
-      (<%= format_date(@appointment.date) %> <%= l(:label_at, default: 'at') %> <%= @appointment.date.strftime('%I:%M %p') %>
-      <% if @appointment.respond_to?(:due_date) && @appointment.due_date.present? && @appointment.duration.to_i > 1 %>
-        - <%= format_date(@appointment.due_date) %>
-      <% end %>)
+      <span class="appointment-dates">
+        <span class="appointment-date"><%= day_name(@appointment.date.wday) %>, <%= format_date(@appointment.date) %> <%= l(:label_at, default: 'at') %> <%= @appointment.date.strftime('%I:%M %p') %></span>
+        <% if @appointment.respond_to?(:due_date) && @appointment.due_date.present? && @appointment.duration.to_i > 1 %>
+          &ndash; <span class="appointment-date"><%= day_name(@appointment.due_date.wday) %>, <%= format_date(@appointment.due_date) %></span>
+        <% end %>
+      </span>
     <% end %>
-  </span>
+  </div>
 </h2>
 
 <%# Quick status buttons; call-outs have no status %>

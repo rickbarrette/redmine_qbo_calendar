@@ -65,6 +65,18 @@
       days.each { |d| issue_hours_by_day[d] += issue.estimated_hours.to_f / days.size }
     end
   end
+
+  # A day's estimated hours: its share of issues plus its appointments
+  day_hours = lambda do |day|
+    issue_hours_by_day[day] + appointments_by_day.fetch(day, []).sum { |appointment, number| appointment_hours.call(appointment, number) }
+  end
+
+  # Month totals: only the shown month's own days (not the neighbouring months' days that fill out the
+  # first and last weeks), and including weeks hidden by "Hide Past Weeks"
+  month_days = (calendar.startdt..calendar.enddt).select { |d| d.month == calendar.month }
+  monthly_total_hours = month_days.sum { |d| day_hours.call(d) }
+  monthly_appointment_count = month_days.flat_map { |d| appointments_by_day.fetch(d, []).map(&:first) }
+                                        .uniq.count { |a| !a.call_out? && a.counts_toward_hours? }
 %>
 
 <%# Calendar Status Legend Key: the statuses set up in the plugin settings, then call-outs %>
@@ -88,7 +100,18 @@
 <% end %>
 
 <!-- Toggle Bar -->
-<div class="calendar-filter-toolbar" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: flex-end; gap: 16px;">
+<div class="calendar-filter-toolbar" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: flex-end; gap: 16px; flex-wrap: wrap;">
+
+  <%# Month totals, on the left; cancelled appointments and call-outs aren't counted %>
+  <div class="monthly-totals" style="margin-right: auto; display: inline-flex; align-items: center; gap: 12px; font-size: 0.95em; color: #444;">
+    <strong><%= l(:label_month_total, month: month_name(calendar.month), default: "#{month_name(calendar.month)} total") %>:</strong>
+    <span class="monthly-hours-total" title="<%= l(:label_estimated_hours, default: 'Estimated hours') %>">
+      <i class="fa-regular fa-clock"></i> <strong><%= monthly_total_hours.round(1) %>h</strong>
+    </span>
+    <span class="monthly-appointments-total" title="<%= l(:label_appointments) %>">
+      <i class="fa-regular fa-calendar-check"></i> <strong><%= monthly_appointment_count %></strong> <%= l(:label_appointments).downcase %>
+    </span>
+  </div>
 
   <% if is_current_month %>
     <button type="button" 
@@ -168,7 +191,7 @@
             [call_out, time]
           end
 
-          day_total_hours = issue_hours_by_day[day] + day_appointments.sum { |appointment, number| appointment_hours.call(appointment, number) }
+          day_total_hours = day_hours.call(day)
           weekly_total_hours += day_total_hours
 
           # Store it so we don't calculate it twice
