@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!-- Calendar icons (Tabler outline icons, MIT), in the layout of Redmine's own sprite -->
+<svg xmlns="http://www.w3.org/2000/svg" class="icon--sprite">
+  <defs>
+    <symbol viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" id="icon--qbo-calendar-event">
+      <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/>
+      <path d="M16 3v4"/>
+      <path d="M8 3v4"/>
+      <path d="M4 11h16"/>
+      <path d="M8 15h2v2h-2z"/>
+    </symbol>
+  </defs>
+</svg>

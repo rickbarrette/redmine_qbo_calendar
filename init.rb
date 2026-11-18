@@ -25,7 +25,8 @@ Redmine::Plugin.register :redmine_qbo_calendar do
   settings default: {}, partial: 'settings/qbo_calendar'
 
   # Add Holidays index to the Redmine Administration Menu
-  menu :admin_menu, :holidays, { controller: 'holidays', action: 'index' }, caption: :label_holiday_plural, html: { class: 'icon icon-list' }
+  menu :admin_menu, :holidays, { controller: 'holidays', action: 'index' }, caption: :label_holiday_plural,
+       icon: 'qbo-calendar-event', plugin: :redmine_qbo_calendar, html: { class: 'icon' }
 
   # Ensure redmine_qbo is installed: creating issues from estimates and estimate labor hours live there
   # (from 2026.11.0)
