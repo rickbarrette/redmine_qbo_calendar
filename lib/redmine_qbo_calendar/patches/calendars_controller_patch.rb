@@ -47,10 +47,19 @@ module RedmineQboCalendar
         # Only load appointments that can appear in the displayed range. Multi-day appointments
         # can start before the range, so look back far enough to cover the longest one
         # (working days only, so allow ~2x calendar days plus slack for holidays).
-        max_duration = [appointments.maximum(:duration).to_i, 1].max
+        max_duration = [CustomerAppointment.maximum(:duration).to_i, 1].max
         range_start = (@calendar.startdt - (max_duration * 2 + 14)).beginning_of_day
         range_end = @calendar.enddt.end_of_day
-        appointments = appointments.where(date: range_start..range_end).to_a
+        appointments = appointments.where(date: range_start..range_end)
+
+        # The calendar's filters that mean something for appointments (assignee, customer, project) narrow
+        # them too; the issue-only ones (status, tracker...) leave them alone
+        if @query&.valid?
+          filter = RedmineQboCalendar::AppointmentFilter.new(@query)
+          appointments = filter.apply(appointments)
+          @qbo_calendar_appointment_filters = filter.applied_fields.map { |field| @query.available_filters[field]&.[](:name) || field }
+        end
+        appointments = appointments.to_a
 
         # Holidays are read once for the page. Each appointment works out its working days now, with them,
         # so Redmine's event maps (which ask each appointment for its due date) and the view reuse them

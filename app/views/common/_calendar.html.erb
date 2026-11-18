@@ -86,6 +86,11 @@
                                         .uniq.count { |a| !a.call_out? && a.counts_toward_hours? }
 %>
 
+<%# Which of the filters also narrow the appointments (CalendarsControllerPatch) %>
+<% if @qbo_calendar_appointment_filters.present? %>
+  <p class="calendar-appointment-filters"><em class="info"><%= l(:text_appointments_filtered_by, filters: @qbo_calendar_appointment_filters.to_sentence) %></em></p>
+<% end %>
+
 <%# Calendar Status Legend Key: the statuses set up in the plugin settings, then call-outs %>
 <% statuses = CustomerAppointment.statuses %>
 

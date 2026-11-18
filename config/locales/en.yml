@@ -132,3 +132,4 @@ en:
   label_override_no_work_week: "Schedule anyway (this week is marked no new work)"
   error_no_work_week_save: "Could not save the week's no-new-work flag"
   error_invalid_no_work_week: "Invalid week"
+  text_appointments_filtered_by: "Appointments are filtered by %{filters} too. The other filters only apply to issues."
