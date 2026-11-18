@@ -13,6 +13,8 @@ This plugin allows for adding customer appointment capability to the Redmine cal
 *   **Parent Plugin:** [Redmine QuickBooks Online](https://github.com/rickbarrette/redmine_qbo) (must be installed and configured)
 
 *   Version 2026.11.0 or newer of redmine_qbo: it creates issues from an appointment's estimate and works out the estimate's labor hours.
+
+*   The calendar's icons come from Font Awesome, loaded from `kit.fontawesome.com` (deferred, so pages don't wait for it): browsers need to reach it to show them.
     
 ---
 
@@ -82,7 +84,7 @@ Restart your application server (Puma, Passenger, etc.) to initialize the plugin
     * Viewing the Calendar: Navigate to the Customer Calendar tab within a project or via the top menu to view scheduled customer appointments.
     * Adding Appointments: Click on available days on the calendar grid to schedule a new appointment (restricted by user permissions, working days, and configured holidays).
     * Editing & Deleting: Existing appointments can be modified or removed directly from the calendar interface depending on user privileges.
-    * My Page Integration: Users can add the Upcoming Appointments block to their personal My Page dashboard to track their schedule at a glance.
+    * My Page Integration: Users can add the Upcoming Appointments block to their personal My Page dashboard to see their next appointments as the technician, one row per working day.
 
 2. Holidays and Non-Working Days
 Administrators can manage the holiday calendar to prevent appointments from being scheduled on non-working days.
