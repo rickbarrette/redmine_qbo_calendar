@@ -11,8 +11,6 @@
 # English strings go here for Rails i18n
 # Usage I18n.t(:label)
 en:
-  are_you_sure: "Are you sure?"
-  button_appointments: Appointments
   button_calendar: Calendar
   day_name_friday: "Friday"
   day_name_monday: "Monday"
@@ -48,14 +46,11 @@ en:
   label_date_from: From
   label_date_to: To
   label_no_past_appointments: "No past appointments found"
-  label_customer_appointment: Customer Appointment
-  label_customer_calendar: Customer Calendar
   label_days: Days
   label_duration: Duration
   label_edit_appointment: Edit Appointment
   label_end_date: End Date
   label_estimated_hours: Estimated Time
-  label_event: Event
   label_hide_past_weeks: "Hide Past Weeks"
   label_month_total: "%{month} total"
   label_holiday_edit: Edit Holiday

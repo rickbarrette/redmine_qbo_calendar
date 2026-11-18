@@ -24,14 +24,6 @@ module RedmineQboCalendar
       week_days.include?(date.cwday.to_s) || holidays.any? { |h| h.occurs_on?(date) }
     end
 
-    # Returns the date of the Nth working day, counting start_date itself if it is a working day.
-    # e.g. a 3-day job starting Friday ends on Tuesday (Fri, Mon, Tue).
-    def nth_working_day(start_date, count, holidays: Holiday.all.to_a, week_days: non_working_week_days)
-      return nil if start_date.nil?
-
-      dates(start_date, count, holidays: holidays, week_days: week_days).last || (start_date + MAX_SCAN_DAYS)
-    end
-
     # The first N working days from start_date (itself included when it's a working day), e.g. a 3-day job
     # starting Friday works Fri, Mon and Tue
     def dates(start_date, count, holidays: Holiday.all.to_a, week_days: non_working_week_days)

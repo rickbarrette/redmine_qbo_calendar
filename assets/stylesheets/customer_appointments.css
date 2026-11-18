@@ -415,17 +415,10 @@ ul.cal {
 }
 
 /* Compress content and dim non-working weekend cells */
-ul.cal li.nwday,
 ul.cal li.sunday,
 ul.cal li.saturday {
   background-color: #f7f7f7;
   padding: 2px !important;
-}
-
-/* Hide non-essential metadata on narrow weekend cells */
-ul.cal li.nwday .icon-user,
-ul.cal li.nwday .buttons {
-  display: none;
 }
 
 /* Highlight Today's Calendar Box & Number */

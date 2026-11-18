@@ -28,11 +28,6 @@ class NoWorkWeek < ApplicationRecord
     where(week_start: starts).pluck(:week_start).to_set
   end
 
-  # Whether any of the dates falls in a flagged week
-  def self.flagged?(*dates)
-    flagged_week_starts(dates.flatten).any?
-  end
-
   def self.flag!(date, user = User.current)
     find_or_create_by!(week_start: week_start_for(date)) { |w| w.user = user if user&.logged? }
   rescue ActiveRecord::RecordNotUnique
