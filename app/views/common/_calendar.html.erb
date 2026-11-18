@@ -15,7 +15,14 @@
   # Weeks flagged "no new work" (keyed by their Monday): circled in red, and new appointments in them warn
   flagged_weeks = NoWorkWeek.where(week_start: (calendar.startdt - 6)..calendar.enddt).pluck(:week_start).to_set
   can_flag_weeks = User.current.allowed_to?(:manage_no_work_weeks, nil, global: true)
-  all_holidays = Holiday.all.to_a
+  # Holidays read once by CalendarsControllerPatch (read here when this partial is rendered somewhere else)
+  all_holidays = @qbo_calendar_holidays || Holiday.all.to_a
+
+  # Permissions checked once for the page, not for every day and appointment
+  can_add_appointments = User.current.allowed_to?(:add_customer_appointments, nil, global: true)
+  can_edit_appointments = User.current.allowed_to?(:edit_customer_appointments, nil, global: true)
+  # Each appointment's description, rendered once however many days it shows (filled in by its tooltip)
+  appointment_descriptions = {}
   working_days_between = lambda do |first, last|
     RedmineQboCalendar::WorkingDays.between(first, last, holidays: all_holidays, week_days: non_working_days)
   end
@@ -166,7 +173,7 @@
 
     <% calendar.format_month.each_slice(7) do |week| %>
       <%# Skip week if "hide past weeks" is active and every day in the week is in the past %>
-      <% next if hide_past_weeks && week.last < User.current.today %>
+      <% next if hide_past_weeks && week.last < today %>
 
       <% 
         # --- Pre-calculate daily events and weekly total hours ---
@@ -226,7 +233,7 @@
         
         <%# Render the Weekly Total Hours under the Week Number %>
         <% if weekly_total_hours > 0 %>
-          <div class="weekly-hours-total" style="margin-top: 12px; font-weight: bold; font-size: 0.95em; color: #444;" title="<%= l(:label_estimated_hours, default: 'Estimated hours') %>">
+          <div class="weekly-hours-total" title="<%= l(:label_estimated_hours, default: 'Estimated hours') %>">
             <%= weekly_total_hours.round(1) %>h
           </div>
         <% end %>
@@ -235,7 +242,7 @@
       <% week.each_with_index do |day, day_index| %>
 
         <% 
-          is_today = (day == User.current.today)
+          is_today = (day == today)
           
           # Find the specific holiday for this day (if any)
           current_holiday = all_holidays.find { |h| h.occurs_on?(day) }
@@ -249,22 +256,22 @@
         %>
 
         <%# Added 'week-end' class and background color styling for custom holidays to mimic weekends %>
-        <li class="<%= calendar.day_css_classes(day) %> calbody <%= 'week-end' if is_custom_holiday %> <%= week_css.join(' ') %> <%= 'no-work-week-last' if day_index == 6 %>" data-no-work-week="<%= week_monday %>" style="<%= 'background-color: #f6f6f6;' if is_custom_holiday %>"<%= ' id="today"'.html_safe if is_today %>>
+        <li class="<%= calendar.day_css_classes(day) %> calbody <%= 'week-end holiday' if is_custom_holiday %> <%= week_css.join(' ') %> <%= 'no-work-week-last' if day_index == 6 %>" data-no-work-week="<%= week_monday %>"<%= ' id="today"'.html_safe if is_today %>>
 
-          <p class="day-num" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 4px;">
+          <p class="day-num">
             <!-- Left: Day number and abbreviated weekday -->
-            <span class="day-num-left" style="display: inline-flex; align-items: center; justify-self: start; gap: 3px;">
-              <a name="<%= day.to_s %>" <%= 'id="today-anchor"'.html_safe if is_today %> style="text-decoration: none; color: inherit;">
-                <span class="day-value" style="font-weight: bold;"><%= day.day %></span>
+            <span class="day-num-left">
+              <a name="<%= day.to_s %>" <%= 'id="today-anchor"'.html_safe if is_today %>>
+                <span class="day-value"><%= day.day %></span>
               </a>
-              <span class="abbr-day" style="font-size: 0.85em; color: #777;">(<%= abbr_day_name(day.cwday) %>)</span>
+              <span class="abbr-day">(<%= abbr_day_name(day.cwday) %>)</span>
             </span>
 
             <!-- Center: New Appointment Action -->
-            <% if User.current.allowed_to?(:add_customer_appointments, nil, global: true) %>
-              <span class="day-num-center" style="display: inline-flex; align-items: center; justify-self: center;">
-                <%# Only show ADD button if it's in the future, NOT a weekend, NOT a holiday, AND user has permission %>
-                <% if day >= User.current.today && !is_standard_weekend && !is_custom_holiday && User.current.allowed_to?(:add_customer_appointments, nil, global: true) %>
+            <% if can_add_appointments %>
+              <span class="day-num-center">
+                <%# Only show ADD button if it's in the future, NOT a weekend, NOT a holiday %>
+                <% if day >= today && !is_standard_weekend && !is_custom_holiday %>
                   <%= link_to sprite_icon('add'),
                               new_customer_appointment_path(start_date: day),
                               class: 'icon-only icon-add',
@@ -278,9 +285,9 @@
             <% end %>
 
             <!-- Right: Total Hours -->
-            <span class="day-num-right" style="display: inline-flex; align-items: center; justify-self: end;">
+            <span class="day-num-right">
               <% if total_hours > 0 %>
-                <span class="hours-total" style="font-weight: bold; color: #555;" title="<%= l(:label_estimated_hours, default: 'Estimated hours') %>">
+                <span class="hours-total" title="<%= l(:label_estimated_hours, default: 'Estimated hours') %>">
                   <%= total_hours.round(1) %>h
                 </span>
               <% end %>
@@ -289,12 +296,12 @@
 
           <%# Render Holiday Name Badge if it's a holiday %>
           <% if is_custom_holiday %>
-            <div class="holiday-badge" style="background-color: #f2dede; color: #a94442; padding: 3px 6px; border-radius: 3px; font-size: 0.8em; font-weight: bold; margin-bottom: 4px; border: 1px solid #ebccd1; display: flex; align-items: center; gap: 4px;">
+            <div class="holiday-badge">
               <span class="fa-stack fa-lg">
                 <i class="fas fa-calendar fa-stack-1x"></i>
                 <i class="fas fa-slash fa-stack-2x" style="color:Tomato"></i>
               </span>
-              <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><%= current_holiday.name %></span>
+              <span class="holiday-name"><%= current_holiday.name %></span>
             </div>
           <% end %>
 
@@ -352,7 +359,9 @@
                            appointment: event,
                            day: day,
                            day_number: day_numbers[event.id],
-                           project: @project
+                           project: @project,
+                           can_edit: can_edit_appointments,
+                           descriptions: appointment_descriptions
                          } %>
 
             <% else %>

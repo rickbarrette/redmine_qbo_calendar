@@ -95,15 +95,18 @@
 
   <hr>
 
+  <%# The calendar passes a descriptions hash, so a multi-day appointment's description is rendered once %>
+  <% render_description = -> { (textilizable(appointment.description) rescue simple_format(h(appointment.description))) } %>
+  <% descriptions = local_assigns[:descriptions] %>
   <div class="description">
-    <%= textilizable(appointment.description) rescue simple_format(h(appointment.description)) %>
+    <%= descriptions ? (descriptions[appointment.id] ||= render_description.call) : render_description.call %>
   </div>
 
 <% end %>
 
 <hr>
 
-<% if User.current.allowed_to?(:edit_customer_appointments, nil, global: true) %>
+<% if local_assigns.fetch(:can_edit) { User.current.allowed_to?(:edit_customer_appointments, nil, global: true) } %>
   <p class="buttons">
     <%= link_to l(:label_open_appointment), customer_appointment_path(appointment), class: "icon icon-edit" %>
   </p>

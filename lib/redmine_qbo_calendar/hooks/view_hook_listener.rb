@@ -13,12 +13,12 @@ module RedmineQboCalendar
 
     class ViewHookListener < Redmine::Hook::ViewListener
 
-      # Load the javascript and stylesheet assets
+      # The stylesheet (the calendar, appointments and their blocks on other pages) and Font Awesome's icons.
+      # Font Awesome loads deferred, so pages don't wait for it; the appointment form loads its own script.
       def view_layouts_base_html_head(context = {})
         safe_join([
-          javascript_include_tag("customer_appointments", plugin: :redmine_qbo_calendar),
           stylesheet_link_tag('customer_appointments', plugin: :redmine_qbo_calendar),
-          javascript_include_tag('https://kit.fontawesome.com/4be4394b21.js', crossorigin: 'anonymous')
+          javascript_include_tag('https://kit.fontawesome.com/4be4394b21.js', crossorigin: 'anonymous', defer: true)
         ])
       end
       

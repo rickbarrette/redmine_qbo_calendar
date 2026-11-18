@@ -61,10 +61,14 @@ class CustomerAppointment < ActiveRecord::Base
     event_type == CALL_OUT
   end
 
-  # This appointment's status from the settings; nil for call-outs, which have none
+  # This appointment's status from the settings; nil for call-outs, which have none. Kept for the status it was
+  # worked out for, since the calendar asks several times for each day an appointment shows.
   def status_record
     return nil if call_out?
-    RedmineQboCalendar::AppointmentStatus.find(status) || RedmineQboCalendar::AppointmentStatus.default
+    return @status_record if defined?(@status_record) && @status_record_key == status
+
+    @status_record_key = status
+    @status_record = RedmineQboCalendar::AppointmentStatus.find(status) || RedmineQboCalendar::AppointmentStatus.default
   end
 
   # False for call-outs and statuses like Cancelled, which stay on the calendar but free up their hours

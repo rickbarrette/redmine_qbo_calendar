@@ -4,15 +4,8 @@
   today = User.current.today
   holidays = Holiday.all.to_a
 
-  # Safely filter appointments by logged-in user across possible user column names
-  appointments_scope = CustomerAppointment.includes(:customer, :vehicle)
-  if CustomerAppointment.column_names.include?('user_id')
-    appointments_scope = appointments_scope.where(user_id: User.current.id)
-  elsif CustomerAppointment.column_names.include?('assigned_to_id')
-    appointments_scope = appointments_scope.where(assigned_to_id: User.current.id)
-  elsif CustomerAppointment.column_names.include?('author_id')
-    appointments_scope = appointments_scope.where(author_id: User.current.id)
-  end
+  # The user's own appointments (their technician)
+  appointments_scope = CustomerAppointment.includes(:customer, :vehicle).where(user_id: User.current.id)
 
   # Look back up to 60 days to capture multi-day appointments starting in the past
   raw_appointments = appointments_scope.where('date >= ?', today - 60.days)

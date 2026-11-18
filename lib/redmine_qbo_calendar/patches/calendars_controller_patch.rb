@@ -13,8 +13,6 @@ module RedmineQboCalendar
     module CalendarsControllerPatch
 
       def show
-        log "show"
-
         # 1. Update or retrieve saved month/year from session before super runs
         if params[:year].present? && params[:month].present?
           session[:qbo_calendar_year]  = params[:year].to_i
@@ -43,8 +41,6 @@ module RedmineQboCalendar
         # Grab whatever Redmine already loaded
         events = @calendar.instance_variable_get(:@events).dup
 
-        log "events: #{events.inspect}"
-
         # Only users with "View customer appointments" see appointments on the calendar
         appointments = CustomerAppointment.visible(User.current).includes(:customer, :vehicle, :user, :project, :estimate)
 
@@ -56,27 +52,14 @@ module RedmineQboCalendar
         range_end = @calendar.enddt.end_of_day
         appointments = appointments.where(date: range_start..range_end).to_a
 
+        # Holidays are read once for the page. Each appointment works out its working days now, with them,
+        # so Redmine's event maps (which ask each appointment for its due date) and the view reuse them
+        @qbo_calendar_holidays = Holiday.all.to_a
+        appointments.each { |appointment| appointment.working_days(holidays: @qbo_calendar_holidays) }
+
         # Hand the list to the calendar view directly, so appointments that span the whole
         # displayed range (neither starting nor ending in it) still render
         @qbo_calendar_appointments = appointments
-
-        log "appointments: #{appointments.inspect}"
-
-        # If we're inside a project, only show that project's appointments
-        # if @project
-        #   appointments = appointments.where(project_id: @project.id)
-        # end
-
-        # Only appointments visible in the displayed month
-        # appointments = appointments.where(
-        #   "(start_date BETWEEN :start AND :finish)
-        #    OR
-        #    (end_date BETWEEN :start AND :finish)
-        #    OR
-        #    (start_date <= :start AND end_date >= :finish)",
-        #   start: @calendar.startdt.beginning_of_day,
-        #   finish: @calendar.enddt.end_of_day
-        # )
 
         events.concat(appointments)
 
@@ -110,10 +93,6 @@ module RedmineQboCalendar
         else
           session[key] = value
         end
-      end
-
-      def log(msg)
-        Rails.logger.info "[CalendarsControllerPatch] #{msg}"
       end
 
     end

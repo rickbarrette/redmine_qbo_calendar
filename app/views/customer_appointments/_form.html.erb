@@ -1,4 +1,6 @@
 <%= javascript_include_tag("customer-modal", plugin: :redmine_qbo_calendar) %>
+<%# Fills the vehicle and estimate lists when the customer changes (only this form has them) %>
+<%= javascript_include_tag("customer_appointments", plugin: :redmine_qbo_calendar) %>
 
 <%= labelled_form_for @appointment do |f| %>
   <%= error_messages_for @appointment %>

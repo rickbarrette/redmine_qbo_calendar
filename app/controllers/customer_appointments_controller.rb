@@ -32,11 +32,12 @@ class CustomerAppointmentsController < ApplicationController
   end
 
   def index
+    # The list shows each one's customer, vehicle and technician: read with the appointments, not one by one
+    @appointments = CustomerAppointment.includes(:customer, :vehicle, :user)
+                                       .where('date >= ?', Time.zone.now.beginning_of_day).order(:date)
     if params[:project_id]
       @project = Project.find(params[:project_id])
-      @appointments = CustomerAppointment.where(project: @project).where('date >= ?', Time.zone.now.beginning_of_day).order(:date)
-    else
-      @appointments = CustomerAppointment.where('date >= ?', Time.zone.now.beginning_of_day).order(:date)
+      @appointments = @appointments.where(project: @project)
     end
   end
 

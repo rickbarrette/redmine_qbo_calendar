@@ -611,3 +611,18 @@ table.estimate-issues-preview tr.created td {
 .calendar-add-call-out:hover {
     color: #393a3d;
 }
+
+/* Day cells (common/_calendar): these were inline styles repeated in every cell */
+ul.cal .weekly-hours-total { margin-top: 12px; font-weight: bold; font-size: 0.95em; color: #444; }
+ul.cal li.calbody.holiday { background-color: #f6f6f6; }
+ul.cal p.day-num { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 4px; }
+ul.cal .day-num-left { display: inline-flex; align-items: center; justify-self: start; gap: 3px; }
+ul.cal .day-num-left a { text-decoration: none; color: inherit; }
+ul.cal .day-value { font-weight: bold; }
+ul.cal .abbr-day { font-size: 0.85em; color: #777; }
+ul.cal .day-num-center { display: inline-flex; align-items: center; justify-self: center; }
+ul.cal .day-num-right { display: inline-flex; align-items: center; justify-self: end; }
+ul.cal .hours-total { font-weight: bold; color: #555; }
+ul.cal .holiday-badge { background-color: #f2dede; color: #a94442; padding: 3px 6px; border-radius: 3px; font-size: 0.8em;
+  font-weight: bold; margin-bottom: 4px; border: 1px solid #ebccd1; display: flex; align-items: center; gap: 4px; }
+ul.cal .holiday-badge .holiday-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

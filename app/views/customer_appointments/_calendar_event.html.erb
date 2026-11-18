@@ -61,7 +61,9 @@
   </div>
 
   <span class="tip">
-    <%= render partial: "customer_appointments/tooltip", locals: { appointment: appointment, day: day } %>
+    <%= render partial: "customer_appointments/tooltip",
+               locals: { appointment: appointment, day: day, can_edit: local_assigns[:can_edit],
+                         descriptions: local_assigns[:descriptions] }.compact %>
   </span>
 
 <% end %>
