@@ -42,6 +42,17 @@ Add appointments to the redmine calanedar with the abiltiy to attach a QBO custo
 
 ---
 
+## Screenshots
+
+All names and figures are made up.
+
+<table>
+<tr><td width="50%"><img src="Screenshots/calendar.png" alt="The calendar: appointments by status, call-outs, a holiday, hours per day and a no-new-work week"><br><sub>The calendar: appointments by status, call-outs, a holiday, hours per day and a no-new-work week</sub></td><td width="50%"><img src="Screenshots/appointment.png" alt="An appointment with its customer, vehicle, estimate and the estimate's issues"><br><sub>An appointment with its customer, vehicle, estimate and the estimate's issues</sub></td></tr>
+<tr><td width="50%"><img src="Screenshots/new_appointment.png" alt="A new appointment from an estimate, in a no-new-work week"><br><sub>A new appointment from an estimate, in a no-new-work week</sub></td><td width="50%"><img src="Screenshots/history.png" alt="Appointment history"><br><sub>Appointment history</sub></td></tr>
+<tr><td width="50%"><img src="Screenshots/my_page.png" alt="Upcoming appointments on My page"><br><sub>Upcoming appointments on My page</sub></td><td width="50%"><img src="Screenshots/estimate.png" alt="Add Appointment on an estimate"><br><sub>Add Appointment on an estimate</sub></td></tr>
+<tr><td width="50%"><img src="Screenshots/settings.png" alt="Appointment statuses and hours in a working day"><br><sub>Appointment statuses and hours in a working day</sub></td><td width="50%"><img src="Screenshots/holidays.png" alt="Holidays"><br><sub>Holidays</sub></td></tr>
+</table>
+
 ## Installation
 
 1.  **Clone the plugin**
