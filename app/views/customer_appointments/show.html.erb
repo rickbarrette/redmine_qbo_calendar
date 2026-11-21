@@ -9,7 +9,7 @@
     <% end %>
   <% end %>
   <% if !@appointment.call_out? && User.current.allowed_to?(:add_customer_appointments, nil, global: true) %>
-    <%= link_to new_issue_path(issue: { customer_id: @appointment.customer_id, vehicle_id: @appointment.vehicle_id, estimate_id: @appointment.estimate_id }), target: :_blank do %>
+    <%= link_to new_issue_path(issue: { customer_id: @appointment.customer_id, vehicle_id: (@appointment.vehicle_id if CustomerAppointment.vehicles?), estimate_id: @appointment.estimate_id }.compact), target: :_blank do %>
       <i class="fa-solid fa-plus"></i> <%= l(:label_new_issue) %>
     <% end %>
   <% end %>
@@ -83,10 +83,12 @@
           <div class="label"><%= l(:label_customer, default: 'Customer') %>:</div>
           <div class="value"><%= link_to_if @appointment.customer, @appointment.customer&.name, @appointment.customer %></div>
         </div>
+        <% if CustomerAppointment.vehicles? %>
         <div class="attribute">
           <div class="label"><%= l(:label_vehicle, default: 'Vehicle') %>:</div>
           <div class="value"><%= link_to_if @appointment.vehicle, @appointment.vehicle&.name, @appointment.vehicle %></div>
         </div>
+        <% end %>
         <div class="attribute">
           <div class="label"><%= l(:label_primary_phone, default: 'Primary phone') %>:</div>
           <div class="value"><%= @appointment.customer&.primary_phone %></div>

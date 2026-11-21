@@ -19,7 +19,7 @@ class CustomerAppointmentsController < ApplicationController
     customer = Customer.find_by(id: params[:customer_id])
 
     render json: {
-      vehicles: customer&.vehicles&.map { |v| { id: v.id, name: v.name } } || [],
+      vehicles: customer.respond_to?(:vehicles) ? customer.vehicles.map { |v| { id: v.id, name: v.name } } : [],
       estimates: customer&.estimates&.map { |e| { id: e.id, name: e.name } } || []
     }
   end
@@ -33,7 +33,7 @@ class CustomerAppointmentsController < ApplicationController
 
   def index
     # The list shows each one's customer, vehicle and technician: read with the appointments, not one by one
-    @appointments = CustomerAppointment.includes(:customer, :vehicle, :user)
+    @appointments = CustomerAppointment.includes(*CustomerAppointment.list_includes)
                                        .where('date >= ?', Time.zone.now.beginning_of_day).order(:date)
     if params[:project_id]
       @project = Project.find(params[:project_id])
@@ -49,7 +49,7 @@ class CustomerAppointmentsController < ApplicationController
     @to = parse_date(params[:to])
 
     scope = CustomerAppointment
-      .includes(:customer, :vehicle, :user)
+      .includes(*CustomerAppointment.list_includes)
       .where('date < ?', Time.zone.now.beginning_of_day)
     scope = scope.where(customer_id: @customer.id) if @customer
     # The status filter also offers call-outs, which have no status

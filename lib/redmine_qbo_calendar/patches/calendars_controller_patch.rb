@@ -42,7 +42,7 @@ module RedmineQboCalendar
         events = @calendar.instance_variable_get(:@events).dup
 
         # Only users with "View customer appointments" see appointments on the calendar
-        appointments = CustomerAppointment.visible(User.current).includes(:customer, :vehicle, :user, :project, :estimate)
+        appointments = CustomerAppointment.visible(User.current).includes(*CustomerAppointment.list_includes(:project, :estimate))
 
         # Only load appointments that can appear in the displayed range. Multi-day appointments
         # can start before the range, so look back far enough to cover the longest one

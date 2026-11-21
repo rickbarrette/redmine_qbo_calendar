@@ -14,6 +14,8 @@ This plugin allows for adding customer appointment capability to the Redmine cal
 
 *   Version 2026.11.0 or newer of redmine_qbo: it creates issues from an appointment's estimate and works out the estimate's labor hours.
 
+*   **Optional:** [redmine_qbo_vehicles](https://github.com/rickbarrette/redmine_qbo_vehicles) gives appointments a vehicle. Without it the vehicle is left out of the appointment form, pages and lists.
+
 *   The calendar's icons come from Font Awesome, loaded from `kit.fontawesome.com` (deferred, so pages don't wait for it): browsers need to reach it to show them.
     
 ---

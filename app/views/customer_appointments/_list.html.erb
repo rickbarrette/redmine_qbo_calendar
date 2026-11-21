@@ -6,7 +6,7 @@
 
 <th><%= l(:label_customer) %></th>
 
-<th><%= l(:label_vehicle) %></th>
+<% if CustomerAppointment.vehicles? %><th><%= l(:label_vehicle) %></th><% end %>
 
 <th><%= l(:label_appointment) %></th>
 
@@ -32,11 +32,13 @@
 
 </td>
 
+<% if CustomerAppointment.vehicles? %>
 <td>
 
 <%= link_to appointment.vehicle unless appointment.vehicle.nil? %>
 
 </td>
+<% end %>
 
 <td>
 

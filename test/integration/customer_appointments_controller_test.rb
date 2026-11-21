@@ -248,4 +248,38 @@ class CustomerAppointmentsControllerTest < Redmine::IntegrationTest
     get '/customer_appointments/estimate_hours', params: { estimate_id: 424242 }
     assert_equal({ 'hours' => 0 }, response.parsed_body)
   end
+
+  # redmine_qbo_vehicles is optional: with it appointments have a vehicle, without it the vehicle is left out
+  def test_vehicles_only_with_redmine_qbo_vehicles
+    login(:view_customer_appointments, :add_customer_appointments, :edit_customer_appointments)
+    # A new vehicle queues a VIN lookup; Redmine's test environment would run it inline
+    saved_adapter = ActiveJob::Base.queue_adapter
+    ActiveJob::Base.queue_adapter = :test
+    if CustomerAppointment.vehicles?
+      vehicle = Vehicle.new(customer_id: @customer.id, vin: '1C4HJXFG0JW123456', year: 2018, make: 'Jeep', model: 'Wrangler')
+      vehicle.save!
+      @appointment.update_columns(vehicle_id: vehicle.id)
+      get "/customer_appointments/#{@appointment.id}"
+      assert_select '.attribute a[href=?]', "/vehicles/#{vehicle.id}"
+      get "/customer_appointments/#{@appointment.id}/edit"
+      assert_select 'select#appointment_vehicle_id option[selected][value=?]', vehicle.id.to_s
+      get '/customer_appointments/customer_options', params: { customer_id: @customer.id }
+      assert_equal [vehicle.id], response.parsed_body['vehicles'].map { |v| v['id'] }
+    else
+      assert_nil @appointment.vehicle
+      get "/customer_appointments/#{@appointment.id}"
+      assert_response :success
+      get "/customer_appointments/#{@appointment.id}/edit"
+      assert_select 'select#appointment_vehicle_id', 0
+      get '/customer_appointments/customer_options', params: { customer_id: @customer.id }
+      assert_equal [], response.parsed_body['vehicles']
+    end
+    get '/customer_appointments'
+    assert_response :success
+    get '/customer_appointments/history'
+    assert_response :success
+  ensure
+    ActiveJob::Base.queue_adapter = saved_adapter
+  end
 end
+
