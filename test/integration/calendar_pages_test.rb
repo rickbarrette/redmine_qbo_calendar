@@ -202,7 +202,7 @@ class CalendarPagesTest < Redmine::IntegrationTest
     assert_response :success
     assert_select '.customer-appointments-simple a[href=?]', "/customer_appointments/#{upcoming.id}"
     assert_select '.appointment-history-link a[href=?]', "/customer_appointments/history?customer_id=#{customer.id}"
-    assert_select 'a#appointment_link[href=?]', "/customer_appointments/new?customer_id=#{customer.id}"
+    assert_select 'a#appointment_link[href=?][data-ticked-params=?]', "/customer_appointments/new?customer_id=#{customer.id}", '%s'
 
     login
     get "/customers/#{customer.id}"

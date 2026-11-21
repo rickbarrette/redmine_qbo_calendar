@@ -45,4 +45,8 @@ class CalendarBillingHookTest < ActiveSupport::TestCase
     assert_nil @hook.qbo_billing_issue_defaults(params: {}, estimate: @estimate)
     assert_nil @hook.qbo_billing_issue_defaults(params: { appointment_id: '424242' }, estimate: @estimate)
   end
+
+  def test_create_issues_keeps_the_appointment
+    assert_equal ['appointment_id'], @hook.qbo_billing_issue_carry_params
+  end
 end

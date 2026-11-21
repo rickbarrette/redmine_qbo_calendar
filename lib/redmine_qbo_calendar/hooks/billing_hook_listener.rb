@@ -16,6 +16,11 @@ module RedmineQboCalendar
 
       # "Create issues" opened from an appointment (?appointment_id=): the issues get the appointment's dates,
       # technician and project, and the page returns to the appointment (other plugins add their own fields)
+      # Create issues keeps the appointment through its form (it's read again when the issues are created)
+      def qbo_billing_issue_carry_params(_context = {})
+        ['appointment_id']
+      end
+
       def qbo_billing_issue_defaults(context = {})
         appointment_id = context.dig(:params, :appointment_id)
         return nil if appointment_id.blank?
