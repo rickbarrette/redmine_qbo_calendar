@@ -20,6 +20,9 @@
       <i class="fa-solid fa-list-check"></i> <%= l(:button_create_issues_from_estimate) %>
     <% end %>
   <% end %>
+  <%# Other plugins' actions, e.g. redmine_qbo_tickets' Print key ticket %>
+  <%= call_hook(:view_customer_appointments_show_contextual, appointment: @appointment) %>
+
   <% if User.current.allowed_to?(:edit_customer_appointments, nil, global: true) %>
     <%= link_to edit_customer_appointment_path(@appointment) do %>
       <i class="fa-solid fa-pen-to-square"></i> <%= l(:button_edit) %>

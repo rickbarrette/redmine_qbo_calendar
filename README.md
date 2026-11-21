@@ -58,6 +58,7 @@ Hook|:qbo_calendar_new_issue_params, { appointment: } | Return params added to t
 Hook|:qbo_calendar_appointment_params, { customer:, estimate_id:, custom_fields: } | Return params added to an estimate page's Add appointment link
 View|:view_customer_appointments_form_details, { form:, appointment: } | Fields on the appointment form (customer appointments, not call-outs)
 View|:view_customer_appointments_show_details, { appointment: } | Attributes on the appointment page (`<div class="attribute">`)
+View|:view_customer_appointments_show_contextual, { appointment: } | Links in the appointment page's top-right actions (e.g. redmine_qbo_tickets' Print key ticket)
 View|:view_customer_appointments_list_header, { list: } / :view_customer_appointments_list_row, { list:, appointment: } | A column (`<th>` / `<td>`) in the appointment lists; `list` is `:index`, `:history` or `:my_page`
 View|:view_customer_appointments_tooltip, { appointment: } | Rows (`<tr>`) in the calendar's appointment tooltip
 View|:view_customer_appointments_calendar_event, { appointment: } | Details under the customer on the calendar (start each with `<br/>`)
