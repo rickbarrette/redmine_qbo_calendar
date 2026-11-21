@@ -15,7 +15,7 @@ module RedmineQboCalendar
     class BillingHookListener < Redmine::Hook::Listener
 
       # "Create issues" opened from an appointment (?appointment_id=): the issues get the appointment's dates,
-      # technician, vehicle and project, and the page returns to the appointment
+      # technician and project, and the page returns to the appointment (other plugins add their own fields)
       def qbo_billing_issue_defaults(context = {})
         appointment_id = context.dig(:params, :appointment_id)
         return nil if appointment_id.blank?
@@ -29,7 +29,6 @@ module RedmineQboCalendar
           start_date: appointment.start_date,
           due_date: appointment.due_date,
           assignee: appointment.user,
-          vehicle_id: appointment.vehicle_id,
           project: appointment.project,
           description: "The purpose of this work is to bill the time spent on this issue for Estimate ##{estimate.doc_number} " \
                        "for Appointment: #{appointment.subject}",

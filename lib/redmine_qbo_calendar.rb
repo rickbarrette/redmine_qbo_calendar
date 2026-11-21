@@ -18,6 +18,19 @@ module RedmineQboCalendar
     hours.positive? && hours <= 24 ? hours : DEFAULT_HOURS_PER_DAY
   end
 
+  # Other plugins add their own appointment fields through hooks (see the README's Hooks section). Data hooks
+  # are called with Redmine::Hook.call_hook, which returns each listener's result.
+
+  # The listeners' lists for a hook, as one list: e.g. :qbo_calendar_appointment_attributes => [:vehicle_id]
+  def self.hook_list(hook, context = {})
+    Redmine::Hook.call_hook(hook, context).flatten.compact.uniq
+  end
+
+  # The listeners' hashes for a hook, merged
+  def self.hook_hash(hook, context = {})
+    Redmine::Hook.call_hook(hook, context).select { |result| result.is_a?(Hash) }.reduce({}, :merge)
+  end
+
   def self.setup
     # Patches
     Customer.prepend(RedmineQboCalendar::Patches::CustomerPatch)

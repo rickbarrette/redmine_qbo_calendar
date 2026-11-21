@@ -6,7 +6,7 @@
 
 <th><%= l(:label_customer) %></th>
 
-<% if CustomerAppointment.vehicles? %><th><%= l(:label_vehicle) %></th><% end %>
+<%= call_hook(:view_customer_appointments_list_header, list: :index) %>
 
 <th><%= l(:label_appointment) %></th>
 
@@ -32,13 +32,7 @@
 
 </td>
 
-<% if CustomerAppointment.vehicles? %>
-<td>
-
-<%= link_to appointment.vehicle unless appointment.vehicle.nil? %>
-
-</td>
-<% end %>
+<%= call_hook(:view_customer_appointments_list_row, list: :index, appointment: appointment) %>
 
 <td>
 

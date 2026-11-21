@@ -28,7 +28,7 @@
       <tr>
         <th><%= l(:label_title) %></th>
         <th><%= l(:label_customer) %></th>
-        <% if CustomerAppointment.vehicles? %><th><%= l(:label_vehicle) %></th><% end %>
+        <%= call_hook(:view_customer_appointments_list_header, list: :my_page) %>
         <th><%= l(:label_date) %></th>
         <th class="status"><%= l(:label_status) %></th>
       </tr>
@@ -46,11 +46,7 @@
           <td class="customer">
             <%= link_to appt.customer unless appt.customer.nil? %>
           </td>
-          <% if CustomerAppointment.vehicles? %>
-          <td class="vehicle">
-            <%= link_to appt.vehicle unless appt.vehicle.nil? %>
-          </td>
-          <% end %>
+          <%= call_hook(:view_customer_appointments_list_row, list: :my_page, appointment: appt) %>
           <td class="start-date">
             <%= format_date(item[:date]) %>
           </td>

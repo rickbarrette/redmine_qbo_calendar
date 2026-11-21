@@ -13,15 +13,6 @@ class CustomerAppointment < ActiveRecord::Base
   belongs_to :project, optional: true
   belongs_to :user, optional: true
   belongs_to :customer, optional: true
-  # Vehicles come from redmine_qbo_vehicles, which is optional. Without it appointments have no vehicle (the
-  # column stays, unused). Checked when the class loads, after every plugin has registered.
-  if Redmine::Plugin.installed?(:redmine_qbo_vehicles)
-    belongs_to :vehicle, optional: true
-  else
-    def vehicle
-      nil
-    end
-  end
   belongs_to :estimate, optional: true
 
   # Issues created from this appointment's estimate lines
@@ -65,14 +56,10 @@ class CustomerAppointment < ActiveRecord::Base
     statuses.map { |s| [s.name, s.key] }
   end
 
-  # Whether redmine_qbo_vehicles is installed, so appointments have vehicles
-  def self.vehicles?
-    reflect_on_association(:vehicle).present?
-  end
-
-  # What lists of appointments read with them: customer and technician, and the vehicle when there are vehicles
+  # What lists of appointments read with them: customer and technician, plus the associations other plugins'
+  # fields show (:qbo_calendar_appointment_preloads)
   def self.list_includes(*more)
-    [:customer, :user, *(vehicles? ? [:vehicle] : []), *more]
+    [:customer, :user, *RedmineQboCalendar.hook_list(:qbo_calendar_appointment_preloads), *more]
   end
 
   def call_out?
@@ -171,7 +158,6 @@ class CustomerAppointment < ActiveRecord::Base
   def prepare_entry
     if call_out?
       self.customer = nil
-      self.vehicle_id = nil
       self.estimate = nil
       self.status = nil
       self.estimated_hours = 0

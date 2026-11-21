@@ -61,7 +61,7 @@
         <% unless @customer %>
           <th><%= l(:label_customer) %></th>
         <% end %>
-        <% if CustomerAppointment.vehicles? %><th><%= l(:label_vehicle) %></th><% end %>
+        <%= call_hook(:view_customer_appointments_list_header, list: :history) %>
         <th><%= l(:label_appointment) %></th>
         <th><%= l(:label_technician) %></th>
         <th><%= l(:label_duration) %></th>
@@ -75,7 +75,7 @@
           <% unless @customer %>
             <td><%= link_to appointment.customer, history_customer_appointments_path(customer_id: appointment.customer_id) if appointment.customer %></td>
           <% end %>
-          <% if CustomerAppointment.vehicles? %><td><%= link_to appointment.vehicle if appointment.vehicle %></td><% end %>
+          <%= call_hook(:view_customer_appointments_list_row, list: :history, appointment: appointment) %>
           <td class="subject"><%= link_to appointment.subject, customer_appointment_path(appointment) %></td>
           <td><%= link_to_user(appointment.user) if appointment.user %></td>
           <td><%= appointment.duration %> <%= l(:label_days) %></td>

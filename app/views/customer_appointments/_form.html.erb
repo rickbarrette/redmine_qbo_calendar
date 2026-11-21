@@ -1,5 +1,5 @@
 <%= javascript_include_tag("customer-modal", plugin: :redmine_qbo_calendar) %>
-<%# Fills the vehicle and estimate lists when the customer changes (only this form has them) %>
+<%# Fills the estimate list (and other plugins' lists) when the customer changes (only this form has them) %>
 <%= javascript_include_tag("customer_appointments", plugin: :redmine_qbo_calendar) %>
 
 <%= labelled_form_for @appointment do |f| %>
@@ -29,7 +29,7 @@
   <div class="box tabular">
     <%= f.hidden_field :event_type %>
   <% if @appointment.call_out? %>
-    <%# An employee off work: no customer, vehicle, estimate, hours or status %>
+    <%# An employee off work: no customer, estimate, hours or status %>
     <p>
       <label for="customer_appointment_user_id"><%= l(:label_employee) %> <span class="required">*</span></label>
       <%= f.collection_select :user_id, User.active.sorted, :id, :name, { include_blank: true }, { label: false } %>
@@ -55,16 +55,13 @@
       <% end %>
     </p>
 
-    <% if CustomerAppointment.vehicles? %>
-    <p>
-      <%= f.label :vehicle_id, l(:label_vehicle) %>
-      <%= f.collection_select :vehicle_id, @appointment.customer.respond_to?(:vehicles) ? @appointment.customer.vehicles : [], :id, :name, { include_blank: true }, { label: false, id: "appointment_vehicle_id" } %>
-    </p>
-    <% end %>
+    <%# Other plugins' fields. A select filled from the customer gets data-customer-option and an id, and its
+        options come from :qbo_calendar_customer_options when the customer changes. %>
+    <%= call_hook(:view_customer_appointments_form_details, form: f, appointment: @appointment) %>
 
     <p>
       <%= f.label :estimate_id, l(:label_estimate) %>
-      <%= f.collection_select :estimate_id, @appointment.customer&.estimates || [], :id, :name, { include_blank: true }, { label: false, id: "appointment_estimate_id" } %>
+      <%= f.collection_select :estimate_id, @appointment.customer&.estimates || [], :id, :name, { include_blank: true }, { label: false, id: "appointment_estimate_id", data: { customer_option: true } } %>
     </p>
 
     <p>

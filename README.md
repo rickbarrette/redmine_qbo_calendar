@@ -14,7 +14,7 @@ This plugin allows for adding customer appointment capability to the Redmine cal
 
 *   Version 2026.11.0 or newer of redmine_qbo: it creates issues from an appointment's estimate and works out the estimate's labor hours.
 
-*   **Optional:** [redmine_qbo_vehicles](https://github.com/rickbarrette/redmine_qbo_vehicles) gives appointments a vehicle. Without it the vehicle is left out of the appointment form, pages and lists.
+*   **Optional:** other plugins add their own appointment fields through the hooks below (e.g. [redmine_qbo_vehicles](https://github.com/rickbarrette/redmine_qbo_vehicles): the vehicle).
 
 *   The calendar's icons come from Font Awesome, loaded from `kit.fontawesome.com` (deferred, so pages don't wait for it): browsers need to reach it to show them.
     
@@ -31,10 +31,10 @@ This plugin allows for adding customer appointment capability to the Redmine cal
 
 ## Features
 
-Add appointments to the redmine calanedar with the abiltiy to attach a QBO customer, QBO Vehicle, QBO Estimate, ect.
+Add appointments to the Redmine calendar with a QBO customer and estimate, plus whatever other plugins add (e.g. redmine_qbo_vehicles: the vehicle).
 
 * An appointment's hours can't be less than its estimate's labor hours (the quantities of its lines with redmine_qbo's labor products/services). Picking an estimate raises the hours to match. Tick **Partial estimate** to schedule only part of it, and the hours can then be lowered (migration 006).
-* The appointment page lists the issues linked to its estimate, and **Create Issues from Estimate** opens redmine_qbo's Create issues page with the appointment's dates, technician and vehicle.
+* The appointment page lists the issues linked to its estimate, and **Create Issues from Estimate** opens redmine_qbo's Create issues page with the appointment's dates and technician (and other plugins' fields, e.g. the vehicle).
 * Estimate pages in redmine_qbo get an **Add appointment** link. Other plugins can add to the new appointment through the `:qbo_calendar_appointment_params, { customer:, estimate_id:, custom_fields: }` hook (e.g. redmine_qbo_vehicles: the vehicle with the estimate's VIN).
 * **Appointment statuses** are set up in the plugin's settings (Administration › Plugins › Configure): name, colour, whether the time counts toward the calendar's hours, and order (the first is the default). Renaming a status keeps its appointments; removing one in use asks which status to move them to. Statuses that don't count hours (e.g. Cancelled) stay on the calendar, crossed out.
 * **Hours in a working day** (plugin setting, default 8): multi-day appointments count up to this many hours a day on the calendar, from their first day. Issues' estimated hours are spread over their working days from start to due date.
@@ -43,6 +43,25 @@ Add appointments to the redmine calanedar with the abiltiy to attach a QBO custo
 * **Call-outs**: an employee off work, added with the button next to each day's add button. They show at the top of the day in red stripes, have no customer or status, and never count toward hours. Upgrading (migration 004) turns appointments with the old Call_Out status into call-outs.
 
 ---
+
+### Hooks for other plugins
+
+Other plugins add their own appointment fields (redmine_qbo_vehicles adds the vehicle) without code in this plugin. Data hooks are called with `Redmine::Hook.call_hook`; view hooks return HTML.
+
+Type|Hook|Use
+---|---|---
+Hook|:qbo_calendar_appointment_attributes | Return attribute names the appointment form may save (e.g. `[:vehicle_id]`). Your plugin adds the column and association
+Hook|:qbo_calendar_appointment_preloads | Return associations to read with lists of appointments (e.g. `[:vehicle]`)
+Hook|:qbo_calendar_new_appointment, { appointment:, params: } | Fill in your fields on a new appointment from the link's params
+Hook|:qbo_calendar_customer_options, { customer: } | Return `{ select_id => [{ id:, name: }] }`: the options of your form selects that depend on the customer, reloaded when it changes. Give those selects `data-customer-option`
+Hook|:qbo_calendar_new_issue_params, { appointment: } | Return params added to the appointment page's New issue link
+Hook|:qbo_calendar_appointment_params, { customer:, estimate_id:, custom_fields: } | Return params added to an estimate page's Add appointment link
+View|:view_customer_appointments_form_details, { form:, appointment: } | Fields on the appointment form (customer appointments, not call-outs)
+View|:view_customer_appointments_show_details, { appointment: } | Attributes on the appointment page (`<div class="attribute">`)
+View|:view_customer_appointments_list_header, { list: } / :view_customer_appointments_list_row, { list:, appointment: } | A column (`<th>` / `<td>`) in the appointment lists; `list` is `:index`, `:history` or `:my_page`
+View|:view_customer_appointments_tooltip, { appointment: } | Rows (`<tr>`) in the calendar's appointment tooltip
+View|:view_customer_appointments_calendar_event, { appointment: } | Details under the customer on the calendar (start each with `<br/>`)
+View|:show_customer_appointment, { appointment: } | Anything at the bottom of the appointment page
 
 ## Screenshots
 

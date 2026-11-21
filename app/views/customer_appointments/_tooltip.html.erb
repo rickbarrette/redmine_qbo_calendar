@@ -29,12 +29,8 @@
     </tr>
   <% end %>
 
-  <% if appointment.vehicle %>
-    <tr>
-      <th><%= l(:label_vehicle) %></th>
-      <td><%= link_to appointment.vehicle %></td>
-    </tr>
-  <% end %>
+  <%# Other plugins' rows (<tr><th>…</th><td>…</td></tr>) %>
+  <%= call_hook(:view_customer_appointments_tooltip, appointment: appointment) %>
 
   <% if appointment.user %>
     <tr>

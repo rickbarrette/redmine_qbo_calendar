@@ -15,17 +15,14 @@ function initCustomerAppointmentForm() {
     if (customerId === lastValue) return;
     lastValue = customerId;
 
-    if (!customerId) {
-      clearSelect('appointment_vehicle_id');
-      clearSelect('appointment_estimate_id');
-      return;
-    }
+    // The lists that depend on the customer: the estimates, and other plugins' (select[data-customer-option])
+    document.querySelectorAll('select[data-customer-option]').forEach(select => clearSelect(select.id));
+    if (!customerId) return;
 
     fetch(`/customer_appointments/customer_options?customer_id=${customerId}`)
       .then(response => response.json())
       .then(data => {
-        populateSelect('appointment_vehicle_id', data.vehicles);
-        populateSelect('appointment_estimate_id', data.estimates);
+        Object.entries(data.options || {}).forEach(([selectId, items]) => populateSelect(selectId, items));
       })
       .catch(err => console.error('Failed to load customer options:', err));
   }

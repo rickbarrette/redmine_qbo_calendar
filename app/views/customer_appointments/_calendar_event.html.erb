@@ -52,9 +52,8 @@
       <hr class="appointment-divider" />
       <div class="appointment-detail">
         <%= appointment.customer.name %>
-        <% if appointment.vehicle %>
-          <br/> <%= appointment.vehicle.name %>
-        <% end %>
+        <%# Other plugins' details, each on its own line (start it with <br/>) %>
+        <%= call_hook(:view_customer_appointments_calendar_event, appointment: appointment) %>
       </div>
     <% end %>
 

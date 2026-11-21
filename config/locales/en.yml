@@ -30,7 +30,6 @@ en:
   field_phone: Phone
   field_recurrence_type: Recurrence Type
   field_type: Type
-  field_vehicle: Vehicle
   label_add_appointment: Add Appointment
   label_appointment: Appointment
   label_appointment_new: "New Appointment"

@@ -18,10 +18,10 @@ class CustomerAppointmentsController < ApplicationController
   def customer_options
     customer = Customer.find_by(id: params[:customer_id])
 
-    render json: {
-      vehicles: customer.respond_to?(:vehicles) ? customer.vehicles.map { |v| { id: v.id, name: v.name } } : [],
-      estimates: customer&.estimates&.map { |e| { id: e.id, name: e.name } } || []
-    }
+    # { select's id => [{ id:, name: }] }: the estimates, and other plugins' lists (:qbo_calendar_customer_options)
+    options = { 'appointment_estimate_id' => customer&.estimates&.map { |e| { id: e.id, name: e.name } } || [] }
+    options.merge!(RedmineQboCalendar.hook_hash(:qbo_calendar_customer_options, customer: customer)) if customer
+    render json: { options: options }
   end
 
   # The estimate's labor hours (redmine_qbo's labor products/services), so the form can make sure the
@@ -32,7 +32,7 @@ class CustomerAppointmentsController < ApplicationController
   end
 
   def index
-    # The list shows each one's customer, vehicle and technician: read with the appointments, not one by one
+    # The list shows each one's customer and technician (and plugins' fields): read with the appointments, not one by one
     @appointments = CustomerAppointment.includes(*CustomerAppointment.list_includes)
                                        .where('date >= ?', Time.zone.now.beginning_of_day).order(:date)
     if params[:project_id]
@@ -83,7 +83,9 @@ class CustomerAppointmentsController < ApplicationController
     @appointment.status = RedmineQboCalendar::AppointmentStatus.default.key unless @appointment.call_out?
     @appointment.date = (params[:start_date].to_date + 9.hours) if params[:start_date].present?
     @appointment.customer_id = params[:customer_id] if params[:customer_id].present?
-    prefill_estimate_and_vehicle
+    prefill_estimate
+    # Other plugins fill in their own fields from the link's params (e.g. the vehicle ticked on a customer page)
+    Redmine::Hook.call_hook(:qbo_calendar_new_appointment, appointment: @appointment, params: params)
     # Warn up front when the day picked on the calendar is in a no-new-work week
     @no_work_weeks = @appointment.no_work_weeks_added
   end
@@ -133,9 +135,8 @@ class CustomerAppointmentsController < ApplicationController
   end
   helper_method :can_override_no_work_weeks?
 
-  # Links from an estimate (redmine_qbo) pass the estimate and vehicle; each is used only when it
-  # belongs to the appointment's customer
-  def prefill_estimate_and_vehicle
+  # Links from an estimate (redmine_qbo) pass the estimate, used only when it belongs to the appointment's customer
+  def prefill_estimate
     customer = @appointment.customer
     return unless customer
 
@@ -144,9 +145,6 @@ class CustomerAppointmentsController < ApplicationController
       # At least the estimate's labor hours
       labor = CustomerAppointment.estimate_labor_hours(@appointment.estimate)
       @appointment.estimated_hours = labor if labor > @appointment.estimated_hours.to_i
-    end
-    if params[:vehicle_id].present? && customer.respond_to?(:vehicles) && customer.vehicles.exists?(id: params[:vehicle_id])
-      @appointment.vehicle_id = params[:vehicle_id]
     end
   end
 
@@ -158,7 +156,6 @@ class CustomerAppointmentsController < ApplicationController
         :subject,
         :customer_id,
         :phone,
-        :vehicle_id,
         :description,
         :status,
         :event_type,
@@ -167,7 +164,9 @@ class CustomerAppointmentsController < ApplicationController
         :estimated_hours,
         :estimate_id,
         :partial_estimate,
-        :duration
+        :duration,
+        # Other plugins' fields (:qbo_calendar_appointment_attributes)
+        *RedmineQboCalendar.hook_list(:qbo_calendar_appointment_attributes)
       )
 
   end

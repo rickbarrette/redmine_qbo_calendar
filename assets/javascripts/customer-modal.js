@@ -84,8 +84,7 @@ $(document).ready(function() {
         $('#customer_appointment_customer').val(response.name);
 
         // Reset dependent select dropdowns for new customer
-        $('#appointment_vehicle_id').empty().append('<option value=""></option>');
-        $('#appointment_estimate_id').empty().append('<option value=""></option>');
+        $('select[data-customer-option]').empty().append('<option value=""></option>');
 
         // Close and clean up modal
         $dialog.dialog('close');

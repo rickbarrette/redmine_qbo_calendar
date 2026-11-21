@@ -9,12 +9,12 @@
     <% end %>
   <% end %>
   <% if !@appointment.call_out? && User.current.allowed_to?(:add_customer_appointments, nil, global: true) %>
-    <%= link_to new_issue_path(issue: { customer_id: @appointment.customer_id, vehicle_id: (@appointment.vehicle_id if CustomerAppointment.vehicles?), estimate_id: @appointment.estimate_id }.compact), target: :_blank do %>
+    <%= link_to new_issue_path(issue: { customer_id: @appointment.customer_id, estimate_id: @appointment.estimate_id }.compact.merge(RedmineQboCalendar.hook_hash(:qbo_calendar_new_issue_params, appointment: @appointment))), target: :_blank do %>
       <i class="fa-solid fa-plus"></i> <%= l(:label_new_issue) %>
     <% end %>
   <% end %>
 
-  <%# Issues from the estimate are made by redmine_qbo, with this appointment's dates, technician and vehicle %>
+  <%# Issues from the estimate are made by redmine_qbo, with this appointment's dates and technician %>
   <% if @appointment.estimate && User.current.allowed_to?(:create_estimate_issues, nil, global: true) %>
     <%= link_to issues_preview_qbo_estimate_path(@appointment.estimate_id, appointment_id: @appointment.id) do %>
       <i class="fa-solid fa-list-check"></i> <%= l(:button_create_issues_from_estimate) %>
@@ -83,12 +83,8 @@
           <div class="label"><%= l(:label_customer, default: 'Customer') %>:</div>
           <div class="value"><%= link_to_if @appointment.customer, @appointment.customer&.name, @appointment.customer %></div>
         </div>
-        <% if CustomerAppointment.vehicles? %>
-        <div class="attribute">
-          <div class="label"><%= l(:label_vehicle, default: 'Vehicle') %>:</div>
-          <div class="value"><%= link_to_if @appointment.vehicle, @appointment.vehicle&.name, @appointment.vehicle %></div>
-        </div>
-        <% end %>
+        <%# Other plugins' attributes %>
+        <%= call_hook(:view_customer_appointments_show_details, appointment: @appointment) %>
         <div class="attribute">
           <div class="label"><%= l(:label_primary_phone, default: 'Primary phone') %>:</div>
           <div class="value"><%= @appointment.customer&.primary_phone %></div>

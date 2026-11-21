@@ -38,7 +38,7 @@ Redmine::Plugin.register :redmine_qbo_calendar do
 
   # Global Permissions
   permission :view_customer_appointments, { customer_appointments: [:index, :show, :history] }, global: true
-  # customer_options feeds the vehicle/estimate dropdowns on the new and edit forms
+  # customer_options feeds the estimate dropdown (and other plugins' lists) on the new and edit forms
   permission :add_customer_appointments, { customer_appointments: [:new, :create, :customer_options, :estimate_hours] }, global: true
   permission :edit_customer_appointments, { customer_appointments: [:edit, :update, :customer_options, :estimate_hours] }, global: true
   permission :delete_customer_appointments, { customer_appointments: [:destroy] }, global: true

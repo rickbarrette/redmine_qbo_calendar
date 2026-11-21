@@ -238,10 +238,9 @@ class CustomerAppointmentsControllerTest < Redmine::IntegrationTest
     login(:edit_customer_appointments)
     get '/customer_appointments/customer_options', params: { customer_id: @customer.id }
     assert_response :success
-    assert_equal [{ 'id' => estimate.id, 'name' => estimate.name }], response.parsed_body['estimates']
-    assert_kind_of Array, response.parsed_body['vehicles']
+    assert_equal [{ 'id' => estimate.id, 'name' => estimate.name }], response.parsed_body['options']['appointment_estimate_id']
     get '/customer_appointments/customer_options', params: { customer_id: 424242 }
-    assert_equal({ 'vehicles' => [], 'estimates' => [] }, response.parsed_body)
+    assert_equal({ 'options' => { 'appointment_estimate_id' => [] } }, response.parsed_body)
 
     get '/customer_appointments/estimate_hours', params: { estimate_id: estimate.id }
     assert_equal({ 'hours' => 4 }, response.parsed_body)
@@ -249,37 +248,82 @@ class CustomerAppointmentsControllerTest < Redmine::IntegrationTest
     assert_equal({ 'hours' => 0 }, response.parsed_body)
   end
 
-  # redmine_qbo_vehicles is optional: with it appointments have a vehicle, without it the vehicle is left out
-  def test_vehicles_only_with_redmine_qbo_vehicles
-    login(:view_customer_appointments, :add_customer_appointments, :edit_customer_appointments)
-    # A new vehicle queues a VIN lookup; Redmine's test environment would run it inline
-    saved_adapter = ActiveJob::Base.queue_adapter
-    ActiveJob::Base.queue_adapter = :test
-    if CustomerAppointment.vehicles?
-      vehicle = Vehicle.new(customer_id: @customer.id, vin: '1C4HJXFG0JW123456', year: 2018, make: 'Jeep', model: 'Wrangler')
-      vehicle.save!
-      @appointment.update_columns(vehicle_id: vehicle.id)
-      get "/customer_appointments/#{@appointment.id}"
-      assert_select '.attribute a[href=?]', "/vehicles/#{vehicle.id}"
-      get "/customer_appointments/#{@appointment.id}/edit"
-      assert_select 'select#appointment_vehicle_id option[selected][value=?]', vehicle.id.to_s
-      get '/customer_appointments/customer_options', params: { customer_id: @customer.id }
-      assert_equal [vehicle.id], response.parsed_body['vehicles'].map { |v| v['id'] }
-    else
-      assert_nil @appointment.vehicle
-      get "/customer_appointments/#{@appointment.id}"
-      assert_response :success
-      get "/customer_appointments/#{@appointment.id}/edit"
-      assert_select 'select#appointment_vehicle_id', 0
-      get '/customer_appointments/customer_options', params: { customer_id: @customer.id }
-      assert_equal [], response.parsed_body['vehicles']
+  # Stands in for another plugin's appointment field (as redmine_qbo_vehicles adds the vehicle); only while @on
+  class PluginFieldListener < Redmine::Hook::ViewListener
+    class << self
+      attr_accessor :on
     end
+
+    def qbo_calendar_appointment_attributes(_context = {})
+      [:project_id] if self.class.on
+    end
+
+    def qbo_calendar_appointment_preloads(_context = {})
+      [:project] if self.class.on
+    end
+
+    def qbo_calendar_new_appointment(context = {})
+      context[:appointment].estimated_hours = 7 if self.class.on && context[:params][:plugin_hours]
+    end
+
+    def qbo_calendar_customer_options(context = {})
+      { 'appointment_plugin_id' => [{ id: 1, name: context[:customer].name }] } if self.class.on
+    end
+
+    def qbo_calendar_new_issue_params(_context = {})
+      { plugin_field: 'x' } if self.class.on
+    end
+
+    %w[form_details show_details tooltip calendar_event].each do |hook|
+      define_method("view_customer_appointments_#{hook}") do |_context = {}|
+        self.class.on ? "<span class=\"plugin-#{hook.dasherize}\"></span>".html_safe : ''
+      end
+    end
+
+    def view_customer_appointments_list_header(context = {})
+      self.class.on ? "<th class=\"plugin-#{context[:list]}\"></th>".html_safe : ''
+    end
+
+    def view_customer_appointments_list_row(context = {})
+      self.class.on ? "<td class=\"plugin-row-#{context[:appointment].id}\"></td>".html_safe : ''
+    end
+  end
+
+  def test_other_plugins_add_fields_through_hooks
+    PluginFieldListener.on = true
+    login(:view_customer_appointments, :add_customer_appointments, :edit_customer_appointments)
+
+    get '/customer_appointments/new', params: { customer_id: @customer.id, plugin_hours: '1' }
+    assert_select '.plugin-form-details'
+    assert_select 'input[name=?][value="7"]', 'customer_appointment[estimated_hours]'
+    assert_includes CustomerAppointment.list_includes, :project
+
+    get "/customer_appointments/#{@appointment.id}"
+    assert_select '.plugin-show-details'
+    assert_select 'a[href*=?]', 'issue%5Bplugin_field%5D=x'
+
+    patch "/customer_appointments/#{@appointment.id}", params: { customer_appointment: { project_id: 2 } }
+    assert_equal 2, @appointment.reload.project_id
+
+    get '/customer_appointments/customer_options', params: { customer_id: @customer.id }
+    assert_equal [{ 'id' => 1, 'name' => 'Jane Customer' }], response.parsed_body['options']['appointment_plugin_id']
+
     get '/customer_appointments'
-    assert_response :success
+    assert_select 'th.plugin-index'
+    assert_select "td.plugin-row-#{@appointment.id}"
+    create_appointment(date: Date.new(2026, 11, 16))
     get '/customer_appointments/history'
-    assert_response :success
+    assert_select 'th.plugin-history'
+    get '/issues/calendar', params: { year: 2026, month: 11 }
+    assert_select '.plugin-calendar-event'
+    assert_select '.plugin-tooltip'
   ensure
-    ActiveJob::Base.queue_adapter = saved_adapter
+    PluginFieldListener.on = false
+  end
+
+  def test_plugin_fields_are_not_saved_without_a_plugin
+    login(:view_customer_appointments, :edit_customer_appointments)
+    patch "/customer_appointments/#{@appointment.id}", params: { customer_appointment: { project_id: 2 } }
+    assert_equal 1, @appointment.reload.project_id
   end
 end
-

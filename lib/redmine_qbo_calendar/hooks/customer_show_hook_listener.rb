@@ -15,7 +15,7 @@ module RedmineQboCalendar
 
       include IssuesHelper
 
-      # Display vehicle information on the customer show view (right side)
+      # The customer's upcoming appointments on the customer page (right side)
       def show_customer_view_right(context={})
         log "show_customer_view_right called"
 
