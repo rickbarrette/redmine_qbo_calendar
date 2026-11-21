@@ -31,7 +31,7 @@ Redmine::Plugin.register :redmine_qbo_calendar do
   # Ensure redmine_qbo is installed: creating issues from estimates and estimate labor hours live there
   # (from 2026.11.0)
   begin
-    requires_redmine_plugin :redmine_qbo, version_or_higher: '2026.11.27'
+    requires_redmine_plugin :redmine_qbo, version_or_higher: '2026.11.28'
   rescue Redmine::PluginNotFound
     raise 'Please install the redmine_qbo plugin (https://github.com/rickbarrette/redmine_qbo)'
   end
